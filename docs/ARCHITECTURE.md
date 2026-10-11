@@ -32,9 +32,9 @@ scripts/
     game_content.gd       catalogue du contenu (data/content.tres)
   race/                   la course
     race_logic.gd         règles (sans affichage, testées) : vitesse, mots, turbo, adversaires, stats
-    race.gd               monde 3D : karts, caméra, objets, couloirs, enchaînement des modes
+    race.gd               monde 3D : karts, caméra, couloirs, enchaînement des modes
     track.gd              construction du circuit à partir de la courbe (outil d'éditeur)
-    kart.gd, props.gd     karts/pilotes et objets à esquiver
+    kart.gd               karts et pilotes
     sfx.gd                sons, musique, voix
   ui/                     écrans et fenêtres
   util/mk.gd              fabrication de modèles à partir de formes simples

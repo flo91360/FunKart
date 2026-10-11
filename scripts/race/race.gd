@@ -1,6 +1,6 @@
 class_name Race
 extends Node3D
-## Le monde 3D de la course : circuit, karts, caméra, objets à esquiver, sons,
+## Le monde 3D de la course : circuit, karts, caméra, sons,
 ## interface de course (Hud) et écran d'arrivée (Results).
 ##
 ## Trois modes :
@@ -15,8 +15,6 @@ enum Mode { PREVIEW, RACE, RESULTS }
 
 const GRID_LATERAL := 2.6
 const RACE_LANES := [-5.0, -3.0, -1.0, 1.0, 3.0, 5.0]
-const OBSTACLE_AHEAD := 15.0
-const OBSTACLE_SCALE := 1.7
 const BURST_COLORS := [Color("#ffd60a"), Color("#ff6b35"), Color("#ff4d6d"), Color("#2d7ff9"), Color("#17b169")]
 
 @onready var environment: WorldEnvironment = $Environment
@@ -33,7 +31,6 @@ var profile: Profile
 var track: Track
 var logic: RaceLogic
 var karts := {} # Racer -> Kart
-var obstacle: Node3D
 var paused := false
 ## Décalage horizontal de la caméra en mode PREVIEW (< 0 : kart à droite de l'écran).
 var preview_side := -2.8
@@ -63,7 +60,6 @@ func prepare(p: Profile) -> void:
 	for k in karts.values():
 		k.queue_free()
 	karts.clear()
-	_remove_obstacle()
 
 	var content := GameContent.get_content()
 	var bots := []
@@ -209,12 +205,6 @@ func _on_word_started(word: String) -> void:
 	hud.set_hint("Tape le mot pour avoir un turbo !")
 	if profile.get_setting("speak"):
 		sfx.speak(word)
-	_remove_obstacle()
-	obstacle = Props.make(word)
-	add_child(obstacle)
-	obstacle.scale = Vector3.ONE * 0.01
-	_update_obstacle()
-	create_tween().tween_property(obstacle, "scale", Vector3.ONE * OBSTACLE_SCALE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _on_key_ok(typed: int) -> void:
@@ -236,20 +226,12 @@ func _on_word_completed(word: String) -> void:
 	hud.set_hint("TURBO !")
 	sfx.play("word")
 	sfx.play("boost")
-	if obstacle:
-		Mk.burst(self, obstacle.global_position, BURST_COLORS)
-		var o := obstacle
-		obstacle = null
-		var tw := create_tween()
-		tw.tween_property(o, "scale", Vector3.ONE * 0.01, 0.15)
-		tw.tween_callback(o.queue_free)
 	get_tree().create_timer(1.0).timeout.connect(func():
 		if mode == Mode.RACE and logic.player.word == "" and not logic.player.finished:
 			hud.clear_word())
 
 
 func _on_player_finished() -> void:
-	_remove_obstacle()
 	sfx.play("finish")
 	hud.clear_word("Arrivée !")
 	hud.show_center("ARRIVÉE !", 2.0)
@@ -301,12 +283,6 @@ func set_paused(p: bool) -> void:
 		get_viewport().gui_release_focus()
 
 
-func _remove_obstacle() -> void:
-	if obstacle:
-		obstacle.queue_free()
-		obstacle = null
-
-
 # ---------------- Boucle ----------------
 
 func _process(delta: float) -> void:
@@ -322,7 +298,6 @@ func _process(delta: float) -> void:
 			logic.update(dt)
 			_update_karts(dt)
 			_update_lanes(dt)
-			_update_obstacle()
 			_place_chase_camera(dt)
 			sfx.set_engine_speed(logic.player.mult)
 			_hud_timer -= delta
@@ -384,16 +359,6 @@ func _update_lanes(dt: float) -> void:
 					best_score = score
 					best = lane
 			k.target_lateral = best
-
-
-func _update_obstacle() -> void:
-	if obstacle == null:
-		return
-	var p := logic.player
-	var k: Kart = karts[p]
-	var f := track.frame_at(p.distance + OBSTACLE_AHEAD)
-	obstacle.global_position = f.origin + f.basis.x * k.lateral + f.basis.y * (2.2 + sin(_t * 3.0) * 0.3)
-	obstacle.global_basis = f.basis * Basis(Vector3.UP, _t * 1.5) * Basis.from_scale(obstacle.scale)
 
 
 func _place_chase_camera(dt: float) -> void:

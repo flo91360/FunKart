@@ -30,11 +30,9 @@ Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêt
 ## Règles
 
 - Le kart avance en pilote automatique (pas d'accélération, de frein ni de direction).
-- Régulièrement, un mot apparaît en grand en bas de l'écran, et un objet
-  (banane, champignon, étoile, fruit, cadeau, ballon ou boîte « ? ») apparaît
-  devant le kart.
+- Régulièrement, un mot apparaît en grand en bas de l'écran.
 - **Tant que le mot n'est pas entièrement tapé, le kart ralentit.**
-- **Dès que le mot est tapé, l'objet éclate et le kart reçoit un turbo.**
+- **Dès que le mot est tapé, le kart reçoit un turbo.**
 - La lettre attendue est surlignée en jaune. Une mauvaise touche ne fait pas
   avancer le mot : le mot tremble et le jeu indique la lettre à chercher.
 - Les touches maintenues enfoncées ne comptent qu'une fois (pas de répétition
