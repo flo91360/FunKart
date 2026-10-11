@@ -25,7 +25,7 @@ Les fichiers sont produits automatiquement par GitHub à chaque modification :
 onglet **Actions** du dépôt → dernière exécution de « Construire le jeu » →
 section **Artifacts**.
 
-<kbd>F11</kbd> : plein écran. <kbd>Échap</kbd> : pause.
+Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêtre. <kbd>Échap</kbd> : pause.
 
 ## Règles
 

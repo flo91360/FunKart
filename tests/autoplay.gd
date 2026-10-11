@@ -14,12 +14,15 @@ var elapsed := 0.0
 var made_error := false
 var shots_taken := {}
 var finished_at := -1.0
+var bot_count := 3
 
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--shots="):
 			shots_dir = arg.get_slice("=", 1)
+		if arg.begins_with("--bots="):
+			bot_count = int(arg.get_slice("=", 1))
 		if arg == "--fast":
 			Engine.time_scale = 4.0
 	main = load("res://scenes/main.tscn").instantiate()
@@ -34,6 +37,8 @@ func _process(delta: float) -> bool:
 		gs.data = gs.DEFAULTS.duplicate(true)
 		gs.data.player_name = "Léa"
 		gs.data.laps = 1
+		gs.data.bot_count = bot_count
+		gs.data.fullscreen = false
 	if frame == 30:
 		_shot("menu")
 		main.start_race()

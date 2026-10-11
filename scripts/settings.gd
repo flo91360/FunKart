@@ -3,6 +3,7 @@ extends Node
 ## Ils sont enregistrés dans le dossier utilisateur de Godot (user://settings.json).
 
 const PATH := "user://settings.json"
+const VERSION := 2
 
 const DEFAULT_WORDS := """banane
 champignon
@@ -67,7 +68,7 @@ const DEFAULTS := {
 	"speak": false,
 	"sound": true,
 	"music": true,
-	"fullscreen": false,
+	"fullscreen": true,
 	"words": DEFAULT_WORDS,
 }
 
@@ -82,7 +83,12 @@ func _ready() -> void:
 			for key in parsed:
 				if data.has(key):
 					data[key] = parsed[key]
-	apply_display()
+			# Version 2 : le jeu passe en plein écran par défaut.
+			if int(parsed.get("version", 1)) < 2:
+				data["fullscreen"] = true
+	data["version"] = VERSION
+	# Appliqué une fois la fenêtre créée, sinon la demande de plein écran est ignorée.
+	apply_display.call_deferred()
 
 
 func save() -> void:
@@ -104,6 +110,7 @@ func reset_all() -> void:
 	data = DEFAULTS.duplicate(true)
 	data["player_name"] = keep_name
 	data["character"] = keep_char
+	data["version"] = VERSION
 	save()
 	apply_display()
 
@@ -111,9 +118,18 @@ func reset_all() -> void:
 func apply_display() -> void:
 	if DisplayServer.get_name() == "headless":
 		return
-	var mode := DisplayServer.WINDOW_MODE_FULLSCREEN if data.get("fullscreen", false) else DisplayServer.WINDOW_MODE_WINDOWED
-	if DisplayServer.window_get_mode() != mode:
-		DisplayServer.window_set_mode(mode)
+	if data.get("fullscreen", true):
+		if DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_FULLSCREEN:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		return
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED:
+		return
+	# Fenêtre : on reste dans la zone utile de l'écran (sans la barre des tâches).
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	var usable := DisplayServer.screen_get_usable_rect()
+	var size := Vector2i(mini(1280, usable.size.x - 40), mini(720, usable.size.y - 60))
+	DisplayServer.window_set_size(size)
+	DisplayServer.window_set_position(usable.position + (usable.size - size) / 2)
 
 
 ## Liste de mots : un mot par ligne (tout ce qui suit le premier espace est ignoré).

@@ -35,36 +35,47 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 	var place := standings.find(logic.player) + 1
 	var color: Color = PLACE_COLORS[place - 1] if place <= 3 else Color.WHITE
 
-	var big := Ui.label(Ui.place_text(place), 110, color, 24, Ui.NAVY)
+	var big := Ui.label(Ui.place_text(place), 72, color, 18, Ui.NAVY)
 	big.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(big)
 	var who := (", " + player_name) if player_name != "" else ""
-	var title := Ui.label(("Bravo%s, tu as gagné !" % who) if place == 1 else ("Bravo%s !" % who), 36)
+	var title := Ui.label(("Bravo%s, tu as gagné !" % who) if place == 1 else ("Bravo%s !" % who), 30)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(title)
+
+	# Classement et statistiques : défilent si l'écran est trop petit,
+	# pour que les boutons restent toujours visibles en bas.
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	box.add_child(scroll)
+	var middle := VBoxContainer.new()
+	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	middle.add_theme_constant_override("separation", 6)
+	scroll.add_child(middle)
 
 	for i in standings.size():
 		var r = standings[i]
 		var row := PanelContainer.new()
 		var kc: Color = Characters.get_info(r.character).kart
-		var style := Ui.flat(kc, 12, Color.WHITE, 4 if r.is_player else 0, 6)
+		var style := Ui.flat(kc, 12, Color.WHITE, 4 if r.is_player else 0, 3)
 		style.content_margin_left = 16
 		style.content_margin_right = 16
 		row.add_theme_stylebox_override("panel", style)
 		var h := HBoxContainer.new()
 		row.add_child(h)
-		var n := Ui.label("%s   %s" % [Ui.place_text(i + 1), r.name], 26, Color.WHITE, 8, Color(0, 0, 0, 0.7))
+		var n := Ui.label("%s   %s" % [Ui.place_text(i + 1), r.name], 20, Color.WHITE, 8, Color(0, 0, 0, 0.7))
 		n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		h.add_child(n)
-		h.add_child(Ui.label(Ui.format_time(logic.finish_of(r)), 26, Color.WHITE, 8, Color(0, 0, 0, 0.7)))
-		box.add_child(row)
+		h.add_child(Ui.label(Ui.format_time(logic.finish_of(r)), 20, Color.WHITE, 8, Color(0, 0, 0, 0.7)))
+		middle.add_child(row)
 
 	var grid := GridContainer.new()
 	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", 10)
 	grid.add_theme_constant_override("v_separation", 10)
-	box.add_child(grid)
+	middle.add_child(grid)
 	var stats := [
 		[str(roundi(logic.kpm())), "frappes / min"],
 		["%d %%" % roundi(logic.accuracy() * 100.0), "précision"],
@@ -75,12 +86,12 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 	]
 	for s in stats:
 		var cell := PanelContainer.new()
-		cell.add_theme_stylebox_override("panel", Ui.flat(Color("#eef0f5"), 12))
+		cell.add_theme_stylebox_override("panel", Ui.flat(Color("#eef0f5"), 12, Color.TRANSPARENT, 0, 6))
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var v := VBoxContainer.new()
 		v.add_theme_constant_override("separation", -4)
 		cell.add_child(v)
-		var a := Ui.label(s[0], 34)
+		var a := Ui.label(s[0], 28)
 		a.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		v.add_child(a)
 		var b := Ui.label(s[1], 16, Color("#5f6470"))
@@ -88,13 +99,10 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 		v.add_child(b)
 		grid.add_child(cell)
 
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(spacer)
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 10)
 	box.add_child(buttons)
-	replay_button = Ui.button("Rejouer", 38, Color("#17b169"))
+	replay_button = Ui.button("Rejouer", 34, Color("#17b169"))
 	replay_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	replay_button.pressed.connect(func(): replay_pressed.emit())
 	buttons.add_child(replay_button)
