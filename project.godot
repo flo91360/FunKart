@@ -15,6 +15,7 @@ config/description="Course de karts pour apprendre à utiliser le clavier."
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
+config/project_settings_override="user://override.cfg"
 
 [audio]
 

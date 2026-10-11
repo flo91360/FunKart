@@ -47,7 +47,9 @@ Dans le dossier utilisateur de Godot (sous Windows :
 `%APPDATA%\Godot\app_userdata\FunKart`) :
 
 ```
-app.json                          réglages de l'ordinateur + dernier profil utilisé
+app.json                          réglages de l'ordinateur (plein écran, volumes, graphismes) + dernier profil
+override.cfg                      présent seulement en mode graphique « Beau » : demande à Godot
+                                  le moteur de rendu avancé (Forward+) au démarrage
 profiles/<id>/profile.json        profil (prénom, pilote, réglages, listes de mots)
 profiles/<id>/history.json        courses de ce profil
 ```
@@ -55,6 +57,24 @@ profiles/<id>/history.json        courses de ce profil
 Ce sont des fichiers JSON (lisibles, sans risque à copier d'un ordinateur à
 l'autre). Un dossier par profil laisse la place aux futurs fichiers propres à
 l'enfant (personnage personnalisé, circuits créés…).
+
+## Graphismes
+
+Le jeu utilise par défaut le moteur de rendu « Compatibilité » (OpenGL), qui
+fonctionne partout. Le mode **Beau** demande le moteur avancé « Forward+ »
+(Vulkan ou Direct3D 12) : ce choix se fait au démarrage de Godot, d'où le
+fichier `user://override.cfg` (réglage de projet
+`application/config/project_settings_override`) et la relance du jeu. Si la
+carte graphique ne le permet pas, Godot revient tout seul au rendu simple et
+les réglages l'indiquent. Les effets propres à chaque niveau sont dans
+`Race._apply_quality()`.
+
+## Son
+
+Deux bus audio, « Musique » et « Effets », sont créés au démarrage par
+`AppSettings` ; leurs volumes et celui du bus principal sont enregistrés dans
+`app.json`. Les curseurs (`scripts/ui/volume_sliders.gd`) sont dans le menu
+pause et dans les réglages.
 
 ## Modifier le contenu dans l'éditeur Godot
 

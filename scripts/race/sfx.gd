@@ -21,13 +21,16 @@ func _ready() -> void:
 	_sounds["boost"] = _wav(_whoosh())
 	for i in 8:
 		var p := AudioStreamPlayer.new()
+		p.bus = AppSettings.BUS_EFFECTS
 		add_child(p)
 		_pool.append(p)
 	engine.stream = _wav(_engine_loop(), true)
 	engine.volume_db = -18.0
+	engine.bus = AppSettings.BUS_EFFECTS
 	add_child(engine)
 	music.stream = _wav(_music_loop(), true)
 	music.volume_db = -14.0
+	music.bus = AppSettings.BUS_MUSIC
 	add_child(music)
 
 

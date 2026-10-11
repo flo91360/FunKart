@@ -86,6 +86,8 @@ void fragment() {
 @export var flags_start := -40.0
 @export var flags_count := 8
 @export_tool_button("Reconstruire le circuit") var rebuild_button := rebuild
+## Quantité de décor (arbres, nuages) : 1 = normal, 0.5 = ordinateurs lents.
+var detail := 1.0
 
 var curve: Curve3D
 var length := 1.0
@@ -370,7 +372,8 @@ func _build_trees() -> void:
 	var leaf_colors: Array[Color] = []
 	var greens := track_theme.tree_leaves
 	var tries := 0
-	while trunks.size() < track_theme.tree_count and tries < track_theme.tree_count * 25:
+	var tree_count := int(track_theme.tree_count * detail)
+	while trunks.size() < tree_count and tries < tree_count * 25:
 		tries += 1
 		var p := Vector3(rng.randf_range(area.position.x, area.end.x), 0, rng.randf_range(area.position.y, area.end.y))
 		var c := curve.get_closest_point(p)
@@ -425,7 +428,7 @@ func _build_scenery() -> void:
 			Vector3.ZERO, Vector3(1, rng.randf_range(0.35, 0.6), 1))
 	# nuages
 	var cloud_mat := Mk.mat(Color.WHITE, true)
-	for i in track_theme.cloud_count:
+	for i in int(track_theme.cloud_count * detail):
 		var a := rng.randf() * TAU
 		var pos := center + Vector3(cos(a), 0, sin(a)) * rng.randf_range(radius * 0.6, radius + 300.0) + Vector3(0, rng.randf_range(55.0, 100.0), 0)
 		for j in 4:

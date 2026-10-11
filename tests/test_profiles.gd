@@ -89,6 +89,28 @@ func _run() -> void:
 	check(not p.settings.has("inconnu") and float(p.get_setting("word_gap")) == 2.5, "réglages inconnus ignorés, manquants par défaut")
 	check(Profile.from_dict(p.to_dict()).to_dict() == p.to_dict(), "aller-retour JSON")
 
+	print("Réglages de l'ordinateur : son et graphismes")
+	app.set_value("volume_music", 0.5)
+	var music_bus := AudioServer.get_bus_index("Musique")
+	check(music_bus != -1 and AudioServer.get_bus_index("Effets") != -1, "bus audio Musique et Effets créés")
+	check(absf(AudioServer.get_bus_volume_db(music_bus) - linear_to_db(0.5)) < 0.01, "volume de la musique appliqué")
+	app.set_value("volume_effects", 0.0)
+	check(AudioServer.is_bus_mute(AudioServer.get_bus_index("Effets")), "volume à 0 : effets coupés")
+	app.reload()
+	check(absf(float(app.get_value("volume_music")) - 0.5) < 0.001, "volume enregistré")
+	var had_override := FileAccess.file_exists(app.OVERRIDE_PATH)
+	var saved_override := FileAccess.get_file_as_string(app.OVERRIDE_PATH) if had_override else ""
+	app.set_value("graphics", 2)
+	var cfg := ConfigFile.new()
+	check(cfg.load(app.OVERRIDE_PATH) == OK and cfg.get_value("rendering", "renderer/rendering_method", "") == "forward_plus", "mode Beau : moteur avancé demandé au prochain lancement")
+	check(app.graphics_status() == "restart", "mode Beau : relance demandée")
+	app.set_value("graphics", 0)
+	check(not FileAccess.file_exists(app.OVERRIDE_PATH), "mode Simple : moteur avancé retiré")
+	check(app.graphics_status() == "", "mode Simple : pas de relance (rendu simple déjà actif)")
+	if had_override:
+		var f := FileAccess.open(app.OVERRIDE_PATH, FileAccess.WRITE)
+		f.store_string(saved_override)
+
 	print("Contenu du jeu")
 	var content := GameContent.get_content()
 	check(content.characters.size() == 13, "13 personnages")

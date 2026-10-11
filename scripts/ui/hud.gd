@@ -48,6 +48,8 @@ func setup(track_points: PackedVector2Array, laps: int, profile: Profile) -> voi
 
 func set_paused(p: bool) -> void:
 	pause_layer.visible = p
+	if p:
+		%VolumeSliders.refresh()
 
 
 ## Mot à taper : lettres tapées en vert, lettre attendue surlignée en jaune.

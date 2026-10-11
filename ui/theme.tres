@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=25 format=3]
+[gd_resource type="Theme" load_steps=27 format=3]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_denks"]
 content_margin_left = 10.0
@@ -85,6 +85,28 @@ corner_radius_bottom_left = 14
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_iag4h"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8v3t1"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(1, 0.419608, 0.207843, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0xrcv"]
+content_margin_left = 0.0
+content_margin_top = 6.0
+content_margin_right = 0.0
+content_margin_bottom = 6.0
+bg_color = Color(0.835294, 0.847059, 0.878431, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o3grh"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -100,7 +122,7 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0xrcv"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2d6lx"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -116,7 +138,7 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o3grh"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6eqeh"]
 content_margin_left = 12.0
 content_margin_top = 12.0
 content_margin_right = 12.0
@@ -127,7 +149,7 @@ corner_radius_top_right = 22
 corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2d6lx"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qx2h7"]
 content_margin_left = 24.0
 content_margin_top = 24.0
 content_margin_right = 24.0
@@ -138,7 +160,7 @@ corner_radius_top_right = 22
 corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6eqeh"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p22xw"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -154,7 +176,7 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qx2h7"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rkkq4"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -170,12 +192,12 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="SystemFont" id="SystemFont_p22xw"]
+[sub_resource type="SystemFont" id="SystemFont_8dcbj"]
 font_names = PackedStringArray("Arial Rounded MT Bold", "Nunito", "Verdana", "DejaVu Sans", "Arial")
 font_weight = 700
 
 [resource]
-default_font = SubResource("SystemFont_p22xw")
+default_font = SubResource("SystemFont_8dcbj")
 default_font_size = 24
 Button/colors/font_color = Color(1, 1, 1, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
@@ -209,12 +231,15 @@ CheckButton/styles/hover = SubResource("StyleBoxEmpty_de4b7")
 CheckButton/styles/hover_pressed = SubResource("StyleBoxEmpty_yipae")
 CheckButton/styles/normal = SubResource("StyleBoxEmpty_qxik8")
 CheckButton/styles/pressed = SubResource("StyleBoxEmpty_iag4h")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_8v3t1")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_8v3t1")
+HSlider/styles/slider = SubResource("StyleBoxFlat_0xrcv")
 Label/colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
 LineEdit/colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-LineEdit/styles/focus = SubResource("StyleBoxFlat_8v3t1")
-LineEdit/styles/normal = SubResource("StyleBoxFlat_0xrcv")
-Panel/styles/panel = SubResource("StyleBoxFlat_o3grh")
-PanelContainer/styles/panel = SubResource("StyleBoxFlat_2d6lx")
+LineEdit/styles/focus = SubResource("StyleBoxFlat_o3grh")
+LineEdit/styles/normal = SubResource("StyleBoxFlat_2d6lx")
+Panel/styles/panel = SubResource("StyleBoxFlat_6eqeh")
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_qx2h7")
 TextEdit/colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-TextEdit/styles/focus = SubResource("StyleBoxFlat_6eqeh")
-TextEdit/styles/normal = SubResource("StyleBoxFlat_qx2h7")
+TextEdit/styles/focus = SubResource("StyleBoxFlat_p22xw")
+TextEdit/styles/normal = SubResource("StyleBoxFlat_rkkq4")

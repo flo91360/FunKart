@@ -37,7 +37,9 @@ var obstacle: Node3D
 var paused := false
 ## Décalage horizontal de la caméra en mode PREVIEW (< 0 : kart à droite de l'écran).
 var preview_side := -2.8
-var _track_index := -1
+var _track_key := ""
+## Effets du moteur de rendu avancé (mode « Beau ») sur l'éclairage du thème.
+const ADVANCED_SUN_BOOST := 1.15
 var _t := 0.0
 var _hud_timer := 0.0
 var _lane_timer := 0.0
@@ -117,14 +119,18 @@ func start() -> void:
 func _load_track(index: int) -> void:
 	var scenes := GameContent.get_content().tracks
 	index = clampi(index, 0, scenes.size() - 1)
-	if track and index == _track_index:
+	var level := AppSettings.graphics()
+	var key := "%d/%d" % [index, level]
+	if track and key == _track_key:
 		return
 	if track:
 		track.queue_free()
 	track = scenes[index].instantiate()
+	track.detail = 0.5 if level == AppSettings.Graphics.SIMPLE else 1.0
 	track_slot.add_child(track)
-	_track_index = index
+	_track_key = key
 	_apply_theme(track.track_theme)
+	_apply_quality(level)
 
 
 func _apply_theme(th: TrackTheme) -> void:
@@ -140,6 +146,50 @@ func _apply_theme(th: TrackTheme) -> void:
 	env.fog_density = th.fog_density
 	sun.light_energy = th.sun_energy
 	sun.rotation_degrees = th.sun_rotation
+	if AppSettings.advanced_renderer_active():
+		# Le rendu avancé gère la lumière en HDR : la lumière ambiante vient du ciel.
+		sun.light_energy *= ADVANCED_SUN_BOOST
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+		env.ambient_light_sky_contribution = 0.35
+		env.ambient_light_energy = th.ambient_energy * 1.5
+	else:
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+
+
+## Réglage « Graphismes » : Simple (rapide), Normal, Beau (rendu avancé).
+func _apply_quality(level: int) -> void:
+	var env := environment.environment
+	var vp := get_viewport()
+	vp.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][level]
+	sun.shadow_enabled = level != AppSettings.Graphics.SIMPLE
+	sun.directional_shadow_max_distance = 200.0 if level == AppSettings.Graphics.BEAU else 120.0
+	var advanced := AppSettings.advanced_renderer_active()
+	# Effets disponibles seulement avec le moteur de rendu avancé.
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES if advanced else Environment.TONE_MAPPER_LINEAR
+	env.tonemap_exposure = 0.92 if advanced else 1.0
+	env.tonemap_white = 6.0
+	env.adjustment_enabled = advanced
+	env.adjustment_saturation = 1.0
+	env.adjustment_contrast = 1.08
+	env.glow_enabled = advanced
+	env.glow_intensity = 0.5
+	env.glow_bloom = 0.08
+	env.glow_hdr_threshold = 0.9
+	env.ssao_enabled = advanced
+	env.ssao_radius = 1.2
+	env.ssao_intensity = 2.5
+	env.ssao_light_affect = 0.3
+	sun.shadow_blur = 1.5 if advanced else 1.0
+	vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if advanced else Viewport.SCREEN_SPACE_AA_DISABLED
+	# Léger flou au loin, comme une profondeur de champ de caméra.
+	var attrs := camera.attributes as CameraAttributesPractical
+	if attrs == null:
+		attrs = CameraAttributesPractical.new()
+		camera.attributes = attrs
+	attrs.dof_blur_far_enabled = advanced
+	attrs.dof_blur_far_distance = 140.0
+	attrs.dof_blur_far_transition = 80.0
+	attrs.dof_blur_amount = 0.06
 
 
 # ---------------- Événements de la course ----------------

@@ -82,6 +82,13 @@ static func build_theme() -> Theme:
 	t.set_stylebox("normal", "TextEdit", flat(Color.WHITE, 12, Color("#c9ccd6"), 3, 10))
 	t.set_stylebox("focus", "TextEdit", flat(Color.TRANSPARENT, 12, ORANGE, 3, 10))
 	t.set_color("font_color", "TextEdit", INK)
+	var track := flat(Color("#d5d8e0"), 8, Color.TRANSPARENT, 0, 0)
+	track.content_margin_top = 6
+	track.content_margin_bottom = 6
+	t.set_stylebox("slider", "HSlider", track)
+	var filled := flat(ORANGE, 8, Color.TRANSPARENT, 0, 0)
+	t.set_stylebox("grabber_area", "HSlider", filled)
+	t.set_stylebox("grabber_area_highlight", "HSlider", filled)
 	return t
 
 
