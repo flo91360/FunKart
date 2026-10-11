@@ -1,0 +1,48 @@
+name: Construire le jeu
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.4.1
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Godot et les modèles d'export
+        run: |
+          base=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
+          wget -q $base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          wget -q $base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          unzip -q Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          sudo mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot
+          mkdir -p ~/.local/share/godot/export_templates
+          unzip -q Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          mv templates ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          rm -f *.zip *.tpz
+
+      - name: Importer le projet
+        run: godot --headless --import
+
+      - name: Test (course jouée automatiquement)
+        run: godot --headless --path . --script res://tests/autoplay.gd -- --fast
+
+      - name: Exporter pour Windows et Linux
+        run: |
+          mkdir -p build/windows build/linux
+          godot --headless --export-release "Windows" build/windows/FunKart.exe
+          godot --headless --export-release "Linux" build/linux/FunKart.x86_64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FunKart-Windows
+          path: build/windows/FunKart.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FunKart-Linux
+          path: build/linux/FunKart.x86_64
