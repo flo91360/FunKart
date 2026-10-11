@@ -1,0 +1,45 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/race/race.gd" id="1_evero"]
+[ext_resource type="Script" path="res://scripts/race/sfx.gd" id="2_54nj7"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_1w1vg"]
+[ext_resource type="PackedScene" path="res://scenes/ui/results.tscn" id="5_dro0m"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_55up3"]
+
+[sub_resource type="Sky" id="Sky_bw5aw"]
+sky_material = SubResource("ProceduralSkyMaterial_55up3")
+
+[sub_resource type="Environment" id="Environment_smu8j"]
+background_mode = 2
+sky = SubResource("Sky_bw5aw")
+ambient_light_source = 2
+reflected_light_source = 1
+fog_enabled = true
+fog_sky_affect = 0.0
+
+[node name="Race" type="Node3D"]
+script = ExtResource("1_evero")
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_smu8j")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+shadow_enabled = true
+directional_shadow_max_distance = 120.0
+
+[node name="Camera" type="Camera3D" parent="."]
+current = true
+fov = 70.0
+far = 3000.0
+
+[node name="TrackSlot" type="Node3D" parent="."]
+
+[node name="Karts" type="Node3D" parent="."]
+
+[node name="Sfx" type="Node" parent="."]
+script = ExtResource("2_54nj7")
+
+[node name="Hud" type="CanvasLayer" parent="." instance=ExtResource("3_1w1vg")]
+
+[node name="Results" type="CanvasLayer" parent="." instance=ExtResource("5_dro0m")]

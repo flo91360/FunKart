@@ -45,6 +45,17 @@ Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêt
   mêmes règles : ils « tapent » leurs mots à une vitesse en **frappes par
   minute** réglée par l'adulte.
 
+## Profils
+
+Chaque enfant a son **profil** (menu → « Qui joue ? » → « + Nouveau ») : son
+pilote, ses réglages, sa liste de mots et son historique. Le prénom se modifie
+et le profil se supprime dans les réglages. Le son, la musique et le plein
+écran sont communs à tous les profils (réglages de l'ordinateur).
+
+Au premier lancement de cette version, les réglages et l'historique de la
+version précédente deviennent automatiquement un premier profil (les anciens
+fichiers sont gardés sous le nom `*.old.json`).
+
 ## Suivi de l'enfant
 
 Pendant la course et à l'arrivée :
@@ -54,11 +65,11 @@ Pendant la course et à l'arrivée :
 - **précision** : bonnes frappes ÷ total des frappes ;
 - nombre de mots, temps moyen par mot, erreurs, temps de course, place.
 
-Chaque course est enregistrée dans l'**historique** (menu → Historique),
-exportable en CSV pour Excel ou LibreOffice (fichier `FunKart_historique.csv`
-dans le dossier Documents).
+Chaque course est enregistrée dans l'**historique** du profil (menu →
+Historique). L'export CSV (Excel ou LibreOffice) regroupe tous les profils dans
+le fichier `FunKart_historique.csv` du dossier Documents.
 
-## Réglages (menu → Réglages (adulte))
+## Réglages (menu → Réglages (adulte), propres à chaque profil)
 
 | Réglage | Effet |
 | --- | --- |
@@ -72,7 +83,7 @@ dans le dossier Documents).
 | Taille du mot, MAJUSCULES | Lisibilité (les touches du clavier sont souvent en majuscules) |
 | Accents facultatifs | Accepte `e` pour `é`, etc. |
 | Lire le mot à voix haute | Synthèse vocale du système (si une voix française est installée) |
-| Sons, musique, plein écran | |
+| Sons, musique, plein écran | Communs à tous les profils |
 | Liste de mots | Un mot par ligne |
 
 Avec les réglages par défaut (3 tours), une course dure environ 1 min 45 pour
@@ -83,21 +94,15 @@ adversaires réglés à 16, 20 et 24 frappes/min.
 
 Le jeu est fait avec [Godot 4.4](https://godotengine.org) (gratuit et libre),
 avec le moteur de rendu « Compatibilité » pour tourner sur des ordinateurs
-modestes. Tous les modèles 3D, sons et musiques sont générés par le code :
-il n'y a aucun fichier externe.
+modestes. Les modèles 3D sont assemblés à partir de formes simples et les sons
+sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
 
 - Ouvrir le projet : lancer Godot 4.4 et importer `project.godot`.
-- Test automatique (une course jouée avec de vrais événements clavier) :
-  `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
+- Tests (aussi lancés par GitHub à chaque modification) :
+  - données et profils : `godot --headless --path . --script res://tests/test_profiles.gd`
+  - une course jouée avec de vrais événements clavier :
+    `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
 - Export : `godot --headless --export-release "Windows" build/windows/FunKart.exe`
 
-| Fichier | Rôle |
-| --- | --- |
-| `scripts/race_logic.gd` | Règles de la course : vitesse, mots, turbo, adversaires, statistiques |
-| `scripts/main.gd` | Enchaînement menu → course → arrivée, caméra, objets, couloirs |
-| `scripts/track.gd` | Circuit (route, vibreurs, talus, décor, tribune, arche) |
-| `scripts/kart.gd`, `scripts/characters.gd` | Karts et pilotes animaux |
-| `scripts/props.gd` | Objets à esquiver |
-| `scripts/hud.gd`, `scripts/menu.gd`, `scripts/results.gd`, `scripts/ui.gd` | Interface |
-| `scripts/sfx.gd` | Sons, musique, voix |
-| `scripts/settings.gd`, `scripts/history.gd` | Réglages et historique enregistrés |
+L'organisation du code et la façon de modifier le contenu (circuits,
+personnages, thèmes, mots) sont décrites dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

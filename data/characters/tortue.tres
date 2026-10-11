@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_481ei"]
+
+[resource]
+script = ExtResource("1_481ei")
+id = "tortue"
+display_name = "Tortue"
+playable = false
+fur_color = Color(0.545098, 0.764706, 0.290196, 1)
+kart_color = Color(0.164706, 0.615686, 0.560784, 1)
+shirt_color = Color(0.956863, 0.827451, 0.368627, 1)
+ears = "none"
+ear_color = Color(0.545098, 0.764706, 0.290196, 1)
+has_snout = false
+snout_color = Color(1, 1, 1, 1)
+extra = "turtle"

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_mfjr4"]
+
+[resource]
+script = ExtResource("1_mfjr4")
+id = "panda"
+display_name = "Panda"
+playable = true
+fur_color = Color(1, 1, 1, 1)
+kart_color = Color(0.239216, 0.239216, 0.305882, 1)
+shirt_color = Color(0.482353, 0.827451, 0.537255, 1)
+ears = "round"
+ear_color = Color(0.109804, 0.109804, 0.109804, 1)
+has_snout = true
+snout_color = Color(1, 1, 1, 1)
+extra = "panda"

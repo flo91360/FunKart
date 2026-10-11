@@ -22,7 +22,8 @@ general/text_to_speech=true
 
 [autoload]
 
-GameSettings="*res://scripts/settings.gd"
+AppSettings="*res://scripts/autoload/app_settings.gd"
+Profiles="*res://scripts/autoload/profiles.gd"
 
 [display]
 

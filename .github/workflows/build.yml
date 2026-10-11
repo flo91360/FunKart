@@ -28,6 +28,9 @@ jobs:
       - name: Importer le projet
         run: godot --headless --import
 
+      - name: Test des profils et des données
+        run: godot --headless --path . --script res://tests/test_profiles.gd
+
       - name: Test (course jouée automatiquement)
         run: godot --headless --path . --script res://tests/autoplay.gd -- --fast
 

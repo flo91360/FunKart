@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_gk2rp"]
+
+[resource]
+script = ExtResource("1_gk2rp")
+id = "ours"
+display_name = "Ours"
+playable = false
+fur_color = Color(0.552941, 0.333333, 0.141176, 1)
+kart_color = Color(0.415686, 0.298039, 0.576471, 1)
+shirt_color = Color(1, 0.34902, 0.368627, 1)
+ears = "round"
+ear_color = Color(0.552941, 0.333333, 0.141176, 1)
+has_snout = true
+snout_color = Color(0.85098, 0.701961, 0.54902, 1)
+extra = "none"

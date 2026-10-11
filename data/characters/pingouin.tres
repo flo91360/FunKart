@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_rfh50"]
+
+[resource]
+script = ExtResource("1_rfh50")
+id = "pingouin"
+display_name = "Pingouin"
+playable = true
+fur_color = Color(0.133333, 0.145098, 0.168627, 1)
+kart_color = Color(0, 0.65098, 0.984314, 1)
+shirt_color = Color(0.133333, 0.145098, 0.168627, 1)
+ears = "none"
+ear_color = Color(0.133333, 0.145098, 0.168627, 1)
+has_snout = false
+snout_color = Color(1, 1, 1, 1)
+extra = "penguin"

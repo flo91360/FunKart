@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_wjpia"]
+
+[resource]
+script = ExtResource("1_wjpia")
+id = "souris"
+display_name = "Souris"
+playable = false
+fur_color = Color(0.690196, 0.717647, 0.764706, 1)
+kart_color = Color(1, 0.6, 0.784314, 1)
+shirt_color = Color(0.988235, 0.964706, 0.741176, 1)
+ears = "mouse"
+ear_color = Color(0.690196, 0.717647, 0.764706, 1)
+has_snout = true
+snout_color = Color(0.898039, 0.898039, 0.898039, 1)
+extra = "none"

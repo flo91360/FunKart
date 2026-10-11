@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WordList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="1_d566o"]
+
+[resource]
+script = ExtResource("1_d566o")
+id = "base"
+title = "Mots de base"
+words = PackedStringArray("banane", "champignon", "étoile", "ballon", "cadeau", "pomme", "cerise", "fraise", "citron", "tomate", "kart", "turbo", "fusée", "drapeau", "coupe", "auto", "moto", "bus", "vélo", "camion", "route", "piste", "virage", "bonbon", "gâteau", "glace", "chat", "chien", "lapin", "tortue", "renard", "poisson", "oiseau", "cheval", "soleil", "lune", "nuage", "fleur", "arbre", "feu", "eau", "jeu", "bravo", "vite")

@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/race/track.gd" id="1_cmsut"]
+[ext_resource type="Resource" path="res://data/themes/prairie.tres" id="2_me7rw"]
+
+[sub_resource type="Curve3D" id="Curve3D_mrwji"]
+_data = {
+"points": PackedVector3Array(1.1, 0, 24.2, -1.1, 0, -24.2, 0, 0, 0, -2.2, -0.44, 22, 2.2, 0.44, -22, 0, 0, -60, -9.9, -1.32, 12.1, 9.9, 1.32, -12.1, 10, 2, -100, -15.4, -0.88, -1.1, 15.4, 0.88, 1.1, 45, 6, -115, -9.9, 0.66, -12.1, 9.9, -0.66, 12.1, 80, 6, -95, -8.8, 1.32, -12.1, 8.8, -1.32, 12.1, 90, 3, -60, -15.4, 0.66, -2.2, 15.4, -0.66, 2.2, 120, 0, -40, -14.3, -0.44, -4.4, 14.3, 0.44, 4.4, 160, 0, -50, -4.4, -0.88, -17.6, 4.4, 0.88, 17.6, 185, 2, -20, 7.7, -0.88, -16.5, -7.7, 0.88, 16.5, 180, 4, 30, 15.4, 0, -4.4, -15.4, 0, 4.4, 150, 6, 55, 15.4, 1.1, -3.3, -15.4, -1.1, 3.3, 110, 4, 50, 15.4, 0.88, -5.5, -15.4, -0.88, 5.5, 80, 1, 70, 16.5, 0.22, 4.4, -16.5, -0.22, -4.4, 40, 0, 75, 8.8, 0, 16.5, -8.8, 0, -16.5, 5, 0, 50),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 15
+
+[node name="Prairie" type="Node3D"]
+script = ExtResource("1_cmsut")
+title = "La Prairie"
+track_theme = ExtResource("2_me7rw")
+
+[node name="Path" type="Path3D" parent="."]
+curve = SubResource("Curve3D_mrwji")

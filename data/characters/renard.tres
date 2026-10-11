@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_tt03j"]
+
+[resource]
+script = ExtResource("1_tt03j")
+id = "renard"
+display_name = "Renard"
+playable = false
+fur_color = Color(0.94902, 0.419608, 0.113725, 1)
+kart_color = Color(0.956863, 0.635294, 0.380392, 1)
+shirt_color = Color(0.14902, 0.27451, 0.32549, 1)
+ears = "cat"
+ear_color = Color(0.94902, 0.419608, 0.113725, 1)
+has_snout = true
+snout_color = Color(1, 1, 1, 1)
+extra = "none"

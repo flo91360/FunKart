@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_fsi5b"]
+
+[resource]
+script = ExtResource("1_fsi5b")
+id = "lion"
+display_name = "Lion"
+playable = true
+fur_color = Color(0.94902, 0.756863, 0.305882, 1)
+kart_color = Color(1, 0.705882, 0, 1)
+shirt_color = Color(0.843137, 0.14902, 0.239216, 1)
+ears = "round"
+ear_color = Color(0.94902, 0.756863, 0.305882, 1)
+has_snout = true
+snout_color = Color(1, 0.945098, 0.788235, 1)
+extra = "lion"
