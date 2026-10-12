@@ -7,6 +7,9 @@ on:
     # quand un nouveau numéro de version (config/version dans project.godot)
     # arrive sur main. Pousser un tag « v0.1.0 » publie aussi une version.
     tags: ["v*"]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
   # Bouton « Run workflow » de l'onglet Actions : cocher « publier » sur la
   # branche main crée le tag v<version du projet> et la Release.
   workflow_dispatch:
@@ -16,20 +19,31 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 env:
   GODOT_VERSION: 4.4.1
 
 jobs:
   export:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Version à publier
+        id: version
         run: |
           version=$(sed -n 's/^config\/version="\(.*\)"/\1/p' project.godot)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             if [ "v$version" != "${GITHUB_REF_NAME}" ]; then
               echo "::error::Le tag ${GITHUB_REF_NAME} ne correspond pas à la version du jeu (v$version, dans project.godot)."
@@ -113,3 +127,27 @@ jobs:
           files: |
             build/FunKart-${{ env.RELEASE_TAG }}-Windows.zip
             build/FunKart-${{ env.RELEASE_TAG }}-Linux.zip
+
+  publish-drive:
+    name: Archiver sur Google Drive
+    needs: export
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: drive-${{ github.repository }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: FunKart-Windows
+          path: drive-artifacts
+      - uses: flo91360/PlaniFiKateur/.github/actions/publish-drive@fc4c6b4e9e778dbee9b89d91db2a39d24a949b4a
+        with:
+          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          folder-id: ${{ vars.GOOGLE_DRIVE_FOLDER_ID }}
+          version: v${{ needs.export.outputs.version }}
+          artifact-dir: drive-artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
