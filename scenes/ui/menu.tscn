@@ -318,9 +318,17 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 4
 
+[node name="WordsLabel" type="Label" parent="Root/Panel/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
+theme_override_font_sizes/font_size = 18
+text = "Mots : Mots de base"
+autowrap_mode = 3
+
 [node name="PlayButton" type="Button" parent="Root/Panel/Box"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 96)
+custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_tub5d")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_dnmb1")

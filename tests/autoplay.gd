@@ -85,7 +85,7 @@ func _process(delta: float) -> bool:
 		var h: Array = root.get_node("Profiles").history()
 		print("RESULT ", JSON.stringify(h.back() if not h.is_empty() else {}))
 		print("STANDINGS ", logic.standings().map(func(r): return "%s %.1f" % [r.name, logic.finish_of(r)]))
-		if h.size() != 1 or int(h.back().words) < 1 or int(h.back().errors) < 1:
+		if h.size() != 1 or int(h.back().words) < 1 or int(h.back().errors) < 1 or h.back().get("word_lists", "") != "Mots de base":
 			push_error("Résultat inattendu")
 			quit(1)
 			return false

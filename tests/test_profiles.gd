@@ -7,6 +7,7 @@ extends SceneTree
 const DATA_DIR := "user://test_profiles"
 
 var failures := 0
+var completed := false
 var frame := 0
 
 
@@ -14,6 +15,10 @@ func _process(_delta: float) -> bool:
 	frame += 1
 	if frame == 1:
 		_run()
+		# Une erreur d'exécution interrompt _run sans compter d'échec : on le détecte.
+		if not completed:
+			failures += 1
+			push_error("ÉCHEC : les tests ne sont pas allés jusqu'au bout (erreur ci-dessus)")
 		print("ÉCHECS : %d" % failures if failures else "OK")
 		quit(1 if failures else 0)
 	return false
@@ -89,6 +94,65 @@ func _run() -> void:
 	check(not p.settings.has("inconnu") and float(p.get_setting("word_gap")) == 2.5, "réglages inconnus ignorés, manquants par défaut")
 	check(Profile.from_dict(p.to_dict()).to_dict() == p.to_dict(), "aller-retour JSON")
 
+	print("Listes de mots")
+	check(Array(WordList.parse("chat, chien;  lapin\npomme 🍎 12 l’eau -tiret- Chat chat")) == ["chat", "chien", "lapin", "pomme", "l'eau", "tiret", "Chat"],
+		"découpage d'un texte en mots (séparateurs, emojis, chiffres, doublons)")
+	var content0 := GameContent.get_content()
+	var ids := []
+	for wl in content0.word_lists:
+		ids.append(wl.id)
+	check(ids.size() == 8 and ids[0] == "base" and ids.has("lettres") and ids.has("syllabes"), "8 listes livrées avec le jeu")
+	var base_words: PackedStringArray = content0.default_word_list().words
+	var v1 := Profile.from_dict({"version": 1, "id": "a", "name": "A", "active_word_list": 0,
+		"word_lists": [{"title": "Mots de base", "words": Array(base_words)}]})
+	check(v1.active_lists == ["base"] and v1.word_lists.is_empty(), "ancien profil : copie de la liste de base -> liste du jeu")
+	var v1b := Profile.from_dict({"version": 1, "id": "b", "name": "B", "active_word_list": 1,
+		"word_lists": [{"title": "Mots de base", "words": Array(base_words)}, {"title": "Perso", "words": ["zut", "flute"]}]})
+	check(v1b.word_lists.size() == 1 and v1b.active_lists.size() == 1 and Array(v1b.words()) == ["zut", "flute"], "ancien profil : liste personnelle reprise et choisie")
+	var lp := Profile.create("Lisa")
+	check(lp.words() == base_words, "nouveau profil : liste de base")
+	lp.set_active("animaux", true)
+	lp.set_active("fruits", true)
+	var expected := []
+	for w in Array(base_words) + Array(content0.word_list("animaux").words) + Array(content0.word_list("fruits").words):
+		if not expected.has(w):
+			expected.append(w)
+	check(Array(lp.words()) == expected, "plusieurs listes : mots réunis sans doublon (%d mots)" % expected.size())
+	var mine := lp.add_list("Ma liste", PackedStringArray(["vroum", "tut"]))
+	lp.set_active("base", false)
+	lp.set_active("animaux", false)
+	lp.set_active("fruits", false)
+	lp.set_active(mine.id, true)
+	check(Array(lp.words()) == ["vroum", "tut"], "liste personnelle seule")
+	lp.update_list(mine.id, "Bruits", PackedStringArray(["bip"]))
+	check(Array(lp.active_titles()) == ["Bruits"] and Array(lp.words()) == ["bip"], "liste personnelle modifiée")
+	var round_trip := Profile.from_dict(lp.to_dict())
+	check(round_trip.active_lists == lp.active_lists and round_trip.word_lists == lp.word_lists, "listes enregistrées (aller-retour JSON)")
+	lp.remove_list(mine.id)
+	check(lp.active_lists == ["base"] and lp.word_lists.is_empty(), "liste supprimée : retour à la liste de base")
+
+	print("Éditeur de liste")
+	var cur: Profile = profiles.current
+	# Chargé à l'exécution : le script utilise l'autoload Profiles.
+	var editor: Control = load("res://scripts/ui/word_list_editor.gd").new()
+	root.add_child(editor)
+	editor.open_new(cur, "  ", "")
+	editor.save()
+	check(editor.visible and cur.word_lists.is_empty(), "liste vide refusée")
+	editor.open_new(cur, "Couleurs", "rouge, vert;bleu\njaune 3")
+	editor.save()
+	check(not editor.visible and cur.word_lists.size() == 1, "nouvelle liste enregistrée")
+	var saved_list: Dictionary = cur.word_lists[0]
+	check(saved_list.title == "Couleurs" and Array(saved_list.words) == ["rouge", "vert", "bleu", "jaune"] and cur.is_active(saved_list.id), "nouvelle liste : mots découpés et liste cochée")
+	editor.open_list(cur, cur.find_list(saved_list.id), false)
+	editor._text.text = "rose"
+	editor.save()
+	check(Array(cur.find_list(saved_list.id).words) == ["rose"], "liste modifiée")
+	app.reload()
+	profiles.reload()
+	check(profiles.current.find_list(saved_list.id).title == "Couleurs", "liste retrouvée après rechargement")
+	editor.free()
+
 	print("Réglages de l'ordinateur : son et graphismes")
 	app.set_value("volume_music", 0.5)
 	var music_bus := AudioServer.get_bus_index("Musique")
@@ -128,3 +192,4 @@ func _run() -> void:
 	check(track.length > before + 20.0, "point déplacé : circuit reconstruit (%.0f m)" % track.length)
 	track.free()
 	TestUtil.remove_dir(DATA_DIR)
+	completed = true

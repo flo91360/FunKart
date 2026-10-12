@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WordList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="1_mdo17"]
+
+[resource]
+script = ExtResource("1_mdo17")
+id = "syllabes"
+title = "Syllabes"
+words = PackedStringArray("ba", "be", "bi", "bo", "bu", "ma", "me", "mi", "mo", "mu", "la", "le", "li", "lo", "lu", "pa", "pe", "pi", "po", "pu", "ta", "te", "ti", "to", "tu", "ra", "re", "ri", "ro", "ru", "na", "ne", "ni", "no", "nu", "sa", "se", "si", "so", "su", "da", "de", "di", "do", "du", "fa", "fe", "fi", "fo", "fu")

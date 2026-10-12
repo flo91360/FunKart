@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WordList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="1_6gtj5"]
+
+[resource]
+script = ExtResource("1_6gtj5")
+id = "lettres"
+title = "Lettres seules"
+words = PackedStringArray("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")

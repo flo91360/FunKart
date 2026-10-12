@@ -18,7 +18,8 @@ var _delete_button: Button
 var _controls := {} # clé du réglage -> contrôle
 var _app_checks := {} # clé du réglage de l'ordinateur -> CheckBox
 var _bot_spins: Array[SpinBox] = []
-var _words_edit: TextEdit
+var _word_lists: WordListsPanel
+var _list_editor: WordListEditor
 var _confirm_delete: ConfirmationDialog
 var _volumes: VolumeSliders
 var _graphics: OptionButton
@@ -135,14 +136,13 @@ func _ready() -> void:
 	_check(checks, "Lire le mot à voix haute", "speak")
 
 	# Mots
-	inner.add_child(_section("Liste de mots (un mot par ligne)"))
-	_words_edit = TextEdit.new()
-	_words_edit.custom_minimum_size.y = 220
-	_words_edit.add_theme_font_size_override("font_size", 22)
-	_words_edit.text_changed.connect(func():
-		profile.set_words(WordList.parse(_words_edit.text))
-		_save())
-	inner.add_child(_words_edit)
+	inner.add_child(_section("Listes de mots"))
+	_word_lists = WordListsPanel.new()
+	_word_lists.changed.connect(_save)
+	_word_lists.new_requested.connect(func(): _list_editor.open_new(profile))
+	_word_lists.import_requested.connect(func(): _list_editor.import_file(profile))
+	_word_lists.edit_requested.connect(func(l, readonly): _list_editor.open_list(profile, l, readonly))
+	inner.add_child(_word_lists)
 
 	# Ordinateur
 	inner.add_child(_section("Cet ordinateur (tous les profils)"))
@@ -180,12 +180,6 @@ func _ready() -> void:
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 10)
 	box.add_child(buttons)
-	var b1 := Ui.button("Rétablir la liste de mots", 20, Color("#8d99ae"))
-	b1.pressed.connect(func():
-		profile.set_words(GameContent.get_content().default_word_list().words)
-		_save()
-		refresh())
-	buttons.add_child(b1)
 	var b2 := Ui.button("Réglages par défaut", 20, Color("#8d99ae"))
 	b2.pressed.connect(func():
 		profile.settings = Profile.DEFAULT_SETTINGS.duplicate(true)
@@ -198,6 +192,10 @@ func _ready() -> void:
 	var close := Ui.button("Fermer", 26)
 	close.pressed.connect(close_dialog)
 	buttons.add_child(close)
+	# Éditeur de liste : par-dessus la fenêtre des réglages.
+	_list_editor = WordListEditor.new()
+	_list_editor.saved.connect(func(): _word_lists.refresh())
+	add_child(_list_editor)
 	visible = false
 
 
@@ -208,6 +206,10 @@ func open(p: Profile) -> void:
 
 
 func close_dialog() -> void:
+	# Échap ferme d'abord l'éditeur de liste s'il est ouvert.
+	if _list_editor.visible:
+		_list_editor.visible = false
+		return
 	if visible:
 		visible = false
 		closed.emit()
@@ -237,7 +239,8 @@ func refresh() -> void:
 	_volumes.refresh()
 	_graphics.select(AppSettings.graphics())
 	_refresh_graphics()
-	_words_edit.text = "\n".join(profile.words())
+	_word_lists.profile = profile
+	_word_lists.refresh()
 	_refresh_bot_spins()
 
 
@@ -271,7 +274,9 @@ func _spin(grid: GridContainer, text: String, key: String, lo: float, hi: float,
 		profile.settings[key] = v
 		_save()
 		if key == "bot_count":
-			_refresh_bot_spins())
+			_refresh_bot_spins()
+		elif key == "max_word_length":
+			_word_lists.refresh())
 	grid.add_child(sb)
 	_controls[key] = sb
 

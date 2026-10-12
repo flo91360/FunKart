@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WordList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="1_d8psa"]
+
+[resource]
+script = ExtResource("1_d8psa")
+id = "fruits"
+title = "Fruits et légumes"
+words = PackedStringArray("pomme", "poire", "banane", "cerise", "fraise", "citron", "orange", "kiwi", "melon", "raisin", "ananas", "prune", "pêche", "tomate", "carotte", "radis", "chou", "poireau", "salade", "haricot")
