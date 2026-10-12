@@ -250,9 +250,9 @@ theme = ExtResource("2_cx0sj")
 custom_minimum_size = Vector2(540, 0)
 layout_mode = 0
 offset_left = 36.0
-offset_top = 30.0
+offset_top = 18.0
 offset_right = 36.0
-offset_bottom = 30.0
+offset_bottom = 18.0
 
 [node name="Box" type="VBoxContainer" parent="Root/Panel"]
 layout_mode = 2
@@ -388,18 +388,20 @@ text = "Quitter"
 
 [node name="VersionLabel" type="Label" parent="Root"]
 unique_name_in_owner = true
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = -26.0
-offset_right = 240.0
+offset_left = 12.0
+offset_top = -4.0
+offset_right = 12.0
 offset_bottom = -4.0
 grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.9)
 theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 16
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
 text = "v0.0.0"
 
 [node name="CharacterName" type="Label" parent="Root"]
