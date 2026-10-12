@@ -5,6 +5,9 @@ on:
     branches: ["**"]
     # Pousser un tag « v0.1.0 » publie une version (Release GitHub) avec le jeu.
     tags: ["v*"]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
   # Bouton « Run workflow » de l'onglet Actions : cocher « publier » sur la
   # branche main crée le tag v<version du projet> et la Release.
   workflow_dispatch:
@@ -14,16 +17,23 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   GODOT_VERSION: 4.4.1
 
 jobs:
   export:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Version à publier
         run: |
