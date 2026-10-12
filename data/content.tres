@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="GameContent" load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_tyhnd"]
+[ext_resource type="Resource" path="res://data/characters/chat.tres" id="2_4gjb7"]
+[ext_resource type="Resource" path="res://data/characters/chien.tres" id="3_acf6y"]
+[ext_resource type="Resource" path="res://data/characters/grenouille.tres" id="4_lvnhj"]
+[ext_resource type="Resource" path="res://data/characters/licorne.tres" id="5_d1hif"]
+[ext_resource type="Resource" path="res://data/characters/panda.tres" id="6_u3p84"]
+[ext_resource type="Resource" path="res://data/characters/lion.tres" id="7_432ba"]
+[ext_resource type="Resource" path="res://data/characters/singe.tres" id="8_o7v6r"]
+[ext_resource type="Resource" path="res://data/characters/pingouin.tres" id="9_6palx"]
+[ext_resource type="Resource" path="res://data/characters/tortue.tres" id="10_67w15"]
+[ext_resource type="Resource" path="res://data/characters/lapin.tres" id="11_jxuyc"]
+[ext_resource type="Resource" path="res://data/characters/renard.tres" id="12_oa6es"]
+[ext_resource type="Resource" path="res://data/characters/ours.tres" id="13_cpe6o"]
+[ext_resource type="Resource" path="res://data/characters/souris.tres" id="14_in22b"]
+[ext_resource type="Script" path="res://scripts/data/game_content.gd" id="15_uux46"]
+[ext_resource type="PackedScene" path="res://tracks/prairie.tscn" id="16_7fyvc"]
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="17_xcaji"]
+[ext_resource type="Resource" path="res://data/words/base.tres" id="18_fet0e"]
+
+[resource]
+script = ExtResource("15_uux46")
+characters = Array[ExtResource("1_tyhnd")]([ExtResource("2_4gjb7"), ExtResource("3_acf6y"), ExtResource("4_lvnhj"), ExtResource("5_d1hif"), ExtResource("6_u3p84"), ExtResource("7_432ba"), ExtResource("8_o7v6r"), ExtResource("9_6palx"), ExtResource("10_67w15"), ExtResource("11_jxuyc"), ExtResource("12_oa6es"), ExtResource("13_cpe6o"), ExtResource("14_in22b")])
+tracks = Array[PackedScene]([ExtResource("16_7fyvc")])
+word_lists = Array[ExtResource("17_xcaji")]([ExtResource("18_fet0e")])

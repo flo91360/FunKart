@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_dpsdt"]
+
+[resource]
+script = ExtResource("1_dpsdt")
+id = "licorne"
+display_name = "Licorne"
+playable = true
+fur_color = Color(0.984314, 0.968627, 1, 1)
+kart_color = Color(0.705882, 0.423529, 1, 1)
+shirt_color = Color(1, 0.603922, 0.835294, 1)
+ears = "cat"
+ear_color = Color(0.984314, 0.968627, 1, 1)
+has_snout = true
+snout_color = Color(1, 0.882353, 0.941176, 1)
+extra = "unicorn"

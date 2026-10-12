@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_vab4e"]
+
+[resource]
+script = ExtResource("1_vab4e")
+id = "lapin"
+display_name = "Lapin"
+playable = false
+fur_color = Color(0.94902, 0.94902, 0.94902, 1)
+kart_color = Color(0.901961, 0.223529, 0.27451, 1)
+shirt_color = Color(0.270588, 0.482353, 0.615686, 1)
+ears = "long"
+ear_color = Color(0.94902, 0.94902, 0.94902, 1)
+has_snout = true
+snout_color = Color(1, 1, 1, 1)
+extra = "none"

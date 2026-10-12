@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_iistn"]
+
+[resource]
+script = ExtResource("1_iistn")
+id = "chat"
+display_name = "Chat"
+playable = true
+fur_color = Color(0.956863, 0.639216, 0.25098, 1)
+kart_color = Color(1, 0.309804, 0.180392, 1)
+shirt_color = Color(0.176471, 0.498039, 0.976471, 1)
+ears = "cat"
+ear_color = Color(0.956863, 0.639216, 0.25098, 1)
+has_snout = true
+snout_color = Color(1, 0.952941, 0.878431, 1)
+extra = "none"

@@ -1,0 +1,336 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/volume_sliders.gd" id="9_vol"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_bo48s"]
+[ext_resource type="Theme" path="res://ui/theme.tres" id="2_8qguk"]
+[ext_resource type="Script" path="res://scripts/ui/minimap.gd" id="3_136eg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oj5la"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
+bg_color = Color(0.992157, 0.964706, 0.890196, 1)
+border_width_top = 8
+border_color = Color(1, 0.419608, 0.207843, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 10
+
+[sub_resource type="SystemFont" id="SystemFont_gss2c"]
+font_names = PackedStringArray("Andika", "Comic Sans MS", "Verdana", "DejaVu Sans", "Arial")
+font_weight = 700
+
+[sub_resource type="FontVariation" id="FontVariation_h022r"]
+base_font = SubResource("SystemFont_gss2c")
+spacing_glyph = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4jqwt"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.552941, 0.6, 0.682353, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kicr4"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.442353, 0.48, 0.545882, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mj13f"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.606588, 0.648, 0.720471, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1_bo48s")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("2_8qguk")
+
+[node name="TopLeft" type="VBoxContainer" parent="Root"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 8.0
+offset_right = 24.0
+offset_bottom = 8.0
+
+[node name="PlaceRow" type="HBoxContainer" parent="Root/TopLeft"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="PlaceLabel" type="Label" parent="Root/TopLeft/PlaceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 110
+theme_override_colors/font_color = Color(1, 0.839216, 0.0392157, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 22
+text = "1"
+
+[node name="PlaceSuffix" type="Label" parent="Root/TopLeft/PlaceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 52
+theme_override_colors/font_color = Color(1, 0.839216, 0.0392157, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 16
+text = "er"
+
+[node name="LapLabel" type="Label" parent="Root/TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 14
+text = "TOUR 1/3"
+
+[node name="Standings" type="VBoxContainer" parent="Root/TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TopRight" type="VBoxContainer" parent="Root"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -24.0
+offset_top = 12.0
+offset_right = -24.0
+grow_horizontal = 0
+
+[node name="Stats" type="HBoxContainer" parent="Root/TopRight"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="KpmBox" type="VBoxContainer" parent="Root/TopRight/Stats"]
+layout_mode = 2
+theme_override_constants/separation = -6
+
+[node name="KpmTitle" type="Label" parent="Root/TopRight/Stats/KpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 8
+text = "FRAPPES/MIN"
+horizontal_alignment = 1
+
+[node name="KpmLabel" type="Label" parent="Root/TopRight/Stats/KpmBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 14
+text = "–"
+horizontal_alignment = 1
+
+[node name="AccBox" type="VBoxContainer" parent="Root/TopRight/Stats"]
+layout_mode = 2
+theme_override_constants/separation = -6
+
+[node name="AccTitle" type="Label" parent="Root/TopRight/Stats/AccBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 8
+text = "PRÉCISION"
+horizontal_alignment = 1
+
+[node name="AccLabel" type="Label" parent="Root/TopRight/Stats/AccBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 14
+text = "–"
+horizontal_alignment = 1
+
+[node name="SpeedBox" type="VBoxContainer" parent="Root/TopRight/Stats"]
+layout_mode = 2
+theme_override_constants/separation = -6
+
+[node name="SpeedTitle" type="Label" parent="Root/TopRight/Stats/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 8
+text = "KM/H"
+horizontal_alignment = 1
+
+[node name="SpeedLabel" type="Label" parent="Root/TopRight/Stats/SpeedBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 14
+text = "–"
+horizontal_alignment = 1
+
+[node name="Minimap" type="Control" parent="Root/TopRight"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 210)
+layout_mode = 2
+size_flags_horizontal = 8
+script = ExtResource("3_136eg")
+
+[node name="StatusLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -0.5
+offset_top = 120.0
+offset_right = 0.5
+offset_bottom = 190.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 54
+theme_override_colors/font_color = Color(1, 0.839216, 0.0392157, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 18
+horizontal_alignment = 1
+
+[node name="CenterLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -160.0
+theme_override_font_sizes/font_size = 190
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_constants/outline_size = 30
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WordPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(760, 0)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -380.0
+offset_top = -20.0
+offset_right = 380.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_oj5la")
+
+[node name="WordBox" type="VBoxContainer" parent="Root/WordPanel"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="WordLabel" type="RichTextLabel" parent="Root/WordPanel/WordBox"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_fonts/normal_font = SubResource("FontVariation_h022r")
+theme_override_font_sizes/normal_font_size = 104
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="HintLabel" type="Label" parent="Root/WordPanel/WordBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
+text = "Ton kart roule tout seul… prépare tes doigts !"
+horizontal_alignment = 1
+
+[node name="PauseLayer" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.55)
+
+[node name="PauseCenter" type="CenterContainer" parent="Root/PauseLayer"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PausePanel" type="PanelContainer" parent="Root/PauseLayer/PauseCenter"]
+custom_minimum_size = Vector2(660, 0)
+layout_mode = 2
+
+[node name="PauseBox" type="VBoxContainer" parent="Root/PauseLayer/PauseCenter/PausePanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="PauseTitle" type="Label" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 56
+theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
+text = "Pause"
+horizontal_alignment = 1
+
+[node name="PauseTip" type="Label" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
+text = "Appuie sur Échap pour reprendre."
+horizontal_alignment = 1
+
+[node name="VolumeSliders" type="GridContainer" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("9_vol")
+
+[node name="ResumeButton" type="Button" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "Reprendre"
+
+[node name="QuitButton" type="Button" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_4jqwt")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_kicr4")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mj13f")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "Quitter la course"

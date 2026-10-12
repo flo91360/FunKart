@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1_ydrn8"]
+
+[resource]
+script = ExtResource("1_ydrn8")
+id = "chien"
+display_name = "Chien"
+playable = true
+fur_color = Color(0.85098, 0.627451, 0.4, 1)
+kart_color = Color(0.176471, 0.498039, 0.976471, 1)
+shirt_color = Color(1, 0.823529, 0.247059, 1)
+ears = "floppy"
+ear_color = Color(0.478431, 0.294118, 0.164706, 1)
+has_snout = true
+snout_color = Color(0.960784, 0.870588, 0.701961, 1)
+extra = "none"
