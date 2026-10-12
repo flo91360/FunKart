@@ -41,5 +41,12 @@ func bot_characters() -> Array[CharacterData]:
 	return out
 
 
+func word_list(id: String) -> WordList:
+	for wl in word_lists:
+		if wl.id == id:
+			return wl
+	return null
+
+
 func default_word_list() -> WordList:
 	return word_lists[0]

@@ -260,6 +260,7 @@ func _show_results() -> void:
 		"date": Time.get_datetime_string_from_system(),
 		"character": GameContent.get_content().character(profile.character_id).display_name,
 		"track": track.title,
+		"word_lists": ", ".join(profile.active_titles()),
 		"place": logic.player_position(),
 		"total": logic.racers.size(),
 		"laps": logic.laps,

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WordList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="1_v4k5k"]
+
+[resource]
+script = ExtResource("1_v4k5k")
+id = "animaux"
+title = "Animaux"
+words = PackedStringArray("chat", "chien", "lapin", "tortue", "renard", "poisson", "oiseau", "cheval", "vache", "cochon", "mouton", "poule", "canard", "souris", "lion", "tigre", "zèbre", "girafe", "singe", "ours", "loup", "panda", "koala", "hibou", "abeille")

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WordList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="1_tqe8d"]
+
+[resource]
+script = ExtResource("1_tqe8d")
+id = "ecole"
+title = "École"
+words = PackedStringArray("cahier", "crayon", "stylo", "gomme", "règle", "livre", "trousse", "cartable", "tableau", "classe", "maître", "lecture", "calcul", "dessin", "récré")

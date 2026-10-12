@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WordList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/word_list.gd" id="1_v6auc"]
+
+[resource]
+script = ExtResource("1_v6auc")
+id = "mots_courts"
+title = "Mots courts"
+words = PackedStringArray("chat", "lit", "bol", "sac", "rat", "ours", "lune", "roi", "loup", "pain", "lait", "jus", "nez", "dos", "main", "pied", "bus", "kart", "feu", "eau", "jeu", "riz", "mur", "ami", "été", "vélo")

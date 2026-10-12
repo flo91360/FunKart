@@ -51,13 +51,32 @@ Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêt
 ## Profils
 
 Chaque enfant a son **profil** (menu → « Qui joue ? » → « + Nouveau ») : son
-pilote, ses réglages, sa liste de mots et son historique. Le prénom se modifie
+pilote, ses réglages, ses listes de mots et son historique. Le prénom se modifie
 et le profil se supprime dans les réglages. Le son, la musique et le plein
 écran sont communs à tous les profils (réglages de l'ordinateur).
 
 Au premier lancement de cette version, les réglages et l'historique de la
 version précédente deviennent automatiquement un premier profil (les anciens
 fichiers sont gardés sous le nom `*.old.json`).
+
+## Listes de mots
+
+Dans **Réglages (adulte) → Listes de mots**, on coche les listes utilisées
+pendant les courses ; les mots sont tirés au hasard parmi toutes les listes
+cochées. Les listes choisies sont rappelées dans le menu (« Mots : … »).
+
+- **Listes du jeu** : Mots de base, Lettres seules, Syllabes, Mots courts,
+  Animaux, Fruits et légumes, Kart et course, École. Le bouton « Voir / copier »
+  permet d'en faire une copie à modifier.
+- **Listes personnelles** (propres à chaque enfant) : « + Nouvelle liste »,
+  puis taper ou coller les mots, un par ligne ou séparés par des espaces ou
+  des virgules. Les chiffres, symboles et emojis sont ignorés, les doublons
+  retirés.
+- **Fichiers texte** : « Importer un fichier .txt » crée une liste à partir
+  d'un fichier ; « Exporter (.txt) » l'enregistre, par exemple pour la
+  copier sur un autre ordinateur.
+- Les mots plus longs que le réglage « Longueur max des mots » ne sont pas
+  proposés ; le nombre de mots écartés est indiqué.
 
 ## Suivi de l'enfant
 
@@ -66,7 +85,8 @@ Pendant la course et à l'arrivée :
 - **frappes par minute** : bonnes frappes ÷ temps passé avec un mot à l'écran
   (les moments sans mot ne sont pas comptés) ;
 - **précision** : bonnes frappes ÷ total des frappes ;
-- nombre de mots, temps moyen par mot, erreurs, temps de course, place.
+- nombre de mots, temps moyen par mot, erreurs, temps de course, place ;
+- listes de mots utilisées (dans l'export CSV).
 
 Chaque course est enregistrée dans l'**historique** du profil (menu →
 Historique). L'export CSV (Excel ou LibreOffice) regroupe tous les profils dans
@@ -89,7 +109,6 @@ le fichier `FunKart_historique.csv` du dossier Documents.
 | Sons, musique, plein écran | Communs à tous les profils |
 | Volumes (général, musique, effets) | Aussi réglables pendant la course : <kbd>Échap</kbd> → curseurs de volume |
 | Graphismes | **Simple** (ordinateurs lents : sans ombres, moins de décor), **Normal**, **Beau** (ordinateurs récents : lumière réaliste, ombres douces, lueurs, léger flou au loin ; prend effet au prochain lancement, bouton « Relancer le jeu ») |
-| Liste de mots | Un mot par ligne |
 
 Avec les réglages par défaut (3 tours), une course dure environ 1 min 45 pour
 un enfant à 20 frappes/min, qui arrive en moyenne 2e ou 3e contre des

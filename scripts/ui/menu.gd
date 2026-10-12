@@ -64,6 +64,7 @@ func _refresh() -> void:
 		var selected: bool = id == Profiles.current.character_id
 		Ui.set_button_color(_char_buttons[id], content.character(id).kart_color, Color.WHITE if selected else Color.TRANSPARENT)
 	character_name.text = content.character(Profiles.current.character_id).display_name
+	%WordsLabel.text = "Mots : " + ", ".join(Profiles.current.active_titles())
 
 
 func _select_character(id: String) -> void:

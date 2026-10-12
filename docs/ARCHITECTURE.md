@@ -11,7 +11,7 @@ data/                     contenu livré avec le jeu (ressources Godot .tres)
   content.tres            catalogue : personnages, circuits, listes de mots
   characters/*.tres       un fichier par pilote (CharacterData)
   themes/*.tres           ambiances de circuit (TrackTheme)
-  words/*.tres            listes de mots (WordList)
+  words/*.tres            listes de mots livrées avec le jeu (WordList)
 tracks/*.tscn             circuits (scène Track + courbe Path3D)
 scenes/
   main.tscn               point d'entrée : Race + Menu
@@ -50,13 +50,25 @@ Dans le dossier utilisateur de Godot (sous Windows :
 app.json                          réglages de l'ordinateur (plein écran, volumes, graphismes) + dernier profil
 override.cfg                      présent seulement en mode graphique « Beau » : demande à Godot
                                   le moteur de rendu avancé (Forward+) au démarrage
-profiles/<id>/profile.json        profil (prénom, pilote, réglages, listes de mots)
+profiles/<id>/profile.json        profil (prénom, pilote, réglages, listes de mots personnelles,
+                                  listes cochées)
 profiles/<id>/history.json        courses de ce profil
 ```
 
 Ce sont des fichiers JSON (lisibles, sans risque à copier d'un ordinateur à
 l'autre). Un dossier par profil laisse la place aux futurs fichiers propres à
 l'enfant (personnage personnalisé, circuits créés…).
+
+## Listes de mots
+
+`Profile.available_lists()` réunit les listes du jeu (`data/words`,
+identifiants comme `base`, `animaux`) et les listes personnelles du profil
+(`Profile.word_lists`, identifiants `perso_…`). `Profile.active_lists` contient
+les identifiants cochés ; `Profile.words()` donne les mots de la course (sans
+doublon, liste de base par défaut). Interface : `scripts/ui/word_lists_panel.gd`
+(dans les réglages) et `scripts/ui/word_list_editor.gd` (édition, import/export
+.txt). `WordList.parse()` découpe un texte en mots. Les profils de la version 1
+(une seule liste recopiée) sont convertis à la lecture.
 
 ## Graphismes
 
@@ -98,7 +110,6 @@ pause et dans les réglages.
 | Fonctionnalité | Point d'entrée |
 | --- | --- |
 | Barre de pouvoir | `RaceLogic` (charge à chaque mot, utilisation) + `Hud` (affichage) |
-| Listes de mots personnalisées | `Profile.word_lists` (plusieurs listes déjà possibles) + fenêtre de réglages |
 | Éditeur de personnages | `CharacterData` (to_dict/from_dict) enregistré dans le profil |
 | Thèmes de circuits | `TrackTheme` (nouveaux fichiers) |
 | Éditeur de circuits | `Track.smooth_curve(points)` + enregistrement des points en JSON |

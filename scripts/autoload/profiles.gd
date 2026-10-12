@@ -117,14 +117,15 @@ func export_csv(dir := "") -> String:
 	if f == null:
 		return ""
 	f.store_buffer(PackedByteArray([0xEF, 0xBB, 0xBF]))
-	f.store_line("profil;date;pilote;place;participants;tours;frappes_par_minute;precision_pct;mots;erreurs;temps_moyen_par_mot_s;temps_course_s;adversaires_frappes_par_minute")
+	f.store_line("profil;date;pilote;place;participants;tours;frappes_par_minute;precision_pct;mots;erreurs;temps_moyen_par_mot_s;temps_course_s;adversaires_frappes_par_minute;listes_de_mots")
 	for p in profiles:
 		for h in history(p):
 			var cols := [p.name, h.get("date", ""), h.get("character", ""), h.get("place", 0),
 				h.get("total", 0), h.get("laps", 0), "%.1f" % float(h.get("kpm", 0)),
 				"%.1f" % (float(h.get("accuracy", 0)) * 100.0), h.get("words", 0), h.get("errors", 0),
 				"%.2f" % float(h.get("avg_word_time", 0)), "%.1f" % float(h.get("time", 0)),
-				" / ".join(PackedStringArray(Array(h.get("bot_kpm", [])).map(func(v): return str(int(v)))))]
+				" / ".join(PackedStringArray(Array(h.get("bot_kpm", [])).map(func(v): return str(int(v))))),
+				h.get("word_lists", "")]
 			var cells := PackedStringArray()
 			for c in cols:
 				cells.append("\"%s\"" % str(c).replace("\"", "\"\""))
@@ -148,7 +149,9 @@ func _migrate_legacy() -> void:
 		if old.has(key):
 			p.settings[key] = old[key]
 	if old.has("words"):
-		p.word_lists = [{"title": "Ma liste", "words": Array(WordList.parse(String(old.words)))}]
+		var old_words := WordList.parse(String(old.words))
+		if not old_words.is_empty() and old_words != GameContent.get_content().default_word_list().words:
+			p.active_lists = [p.add_list("Ma liste", old_words).id]
 	profiles.append(p)
 	save_profile(p)
 
