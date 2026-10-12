@@ -58,6 +58,9 @@ func _process(delta: float) -> bool:
 		_setup()
 	if frame == 30:
 		_shot("menu")
+		if not _check_version_label():
+			quit(1)
+			return false
 		main._start_race()
 	if frame < 31:
 		return false
@@ -95,6 +98,27 @@ func _process(delta: float) -> bool:
 		push_error("La course ne s'est pas terminée à temps")
 		quit(1)
 	return false
+
+
+## Le numéro de version est affiché en petit, en bas à gauche du menu principal,
+## sans être caché par le panneau du menu.
+func _check_version_label() -> bool:
+	var label: Label = main.menu.get_node("%VersionLabel")
+	var panel: Control = main.menu.get_node("Root/Panel")
+	var version := str(ProjectSettings.get_setting("application/config/version"))
+	var screen := label.get_viewport_rect().size
+	var rect := label.get_global_rect()
+	print("VERSION ", label.text, " ", rect)
+	if not label.is_visible_in_tree() or not label.text.ends_with("v" + version):
+		push_error("Numéro de version absent du menu : « %s »" % label.text)
+		return false
+	if rect.position.x > 40.0 or rect.end.y > screen.y or rect.end.y < screen.y - 20.0:
+		push_error("Numéro de version mal placé (attendu en bas à gauche) : %s" % rect)
+		return false
+	if rect.intersects(panel.get_global_rect()):
+		push_error("Numéro de version caché par le panneau du menu : %s / %s" % [rect, panel.get_global_rect()])
+		return false
+	return true
 
 
 func _key(ch: String) -> void:
