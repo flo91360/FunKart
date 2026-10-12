@@ -21,9 +21,14 @@ qui apparaissent à l'écran**.
   « Exécuter quand même ».
 - **Linux** : `FunKart.x86_64`, à rendre exécutable puis à lancer.
 
-Les fichiers sont produits automatiquement par GitHub à chaque modification :
-onglet **Actions** du dépôt → dernière exécution de « Construire le jeu » →
-section **Artifacts**.
+Les versions publiées sont sur la page **Releases** du dépôt
+(https://github.com/flo91360/FunKart/releases) : télécharger
+`FunKart-vX.Y.Z-Windows.zip` de la dernière version. Le numéro de version est
+affiché en bas à gauche du menu du jeu.
+
+Les versions de travail (non publiées) sont produites par GitHub à chaque
+modification : onglet **Actions** → dernière exécution de « Construire le
+jeu » → section **Artifacts**.
 
 Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêtre. <kbd>Échap</kbd> : pause.
 
@@ -103,6 +108,11 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
   - une course jouée avec de vrais événements clavier :
     `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
 - Export : `godot --headless --export-release "Windows" build/windows/FunKart.exe`
+- **Publier une version** : mettre à jour `config/version` dans `project.godot`
+  (ex. `0.2.0`), fusionner dans `main`, puis pousser un tag du même numéro
+  (`git tag v0.2.0 && git push origin v0.2.0`). GitHub construit le jeu, lance
+  les tests et crée la Release avec les fichiers à télécharger. Le tag doit
+  correspondre à la version du projet, sinon la publication est refusée.
 
 L'organisation du code et la façon de modifier le contenu (circuits,
 personnages, thèmes, mots) sont décrites dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

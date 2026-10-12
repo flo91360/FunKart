@@ -39,6 +39,7 @@ func _ready() -> void:
 		_refresh()
 		profile_changed.emit())
 	new_profile_layer.visible = false
+	%VersionLabel.text = "FunKart v" + str(ProjectSettings.get_setting("application/config/version", "?"))
 
 	for c in GameContent.get_content().playable_characters():
 		var b := Ui.button(c.display_name, 20)
