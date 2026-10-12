@@ -127,15 +127,13 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
   - une course jouée avec de vrais événements clavier :
     `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
 - Export : `godot --headless --export-release "Windows" build/windows/FunKart.exe`
-- **Publier une version** : mettre à jour `config/version` dans `project.godot`
-  (ex. `0.2.0`) et fusionner dans `main`. Puis, au choix :
-  - onglet **Actions** → « Construire le jeu » → **Run workflow** sur `main`,
-    cocher « publier » ;
-  - ou pousser un tag du même numéro (`git tag v0.2.0 && git push origin v0.2.0`).
-
-  GitHub construit le jeu, lance les tests, crée le tag `v0.2.0` et la Release
-  avec les fichiers à télécharger. Un tag qui ne correspond pas à la version
-  du projet, ou une version déjà publiée, est refusé.
+- **Publier une version** : augmenter `config/version` dans `project.godot`
+  (ex. `0.3.0`) et fusionner dans `main`. GitHub construit le jeu, lance les
+  tests, puis crée automatiquement le tag `v0.3.0` et la Release avec les
+  fichiers à télécharger. Une fusion sans changement de version ne publie
+  rien. (Autres possibilités : onglet **Actions** → « Construire le jeu » →
+  **Run workflow** sur `main` avec « publier » coché, ou pousser un tag
+  `v0.3.0` correspondant à la version du projet.)
 
 L'organisation du code et la façon de modifier le contenu (circuits,
 personnages, thèmes, mots) sont décrites dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

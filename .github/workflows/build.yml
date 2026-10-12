@@ -3,7 +3,9 @@ name: Construire le jeu
 on:
   push:
     branches: ["**"]
-    # Pousser un tag « v0.1.0 » publie une version (Release GitHub) avec le jeu.
+    # Une version (Release GitHub avec le jeu) est publiée automatiquement
+    # quand un nouveau numéro de version (config/version dans project.godot)
+    # arrive sur main. Pousser un tag « v0.1.0 » publie aussi une version.
     tags: ["v*"]
   # Bouton « Run workflow » de l'onglet Actions : cocher « publier » sur la
   # branche main crée le tag v<version du projet> et la Release.
@@ -44,6 +46,14 @@ jobs:
               exit 1
             fi
             echo "RELEASE_TAG=v$version" >> "$GITHUB_ENV"
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_REF_NAME}" = "main" ]; then
+            # Publication automatique : un nouveau numéro de version arrive sur main.
+            if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
+              echo "Version v$version déjà publiée : rien à publier."
+            else
+              echo "Nouvelle version v$version : elle sera publiée."
+              echo "RELEASE_TAG=v$version" >> "$GITHUB_ENV"
+            fi
           fi
 
       - name: Installer Godot et les modèles d'export
