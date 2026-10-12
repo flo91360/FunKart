@@ -124,30 +124,8 @@ jobs:
           body: |
             **Pour jouer sous Windows** : télécharger `FunKart-${{ env.RELEASE_TAG }}-Windows.zip`, le dézipper, puis double-cliquer sur `FunKart.exe`.
             Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même ».
+          # FunKart.exe seul est aussi joint : PlaniFiKateur l'archive dans Google Drive.
           files: |
             build/FunKart-${{ env.RELEASE_TAG }}-Windows.zip
             build/FunKart-${{ env.RELEASE_TAG }}-Linux.zip
-
-  publish-drive:
-    name: Archiver sur Google Drive
-    needs: export
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    concurrency:
-      group: drive-${{ github.repository }}
-      cancel-in-progress: false
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: FunKart-Windows
-          path: drive-artifacts
-      - uses: flo91360/PlaniFiKateur/.github/actions/publish-drive@fc4c6b4e9e778dbee9b89d91db2a39d24a949b4a
-        with:
-          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          folder-id: ${{ vars.GOOGLE_DRIVE_FOLDER_ID }}
-          version: v${{ needs.export.outputs.version }}
-          artifact-dir: drive-artifacts
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+            build/windows/FunKart.exe
