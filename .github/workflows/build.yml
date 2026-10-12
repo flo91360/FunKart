@@ -5,7 +5,14 @@ on:
     branches: ["**"]
     # Pousser un tag « v0.1.0 » publie une version (Release GitHub) avec le jeu.
     tags: ["v*"]
+  # Bouton « Run workflow » de l'onglet Actions : cocher « publier » sur la
+  # branche main crée le tag v<version du projet> et la Release.
   workflow_dispatch:
+    inputs:
+      publier:
+        description: "Publier la version (tag + Release) à partir de main"
+        type: boolean
+        default: false
 
 env:
   GODOT_VERSION: 4.4.1
@@ -18,13 +25,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Vérifier que le tag correspond à la version du jeu
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Version à publier
         run: |
           version=$(sed -n 's/^config\/version="\(.*\)"/\1/p' project.godot)
-          if [ "v$version" != "${GITHUB_REF_NAME}" ]; then
-            echo "::error::Le tag ${GITHUB_REF_NAME} ne correspond pas à la version du jeu (v$version, dans project.godot)."
-            exit 1
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            if [ "v$version" != "${GITHUB_REF_NAME}" ]; then
+              echo "::error::Le tag ${GITHUB_REF_NAME} ne correspond pas à la version du jeu (v$version, dans project.godot)."
+              exit 1
+            fi
+            echo "RELEASE_TAG=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          elif [ "${{ inputs.publier }}" = "true" ]; then
+            if [ "${GITHUB_REF_NAME}" != "main" ]; then
+              echo "::error::Une version se publie depuis la branche main."
+              exit 1
+            fi
+            if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
+              echo "::error::La version v$version est déjà publiée : augmenter config/version dans project.godot."
+              exit 1
+            fi
+            echo "RELEASE_TAG=v$version" >> "$GITHUB_ENV"
           fi
 
       - name: Installer Godot et les modèles d'export
@@ -65,20 +84,22 @@ jobs:
           path: build/linux/FunKart.x86_64
 
       - name: Préparer les fichiers de la version
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.RELEASE_TAG != ''
         run: |
-          cd build/windows && zip -9 ../FunKart-${GITHUB_REF_NAME}-Windows.zip FunKart.exe && cd ../..
-          cd build/linux && zip -9 ../FunKart-${GITHUB_REF_NAME}-Linux.zip FunKart.x86_64
+          cd build/windows && zip -9 ../FunKart-${RELEASE_TAG}-Windows.zip FunKart.exe && cd ../..
+          cd build/linux && zip -9 ../FunKart-${RELEASE_TAG}-Linux.zip FunKart.x86_64
 
       - name: Publier la version sur GitHub
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.RELEASE_TAG != ''
         uses: softprops/action-gh-release@v2
         with:
-          name: FunKart ${{ github.ref_name }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.sha }}
+          name: FunKart ${{ env.RELEASE_TAG }}
           generate_release_notes: true
           body: |
-            **Pour jouer sous Windows** : télécharger `FunKart-${{ github.ref_name }}-Windows.zip`, le dézipper, puis double-cliquer sur `FunKart.exe`.
+            **Pour jouer sous Windows** : télécharger `FunKart-${{ env.RELEASE_TAG }}-Windows.zip`, le dézipper, puis double-cliquer sur `FunKart.exe`.
             Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même ».
           files: |
-            build/FunKart-${{ github.ref_name }}-Windows.zip
-            build/FunKart-${{ github.ref_name }}-Linux.zip
+            build/FunKart-${{ env.RELEASE_TAG }}-Windows.zip
+            build/FunKart-${{ env.RELEASE_TAG }}-Linux.zip

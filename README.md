@@ -109,10 +109,14 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
     `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
 - Export : `godot --headless --export-release "Windows" build/windows/FunKart.exe`
 - **Publier une version** : mettre à jour `config/version` dans `project.godot`
-  (ex. `0.2.0`), fusionner dans `main`, puis pousser un tag du même numéro
-  (`git tag v0.2.0 && git push origin v0.2.0`). GitHub construit le jeu, lance
-  les tests et crée la Release avec les fichiers à télécharger. Le tag doit
-  correspondre à la version du projet, sinon la publication est refusée.
+  (ex. `0.2.0`) et fusionner dans `main`. Puis, au choix :
+  - onglet **Actions** → « Construire le jeu » → **Run workflow** sur `main`,
+    cocher « publier » ;
+  - ou pousser un tag du même numéro (`git tag v0.2.0 && git push origin v0.2.0`).
+
+  GitHub construit le jeu, lance les tests, crée le tag `v0.2.0` et la Release
+  avec les fichiers à télécharger. Un tag qui ne correspond pas à la version
+  du projet, ou une version déjà publiée, est refusé.
 
 L'organisation du code et la façon de modifier le contenu (circuits,
 personnages, thèmes, mots) sont décrites dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
