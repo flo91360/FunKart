@@ -128,9 +128,13 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
     `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
 - Export : `godot --headless --export-release "Windows" build/windows/FunKart.exe`
 - **Publier une version** : augmenter `config/version` dans `project.godot`
-  (ex. `0.3.0`) et fusionner dans `main`. GitHub construit le jeu, lance les
-  tests, puis crée automatiquement le tag `v0.3.0` et la Release avec les
-  fichiers à télécharger. Une fusion sans changement de version ne publie
+  (ex. `0.3.0`), décrire les nouveautés dans [CHANGELOG.md](CHANGELOG.md)
+  (section `## [0.3.0] - AAAA-MM-JJ`) et fusionner dans `main`. GitHub
+  construit le jeu, lance les tests, puis crée automatiquement le tag `v0.3.0`
+  (annoté avec le changelog de la version) et la Release, dont la description
+  reprend la section du changelog, avec les fichiers à télécharger. Sans
+  section dans le changelog, elle est rédigée à partir des titres des commits
+  depuis la version précédente et enregistrée dans `CHANGELOG.md` sur `main`. Une fusion sans changement de version ne publie
   rien. (Autres possibilités : onglet **Actions** → « Construire le jeu » →
   **Run workflow** sur `main` avec « publier » coché, ou pousser un tag
   `v0.3.0` correspondant à la version du projet.)

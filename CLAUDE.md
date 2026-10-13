@@ -15,6 +15,8 @@ et messages de commit en français.
 - Quand la CI de la pull request est verte, sans conflit ni commentaire en
   attente : la fusionner sans redemander.
 - Une fonctionnalité visible pour l'enfant ou l'adulte augmente
-  `config/version` dans `project.godot` (0.x.0 ; 0.x.y pour une correction).
+  `config/version` dans `project.godot` (0.x.0 ; 0.x.y pour une correction)
+  et ajoute la section `## [0.x.y] - AAAA-MM-JJ` correspondante en tête de
+  `CHANGELOG.md` (ce qui change pour l'enfant ou l'adulte, en français).
   La fusion dans `main` publie alors automatiquement la version (tag + Release
-  GitHub avec le jeu Windows) : vérifier ensuite que la Release existe.
+  GitHub avec le jeu Windows et le changelog) : vérifier ensuite que la Release existe.
