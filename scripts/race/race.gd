@@ -316,6 +316,7 @@ func _process(delta: float) -> void:
 func _update_karts(dt: float) -> void:
 	for r in logic.racers:
 		var k: Kart = karts[r]
+		k.visible = mode != Mode.PREVIEW or r.is_player
 		var speed: float = logic.base_speed * r.mult
 		if r.finished:
 			# tour d'honneur au ralenti après la ligne

@@ -249,10 +249,10 @@ theme = ExtResource("2_cx0sj")
 [node name="Panel" type="PanelContainer" parent="Root"]
 custom_minimum_size = Vector2(540, 0)
 layout_mode = 0
-offset_left = 36.0
-offset_top = 18.0
-offset_right = 36.0
-offset_bottom = 18.0
+offset_left = 32.0
+offset_top = 24.0
+offset_right = 32.0
+offset_bottom = 24.0
 
 [node name="Box" type="VBoxContainer" parent="Root/Panel"]
 layout_mode = 2
@@ -260,10 +260,10 @@ theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="Root/Panel/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 84
-theme_override_colors/font_color = Color(1, 0.419608, 0.207843, 1)
-theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
-theme_override_constants/outline_size = 18
+theme_override_font_sizes/font_size = 66
+theme_override_colors/font_color = Color(0.086, 0.545, 0.569, 1)
+theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
+theme_override_constants/outline_size = 0
 text = "FunKart"
 horizontal_alignment = 1
 
@@ -271,15 +271,15 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
-text = "La course où l'on avance en tapant au clavier !"
+text = "Tes mots font des étincelles."
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="WhoLabel" type="Label" parent="Root/Panel/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-text = "Qui joue ?"
+theme_override_font_sizes/font_size = 23
+theme_override_colors/font_color = Color(0.094, 0.243, 0.294, 1)
+text = "01  Qui prend le départ ?"
 
 [node name="ProfileRow" type="HBoxContainer" parent="Root/Panel/Box"]
 layout_mode = 2
@@ -307,9 +307,9 @@ text = "+ Nouveau"
 
 [node name="CharacterLabel" type="Label" parent="Root/Panel/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-text = "Choisis ton pilote"
+theme_override_font_sizes/font_size = 23
+theme_override_colors/font_color = Color(0.094, 0.243, 0.294, 1)
+text = "02  Ton compagnon de course"
 
 [node name="CharacterGrid" type="GridContainer" parent="Root/Panel/Box"]
 unique_name_in_owner = true
@@ -337,8 +337,8 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 52
-text = "JOUER !"
+theme_override_font_sizes/font_size = 36
+text = "C’EST PARTI !"
 
 [node name="ButtonsRow" type="HBoxContainer" parent="Root/Panel/Box"]
 layout_mode = 2
@@ -399,7 +399,7 @@ offset_bottom = -4.0
 grow_vertical = 0
 mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
-theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
+theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
 text = "v0.0.0"
@@ -417,10 +417,10 @@ offset_right = -40.0
 offset_bottom = -30.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 64
+theme_override_font_sizes/font_size = 42
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
-theme_override_constants/outline_size = 18
+theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
+theme_override_constants/outline_size = 0
 text = "Chat"
 
 [node name="NewProfileLayer" type="ColorRect" parent="Root"]
@@ -447,13 +447,13 @@ theme_override_constants/separation = 14
 [node name="NewProfileTitle" type="Label" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
+theme_override_colors/font_color = Color(0.094, 0.243, 0.294, 1)
 text = "Nouveau profil"
 
 [node name="NewProfileHelp" type="Label" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
+theme_override_colors/font_color = Color(0.094, 0.243, 0.294, 1)
 text = "Prénom de l'enfant"
 
 [node name="NewProfileName" type="LineEdit" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17"]
@@ -477,7 +477,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 23
 text = "Créer"
 
 [node name="CancelProfileButton" type="Button" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17/NewProfileButtons"]

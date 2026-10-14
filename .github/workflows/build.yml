@@ -104,6 +104,9 @@ jobs:
       - name: Test des profils et des données
         run: godot --headless --path . --script res://tests/test_profiles.gd
 
+      - name: Test des modèles et de l'interface
+        run: godot --headless --path . --script res://tests/test_graphics.gd
+
       - name: Test (course jouée automatiquement)
         run: godot --headless --path . --script res://tests/autoplay.gd -- --fast
 

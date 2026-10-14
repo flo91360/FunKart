@@ -10,6 +10,19 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.3.0] - 2026-10-14
+
+### Modifié
+
+- Nouvelle direction graphique « Festival de la forêt » : prairie naturelle,
+  fleurs, champignons, clôtures, fanions, ballons et montagnes enneigées.
+- Karts aux carrosseries arrondies, peinture brillante, jantes et feux détaillés.
+- Animaux aux yeux expressifs, avec un foulard animé et un badge étoilé.
+- Interface crème et turquoise, police Nunito intégrée et mot à taper contrasté.
+- Menus, classement et arrivée harmonisés avec la nouvelle ambiance.
+
+Version expérimentale sur `test-graphic-codex`, sans fusion dans `main`.
+
 ## [0.2.1] - 2026-10-12
 
 ### Modifié

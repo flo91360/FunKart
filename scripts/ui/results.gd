@@ -18,7 +18,7 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 	var place := standings.find(logic.player) + 1
 	var color: Color = PLACE_COLORS[place - 1] if place <= 3 else Color.WHITE
 
-	var big := Ui.label(Ui.place_text(place), 72, color, 18, Ui.NAVY)
+	var big := Ui.label(Ui.place_text(place), 72, color, 4, Ui.NAVY)
 	big.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(big)
 	var who := (", " + player_name) if player_name != "" else ""
@@ -42,16 +42,16 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 		var r = standings[i]
 		var row := PanelContainer.new()
 		var kc: Color = GameContent.get_content().character(r.character).kart_color
-		var style := Ui.flat(kc, 12, Color.WHITE, 4 if r.is_player else 0, 3)
+		var style := Ui.flat(Ui.NAVY, 12, kc, 3 if r.is_player else 0, 5)
 		style.content_margin_left = 16
 		style.content_margin_right = 16
 		row.add_theme_stylebox_override("panel", style)
 		var h := HBoxContainer.new()
 		row.add_child(h)
-		var n := Ui.label("%s   %s" % [Ui.place_text(i + 1), r.name], 20, Color.WHITE, 8, Color(0, 0, 0, 0.7))
+		var n := Ui.label("%s   %s" % [Ui.place_text(i + 1), r.name], 20, Color.WHITE, 0)
 		n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		h.add_child(n)
-		h.add_child(Ui.label(Ui.format_time(logic.finish_of(r)), 20, Color.WHITE, 8, Color(0, 0, 0, 0.7)))
+		h.add_child(Ui.label(Ui.format_time(logic.finish_of(r)), 20, Color.WHITE, 0))
 		middle.add_child(row)
 
 	var grid := GridContainer.new()
@@ -69,7 +69,7 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 	]
 	for s in stats:
 		var cell := PanelContainer.new()
-		cell.add_theme_stylebox_override("panel", Ui.flat(Color("#eef0f5"), 12, Color.TRANSPARENT, 0, 6))
+		cell.add_theme_stylebox_override("panel", Ui.flat(Color("#e4eee5"), 12, Color.TRANSPARENT, 0, 6))
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var v := VBoxContainer.new()
 		v.add_theme_constant_override("separation", -4)

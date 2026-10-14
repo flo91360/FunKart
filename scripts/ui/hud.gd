@@ -25,9 +25,19 @@ const IDLE_HINT := "Ton kart roule tout seul… prépare tes doigts !"
 @onready var pause_layer: Control = %PauseLayer
 var _center_tween: Tween
 var _uppercase := false
+var word_progress: ProgressBar
 
 
 func _ready() -> void:
+	word_label.add_theme_font_override("normal_font", Ui.word_font())
+	word_progress = ProgressBar.new()
+	word_progress.custom_minimum_size = Vector2(0, 8)
+	word_progress.show_percentage = false
+	word_progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	word_progress.add_theme_stylebox_override("background", Ui.flat(Color("#dce5d9"), 4, Color.TRANSPARENT, 0, 0))
+	word_progress.add_theme_stylebox_override("fill", Ui.flat(Ui.GREEN, 4, Color.TRANSPARENT, 0, 0))
+	word_label.get_parent().add_child(word_progress)
+	word_label.get_parent().move_child(word_progress, 1)
 	%ResumeButton.pressed.connect(func(): resume_pressed.emit())
 	%QuitButton.pressed.connect(func(): quit_pressed.emit())
 	pause_layer.visible = false
@@ -54,16 +64,18 @@ func set_paused(p: bool) -> void:
 
 ## Mot à taper : lettres tapées en vert, lettre attendue surlignée en jaune.
 func show_word(word: String, typed: int, success := false) -> void:
+	word_progress.visible = true
+	word_progress.value = 100.0 * typed / maxf(1.0, word.length())
 	var upper := _uppercase
 	var s := "[center]"
 	for i in word.length():
 		var ch := word[i].to_upper() if upper else word[i]
 		if success or i < typed:
-			s += "[color=#27ae60]%s[/color]" % ch
+			s += "[color=#269779]%s[/color]" % ch
 		elif i == typed:
-			s += "[bgcolor=#ffd60a][color=#1d1d1f]%s[/color][/bgcolor]" % ch
+			s += "[bgcolor=#ffcf76][color=#183e4b]%s[/color][/bgcolor]" % ch
 		else:
-			s += "[color=#9aa0ac]%s[/color]" % ch
+			s += "[color=#657e88]%s[/color]" % ch
 	word_label.text = s + "[/center]"
 	if success:
 		var tw := create_tween()
@@ -74,6 +86,7 @@ func show_word(word: String, typed: int, success := false) -> void:
 
 func clear_word(hint := IDLE_HINT) -> void:
 	word_label.text = ""
+	word_progress.visible = false
 	set_hint(hint)
 
 
@@ -134,12 +147,12 @@ func update_race(logic: RaceLogic) -> void:
 		var r = standings[i]
 		var row := PanelContainer.new()
 		var color: Color = GameContent.get_content().character(r.character).kart_color
-		var style := Ui.flat(color, 10, Color.WHITE, 4 if r.is_player else 0, 6)
+		var style := Ui.flat(Ui.NAVY.lightened(0.05), 12, color, 3 if r.is_player else 1, 6)
 		style.content_margin_left = 12
 		style.content_margin_right = 12
 		row.add_theme_stylebox_override("panel", style)
 		var txt := Ui.label("%d  %s" % [i + 1, r.name], 26 if r.is_player else 22,
-			Color.WHITE, 8, Color(0, 0, 0, 0.7))
+			Color.WHITE, 0)
 		row.add_child(txt)
 		row.custom_minimum_size.x = 200
 		standings_box.add_child(row)

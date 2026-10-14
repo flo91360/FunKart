@@ -15,6 +15,8 @@ var smoke: CPUParticles3D
 var lateral := 0.0
 var target_lateral := 0.0
 var extra_distance := 0.0 # distance parcourue après l'arrivée (tour d'honneur)
+var driver_head: Node3D
+var scarf: Node3D
 var _t := randf() * 10.0
 
 
@@ -41,30 +43,48 @@ func _init(character: CharacterData = null, display_name := "", show_label := fa
 
 func _build_kart() -> void:
 	var kc: Color = info.kart_color
-	var dark := Color("#2b2d33")
-	Mk.part(body, Mk.box(Vector3(1.3, 0.22, 2.1)), kc, Vector3(0, 0.32, 0))
-	Mk.part(body, Mk.box(Vector3(0.28, 0.32, 1.2)), kc.darkened(0.15), Vector3(-0.72, 0.4, 0.05))
-	Mk.part(body, Mk.box(Vector3(0.28, 0.32, 1.2)), kc.darkened(0.15), Vector3(0.72, 0.4, 0.05))
-	Mk.part(body, Mk.box(Vector3(1.0, 0.3, 0.55)), kc, Vector3(0, 0.38, -1.1), Vector3(-12, 0, 0))
-	Mk.part(body, Mk.box(Vector3(1.55, 0.18, 0.24)), dark, Vector3(0, 0.26, -1.42))
-	Mk.part(body, Mk.box(Vector3(1.55, 0.2, 0.22)), dark, Vector3(0, 0.3, 1.15))
-	# siège
-	Mk.part(body, Mk.box(Vector3(0.8, 0.75, 0.2)), dark, Vector3(0, 0.8, 0.5), Vector3(-10, 0, 0))
-	Mk.part(body, Mk.box(Vector3(0.8, 0.15, 0.6)), dark, Vector3(0, 0.5, 0.22))
-	# moteur et pots d'échappement
-	Mk.part(body, Mk.box(Vector3(0.85, 0.45, 0.45)), Color("#8d99ae"), Vector3(0, 0.62, 0.95))
+	var dark := Color("#183441")
+	var ivory := Color("#fff1d6")
+	# Silhouette de petit bolide : nez rond, pontons et aileron assortis.
+	var chassis := Mk.part(body, Mk.rounded_box(Vector3(1.45, 0.36, 2.3), 0.16), kc, Vector3(0, 0.4, 0))
+	chassis.material_override = Mk.lacquer(kc)
+	for side in [-1.0, 1.0]:
+		var pod := Mk.part(body, Mk.rounded_box(Vector3(0.38, 0.4, 1.35), 0.17), kc, Vector3(side * 0.72, 0.48, 0.1))
+		pod.material_override = Mk.lacquer(kc)
+		Mk.part(body, Mk.rounded_box(Vector3(0.04, 0.13, 0.9), 0.03), ivory, Vector3(side * 0.92, 0.5, 0.1))
+		Mk.part(body, Mk.cyl(0.055, 0.055, 1.55, 10), dark, Vector3(side * 0.48, 0.27, -0.05), Vector3(90, 0, 0))
+	var nose := Mk.part(body, Mk.sphere(0.64), kc, Vector3(0, 0.47, -0.96), Vector3.ZERO, Vector3(1, 0.48, 0.9))
+	nose.material_override = Mk.lacquer(kc)
+	Mk.part(body, Mk.rounded_box(Vector3(0.19, 0.045, 0.78), 0.02), ivory, Vector3(0, 0.74, -0.93), Vector3(-7, 0, 0))
+	Mk.part(body, Mk.rounded_box(Vector3(1.55, 0.17, 0.25), 0.075), dark, Vector3(0, 0.27, -1.48))
+	Mk.part(body, Mk.rounded_box(Vector3(1.55, 0.19, 0.25), 0.08), dark, Vector3(0, 0.3, 1.21))
+	for side in [-1.0, 1.0]:
+		Mk.part(body, Mk.cyl(0.045, 0.045, 0.58, 10), dark, Vector3(side * 0.5, 0.86, 1.05))
+	var wing := Mk.part(body, Mk.rounded_box(Vector3(1.8, 0.15, 0.48), 0.07), kc, Vector3(0, 1.15, 1.07), Vector3(-6, 0, 0))
+	wing.material_override = Mk.lacquer(kc)
+	Mk.part(body, Mk.rounded_box(Vector3(0.2, 0.03, 0.45), 0.01), ivory, Vector3(0, 1.23, 1.07))
+	# Feux, siège matelassé et bloc moteur nervuré.
+	for side in [-1.0, 1.0]:
+		var light := Mk.part(body, Mk.sphere(0.12), ivory, Vector3(side * 0.48, 0.49, -1.38), Vector3.ZERO, Vector3(1, 0.6, 0.3))
+		light.material_override = Mk.mat(ivory, false, 0.4)
+		Mk.part(body, Mk.rounded_box(Vector3(0.2, 0.08, 0.05), 0.025), Color("#ff6e68"), Vector3(side * 0.54, 0.5, 1.37))
+	Mk.part(body, Mk.rounded_box(Vector3(0.76, 0.8, 0.25), 0.12), dark, Vector3(0, 0.88, 0.5), Vector3(-10, 0, 0))
+	Mk.part(body, Mk.rounded_box(Vector3(0.76, 0.18, 0.65), 0.08), Color("#345764"), Vector3(0, 0.56, 0.2))
+	Mk.part(body, Mk.rounded_box(Vector3(0.82, 0.34, 0.42), 0.07), dark, Vector3(0, 0.66, 0.9))
+	for i in 5:
+		Mk.part(body, Mk.box(Vector3(0.7, 0.025, 0.035)), Color("#b4cfcc"), Vector3(0, 0.84, 0.75 + i * 0.065))
 	for x in [-0.25, 0.25]:
-		Mk.part(body, Mk.cyl(0.08, 0.08, 0.5, 12), Color("#c0c0c0"), Vector3(x, 0.72, 1.25), Vector3(90, 0, 0))
-	# volant
+		var exhaust := Mk.part(body, Mk.cyl(0.095, 0.095, 0.5, 16), Color("#adc8cd"), Vector3(x, 0.72, 1.25), Vector3(90, 0, 0))
+		exhaust.material_override = Mk.lacquer(Color("#adc8cd"))
+		Mk.part(body, Mk.cyl(0.062, 0.062, 0.02, 12), dark, Vector3(x, 0.72, 1.51), Vector3(90, 0, 0))
 	Mk.part(body, Mk.cyl(0.04, 0.04, 0.6, 8), dark, Vector3(0, 0.7, -0.45), Vector3(-40, 0, 0))
 	Mk.part(body, Mk.torus(0.13, 0.21), dark, Vector3(0, 0.95, -0.3), Vector3(55, 0, 0))
-	# roues (les roues avant tournent dans les virages)
 	for side in [-1.0, 1.0]:
 		var rear := _wheel(WHEEL_R_REAR, 0.38)
-		rear.position = Vector3(side * 0.84, WHEEL_R_REAR, 0.75)
+		rear.position = Vector3(side * 0.88, WHEEL_R_REAR, 0.75)
 		body.add_child(rear)
 		var pivot := Node3D.new()
-		pivot.position = Vector3(side * 0.8, WHEEL_R_FRONT, -0.78)
+		pivot.position = Vector3(side * 0.86, WHEEL_R_FRONT, -0.78)
 		body.add_child(pivot)
 		pivot.add_child(_wheel(WHEEL_R_FRONT, 0.3))
 		steer_pivots.append(pivot)
@@ -72,10 +92,15 @@ func _build_kart() -> void:
 
 func _wheel(r: float, w: float) -> Node3D:
 	var n := Node3D.new()
-	Mk.part(n, Mk.cyl(r, r, w, 18), Color("#1b1b1f"), Vector3.ZERO, Vector3(0, 0, 90))
-	Mk.part(n, Mk.cyl(r * 0.5, r * 0.5, w + 0.02, 12), info.kart_color.lightened(0.3), Vector3.ZERO, Vector3(0, 0, 90))
-	# un rayon pour voir la roue tourner
-	Mk.part(n, Mk.box(Vector3(w + 0.04, r * 1.2, 0.08)), Color("#eeeeee"), Vector3.ZERO)
+	Mk.part(n, Mk.cyl(r * 0.91, r * 0.91, w, 24), Color("#25333b"), Vector3.ZERO, Vector3(0, 0, 90))
+	for side in [-1.0, 1.0]:
+		Mk.part(n, Mk.torus(r * 0.54, r), Color("#25333b"), Vector3(side * w * 0.35, 0, 0), Vector3(0, 0, 90))
+		var rim := Mk.part(n, Mk.cyl(r * 0.56, r * 0.56, 0.025, 24), Color("#ecede4"), Vector3(side * (w * 0.5 + 0.01), 0, 0), Vector3(0, 0, 90))
+		rim.material_override = Mk.lacquer(Color("#ecede4"))
+		for i in 5:
+			var angle := i * TAU / 5.0
+			Mk.part(n, Mk.box(Vector3(0.03, r * 0.6, 0.035)), info.kart_color, Vector3(side * (w * 0.5 + 0.03), sin(angle) * r * 0.16, cos(angle) * r * 0.16), Vector3(rad_to_deg(-angle), 0, 0))
+		Mk.part(n, Mk.sphere(r * 0.17), Color("#f8ce70"), Vector3(side * (w * 0.5 + 0.04), 0, 0), Vector3.ZERO, Vector3(0.4, 1, 1))
 	wheels.append(n)
 	return n
 
@@ -91,9 +116,17 @@ func _build_driver() -> void:
 	if extra == "turtle":
 		Mk.part(body, Mk.sphere(0.55, true), Color("#2e7d32"), Vector3(0, 1.1, 0.55), Vector3(90, 0, 0), Vector3(1, 1, 0.7))
 	var head := Node3D.new()
+	driver_head = head
 	head.position = Vector3(0, 1.8, 0.2)
 	body.add_child(head)
 	_build_head(head)
+	# Foulard de pilote et badge étoilé : un accessoire commun aux animaux.
+	Mk.part(body, Mk.torus(0.17, 0.27), Color("#ffca72"), Vector3(0, 1.48, 0.2))
+	scarf = Node3D.new()
+	scarf.position = Vector3(0.19, 1.47, 0.4)
+	body.add_child(scarf)
+	Mk.part(scarf, Mk.rounded_box(Vector3(0.2, 0.055, 0.65), 0.025), Color("#ffca72"), Vector3(0, 0, 0.27), Vector3(-15, 0, 12))
+	Mk.part(body, Mk.star_mesh(0.12, 0.06, 0.04), Color("#ffca72"), Vector3(0, 1.16, -0.02))
 
 
 func _build_head(h: Node3D) -> void:
@@ -105,7 +138,7 @@ func _build_head(h: Node3D) -> void:
 
 	if extra == "lion":
 		Mk.part(h, Mk.sphere(0.64), Color("#b5651d"), Vector3(0, 0, 0.14), Vector3.ZERO, Vector3(1, 1, 0.6))
-	Mk.part(h, Mk.sphere(0.42), fur)
+	Mk.part(h, Mk.sphere(0.46), fur, Vector3.ZERO, Vector3.ZERO, Vector3(1.06, 1, 1))
 
 	match info.ears:
 		"cat":
@@ -151,7 +184,9 @@ func _build_head(h: Node3D) -> void:
 	else:
 		for s in [-1.0, 1.0]:
 			Mk.part(h, Mk.sphere(0.11), white, Vector3(s * 0.15, 0.09, -0.34))
-			Mk.part(h, Mk.sphere(0.06), black, Vector3(s * 0.15, 0.09, -0.44))
+			Mk.part(h, Mk.sphere(0.067), black, Vector3(s * 0.15, 0.09, -0.44))
+			Mk.part(h, Mk.sphere(0.023), white, Vector3(s * 0.15 - 0.018, 0.115, -0.498))
+			Mk.part(h, Mk.sphere(0.065), Color("#efaf9a"), Vector3(s * 0.29, -0.085, -0.34), Vector3.ZERO, Vector3(1, 0.6, 0.3))
 	if info.has_snout:
 		Mk.part(h, Mk.sphere(0.2), info.snout_color, Vector3(0, -0.12, -0.33), Vector3.ZERO, Vector3(1.1, 0.75, 0.8))
 		Mk.part(h, Mk.sphere(0.065), black, Vector3(0, -0.05, -0.5))
@@ -217,6 +252,11 @@ func update_visual(track: Track, distance: float, speed: float, mult: float, dt:
 	for p in steer_pivots:
 		p.rotation.y = lerp_angle(p.rotation.y, steer, minf(1.0, dt * 8.0))
 	model.rotation.z = lerp(model.rotation.z, -steer * 0.12 * clampf(mult, 0.0, 2.0), minf(1.0, dt * 5.0))
+	if driver_head:
+		driver_head.rotation.z = -steer * 0.12 + sin(_t * 2.0) * 0.025
+		driver_head.rotation.y = lerp_angle(driver_head.rotation.y, -steer * 0.3, minf(1.0, dt * 5.0))
+	if scarf:
+		scarf.rotation.x = sin(_t * 12.0) * 0.1 * clampf(mult, 0.0, 2.0)
 	body.position.y = sin(_t * 23.0) * 0.012 * clampf(mult, 0.2, 2.0)
 	for w in wheels:
 		w.rotation.x -= speed * dt / WHEEL_R_REAR

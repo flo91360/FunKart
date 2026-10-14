@@ -57,7 +57,7 @@ void vertex() {
 	wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 }
 void fragment() {
-	float s = mod(floor(wp.x / 10.0) + floor(wp.z / 10.0), 2.0);
+	float s = 0.5 + 0.24 * sin(wp.x * 0.043 + sin(wp.z * 0.031) * 2.0) + 0.2 * cos(wp.z * 0.067);
 	ALBEDO = pow(mix(color_a, color_b, s), vec3(2.2));
 	ROUGHNESS = 1.0;
 }
@@ -149,6 +149,8 @@ func rebuild() -> void:
 		_build_grandstand()
 	_build_trees()
 	_build_scenery()
+	_build_festival()
+	_build_meadow()
 
 
 ## Repère local de la piste à une distance donnée : -Z vers l'avant, X vers la droite.
@@ -297,17 +299,21 @@ func _build_start_arch() -> void:
 	arch.transform = frame_at(0.0)
 	var w := road_half_width + CURB + 1.0
 	for s in [-1.0, 1.0]:
-		Mk.part(arch, Mk.box(Vector3(1.0, 8.0, 1.0)), Color("#eeeeee"), Vector3(s * w, 4.0, 0))
-	Mk.part(arch, Mk.box(Vector3(w * 2.0 + 1.0, 2.0, 0.6)), Color("#e63946"), Vector3(0, 7.2, 0))
+		Mk.part(arch, Mk.rounded_box(Vector3(1.2, 8.0, 1.2), 0.25), Color("#fff1d6"), Vector3(s * w, 4.0, 0))
+	Mk.part(arch, Mk.rounded_box(Vector3(w * 2.0 + 1.0, 2.0, 0.8), 0.35), Color("#167f87"), Vector3(0, 7.2, 0))
+	for side in [-1.0, 1.0]:
+		Mk.part(arch, Mk.star_mesh(0.75, 0.36, 0.3), Color("#ffcf76"), Vector3(side * w, 8.8, 0))
+		for i in 4:
+			Mk.part(arch, Mk.rounded_box(Vector3(1.24, 0.22, 1.24), 0.08), Color("#ef8777"), Vector3(side * w, 0.7 + i * 1.3, 0))
 	for side in [0.0, 180.0]:
 		var label := Label3D.new()
 		label.text = "FUNKART"
 		label.font_size = 160
 		label.outline_size = 32
 		label.pixel_size = 0.01
-		label.modulate = Color("#ffd60a")
-		label.outline_modulate = Color("#1d3557")
-		label.position = Vector3(0, 7.2, 0.32 if side == 0.0 else -0.32)
+		label.modulate = Color("#fff1d6")
+		label.outline_modulate = Color("#123e4b")
+		label.position = Vector3(0, 7.2, 0.42 if side == 0.0 else -0.42)
 		label.rotation_degrees = Vector3(0, side, 0)
 		arch.add_child(label)
 
@@ -384,11 +390,13 @@ func _build_trees() -> void:
 		var s := rng.randf_range(0.8, 1.5)
 		trunks.append(Transform3D(Basis().scaled(Vector3(s, s, s)), p + Vector3(0, 1.25 * s, 0)))
 		var col: Color = greens[rng.randi() % greens.size()] if not greens.is_empty() else Color.GREEN
-		leaves.append(Transform3D(Basis().scaled(Vector3.ONE * s * 2.4), p + Vector3(0, 3.4 * s, 0)))
+		leaves.append(Transform3D(Basis().scaled(Vector3(2.6, 2.0, 2.4) * s), p + Vector3(0, 4.0 * s, 0)))
 		leaf_colors.append(col)
-		leaves.append(Transform3D(Basis().scaled(Vector3.ONE * s * 1.6), p + Vector3(0, 5.0 * s, 0)))
-		leaf_colors.append(col.lightened(0.1))
-	_multimesh(Mk.cyl(0.3, 0.42, 2.5, 8), trunks, [], track_theme.tree_trunk)
+		leaves.append(Transform3D(Basis().scaled(Vector3(2.0, 2.5, 1.9) * s), p + Vector3(0.65 * s, 5.3 * s, 0)))
+		leaf_colors.append(col.lightened(0.12))
+		leaves.append(Transform3D(Basis().scaled(Vector3.ONE * s * 1.8), p + Vector3(-1.3 * s, 4.2 * s, 0.4 * s)))
+		leaf_colors.append(col.lightened(0.05))
+	_multimesh(Mk.cyl(0.3, 0.5, 3.5, 10), trunks, [], track_theme.tree_trunk)
 	_multimesh(Mk.sphere(1.0), leaves, leaf_colors, Color.WHITE)
 
 
@@ -451,3 +459,110 @@ func _build_scenery() -> void:
 			pole.transform = Transform3D(f.basis, f.origin + f.basis.x * s * (road_half_width + CURB + 2.0))
 			Mk.part(pole, Mk.cyl(0.08, 0.08, 5.0, 8), Color("#dddddd"), Vector3(0, 2.5, 0))
 			Mk.part(pole, Mk.box(Vector3(0.05, 1.0, 1.6)), flag_colors[(k + int(s > 0)) % flag_colors.size()], Vector3(0, 4.4, 0.8))
+
+
+## Festival de la forêt : clôtures, fanions et panneaux de course.
+func _build_festival() -> void:
+	var post_transforms: Array[Transform3D] = []
+	var rails: Array[Transform3D] = []
+	var d := 18.0
+	while d < length - 25.0:
+		var f := frame_at(d)
+		for side in [-1.0, 1.0]:
+			var pos := _edge(f, side * (road_half_width + CURB + 3.5))
+			post_transforms.append(Transform3D(f.basis, pos + Vector3.UP * 0.65))
+			for height in [0.55, 1.05]:
+				rails.append(Transform3D(f.basis, pos + Vector3.UP * height - f.basis.z * 1.6))
+		d += 3.2
+	_multimesh(Mk.rounded_box(Vector3(0.2, 1.4, 0.2), 0.04), post_transforms, [], Color("#f7deb0"))
+	_multimesh(Mk.box(Vector3(0.12, 0.16, 3.1)), rails, [], Color("#e7c89d"))
+	# Fanions suspendus, sans masquer le tracé.
+	for distance in [45.0, 220.0, 430.0]:
+		var f := frame_at(distance)
+		var gate := Node3D.new()
+		_generated.add_child(gate)
+		gate.transform = f
+		for side in [-1.0, 1.0]:
+			Mk.part(gate, Mk.cyl(0.08, 0.12, 7.5, 10), Color("#f7deb0"), Vector3(side * 10.5, 3.75, 0))
+		for i in 17:
+			var x := -10.0 + i * 1.25
+			var height := 6.0 + 1.2 * pow(absf(x) / 10.0, 2.0)
+			Mk.part(gate, Mk.box(Vector3(1.3, 0.045, 0.045)), Color("#f7deb0"), Vector3(x, height + 0.5, 0))
+			Mk.part(gate, _pennant_mesh(), track_theme.flags[i % track_theme.flags.size()], Vector3(x, height, 0))
+	# Petits panneaux sur l'extérieur du circuit, couleurs alternées.
+	for i in 12:
+		var f := frame_at(65.0 + i * 48.0)
+		var sign_node := Node3D.new()
+		_generated.add_child(sign_node)
+		sign_node.transform = Transform3D(f.basis, _edge(f, road_half_width + CURB + 5.0))
+		Mk.part(sign_node, Mk.cyl(0.08, 0.1, 2.4, 8), Color("#f7deb0"), Vector3(0, 1.2, 0))
+		Mk.part(sign_node, Mk.rounded_box(Vector3(2.8, 1.1, 0.16), 0.12), Color("#167f87") if i % 2 == 0 else Color("#e98778"), Vector3(0, 2.1, 0), Vector3(0, -30, 0))
+		Mk.part(sign_node, Mk.star_mesh(0.38, 0.17, 0.08), Color("#fff1d6"), Vector3(0, 2.1, -0.2), Vector3(0, -30, 0))
+	# Ballons de fête près de la grille.
+	for i in 5:
+		var f := frame_at(-30.0 + i * 13.0)
+		var pos := _edge(f, -22.0, 13.0 + i * 1.8)
+		var color: Color = track_theme.flags[i % track_theme.flags.size()]
+		Mk.part(_generated, Mk.sphere(2.2), color, pos, Vector3.ZERO, Vector3(1, 1.25, 1))
+		Mk.part(_generated, Mk.cyl(0.03, 0.03, 9.0, 6), Color("#fff1d6"), pos - Vector3.UP * 7.0)
+		Mk.part(_generated, Mk.rounded_box(Vector3(1.0, 0.65, 1.0), 0.12), Color("#bd9160"), pos - Vector3.UP * 3.4)
+
+
+func _pennant_mesh() -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for normal in [Vector3.FORWARD, Vector3.BACK]:
+		var pts := [Vector3(-0.5, 0.5, 0), Vector3(0.5, 0.5, 0), Vector3(0, -0.5, 0)]
+		if normal == Vector3.BACK:
+			pts.reverse()
+		for point in pts:
+			st.set_normal(normal)
+			st.add_vertex(point)
+	return st.commit()
+
+
+## Massifs, rochers et champignons : instances regroupées pour les petits PC.
+func _build_meadow() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = decor_seed + 81
+	var flowers: Array[Transform3D] = []
+	var colors: Array[Color] = []
+	var stones: Array[Transform3D] = []
+	var stems: Array[Transform3D] = []
+	var caps: Array[Transform3D] = []
+	var palette := [Color("#ffd783"), Color("#fff1d6"), Color("#ef9cab"), Color("#b5a5e8")]
+	for i in int(170 * detail):
+		var f := frame_at(rng.randf_range(0, length))
+		var side := -1.0 if rng.randf() < 0.5 else 1.0
+		var p := _edge(f, side * rng.randf_range(road_half_width + CURB + 7.0, road_half_width + 27.0))
+		p.y = 0.0
+		if curve.get_closest_point(p).distance_to(p) < road_half_width + CURB + 5.0:
+			continue
+		if p.distance_to(_grandstand_center()) < 27.0:
+			continue
+		for j in 7:
+			var flower_pos := p + Vector3(rng.randf_range(-1.8, 1.8), rng.randf_range(0.18, 0.42), rng.randf_range(-1.8, 1.8))
+			var scale_flower := Vector3(0.24, 0.12, 0.24) * rng.randf_range(0.7, 1.3)
+			flowers.append(Transform3D(Basis().scaled(scale_flower), flower_pos))
+			colors.append(palette[i % palette.size()])
+		if i % 7 == 0:
+			stones.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(1.5, 0.85, 1.1)), p + Vector3.UP * 0.3))
+		if i % 3 == 0:
+			for j in 3:
+				var pos := p + Vector3(j * 0.5, 0, 2.5)
+				var scale_mushroom := rng.randf_range(0.7, 1.4)
+				stems.append(Transform3D(Basis().scaled(Vector3.ONE * scale_mushroom), pos + Vector3.UP * 0.35 * scale_mushroom))
+				caps.append(Transform3D(Basis().scaled(Vector3(1, 0.5, 1) * scale_mushroom), pos + Vector3.UP * 0.7 * scale_mushroom))
+	_multimesh(Mk.sphere(1), flowers, colors, Color.WHITE)
+	_multimesh(Mk.sphere(1), stones, [], Color("#98b4b0"))
+	_multimesh(Mk.cyl(0.12, 0.16, 0.7, 10), stems, [], Color("#fff1d6"))
+	_multimesh(Mk.sphere(0.46), caps, [], Color("#ed8a78"))
+	# Sommets en couches derrière les collines, capuchons enneigés.
+	var b := bounds()
+	var center := Vector3(b.get_center().x, 0, b.get_center().y)
+	for i in 12:
+		var angle := TAU * i / 12.0
+		var pos := center + Vector3(cos(angle), 0, sin(angle)) * (b.size.length() * 0.5 + 430.0)
+		var height := rng.randf_range(100.0, 180.0)
+		Mk.part(_generated, Mk.cyl(0, 100.0, height, 7), Color("#8bbcb7").lerp(Color("#b9d4cb"), i / 12.0), pos + Vector3.UP * height * 0.4)
+		Mk.part(_generated, Mk.cyl(0, 26.0, height * 0.26, 7), Color("#f5e9d7"), pos + Vector3.UP * height * 0.77)
