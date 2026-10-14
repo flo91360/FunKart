@@ -10,6 +10,24 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.4.0] - 2026-10-14
+
+### Modifié
+
+- Direction artistique entièrement recréée : « L’atelier des bois », un
+  village miniature de maisons dans les arbres, aux lanternes ambrées.
+- Treize nouveaux animaux en salopette, avec yeux animés et portraits 3D.
+- Nouveaux petits bolides rétro : ailes arrondies, pneus à flancs crème,
+  phares, banquette cousue, volant et bagages.
+- Menu composé autour du pilote sur son socle en bois, palette jade et miel,
+  sélection illustrée et nouveau carnet de course à l’arrivée.
+- Interface de course plus compacte, mot à taper contrasté, progression
+  visible et nouvelle caméra derrière le kart.
+- Modèles regroupés par matériau et arbres instanciés pour limiter le coût
+  du décor ; les modèles et leurs scripts de création sont inclus.
+
+Version expérimentale sur `test-graphic-codex`, sans fusion dans `main`.
+
 ## [0.3.0] - 2026-10-14
 
 ### Modifié

@@ -37,7 +37,7 @@ func _run() -> void:
 	for character in GameContent.get_content().characters:
 		var kart := Kart.new(character)
 		root.add_child(kart)
-		check(kart.driver_head != null and kart.scarf != null and kart.wheels.size() == 4, "pilote complet : " + character.display_name)
+		check(kart.driver_head != null and kart.driver_root != null and kart.eyes.size() == 2 and kart.wheels.size() == 4, "pilote complet : " + character.display_name)
 		kart.free()
 	check(Ui.font().has_char(233) and Ui.font().has_char(231), "police intégrée : accents et cédille disponibles")
 	var main: Node = load("res://scenes/main.tscn").instantiate()
@@ -47,8 +47,8 @@ func _run() -> void:
 	var menu = main.menu
 	var hero: Label = menu.get_node("Root/FestivalTitle")
 	var bounds := hero.get_viewport_rect()
-	check(bounds.encloses(hero.get_global_rect()), "titre du festival dans l'écran")
-	check(not hero.get_global_rect().intersects(menu.get_node("Root/Panel").get_global_rect()), "titre du festival distinct du panneau de sélection")
+	check(bounds.encloses(hero.get_global_rect()), "titre du circuit dans l'écran")
+	check(not hero.get_global_rect().intersects(menu.get_node("Root/Panel").get_global_rect()), "titre du circuit distinct du panneau de sélection")
 	check(bounds.encloses(menu.play_button.get_global_rect()), "bouton de départ dans l'écran")
 	main.race.start()
 	check(main.race.hud.word_progress != null, "barre de progression de frappe créée")

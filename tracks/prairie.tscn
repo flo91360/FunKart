@@ -12,7 +12,7 @@ point_count = 15
 
 [node name="Prairie" type="Node3D"]
 script = ExtResource("1_cmsut")
-title = "La Prairie"
+title = "L’atelier des bois"
 track_theme = ExtResource("2_me7rw")
 
 [node name="Path" type="Path3D" parent="."]

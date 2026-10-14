@@ -1,257 +1,261 @@
-[gd_scene load_steps=11 format=3]
-
-[ext_resource type="Script" path="res://scripts/ui/volume_sliders.gd" id="9_vol"]
-[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_bo48s"]
-[ext_resource type="Theme" path="res://ui/theme.tres" id="2_8qguk"]
-[ext_resource type="Script" path="res://scripts/ui/minimap.gd" id="3_136eg"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oj5la"]
-content_margin_left = 18.0
-content_margin_top = 18.0
-content_margin_right = 18.0
-content_margin_bottom = 18.0
-bg_color = Color(1, 0.961, 0.898, 0.97)
-border_width_top = 8
-border_color = Color(0.086, 0.545, 0.569, 1)
-corner_radius_top_left = 26
-corner_radius_top_right = 26
-corner_radius_bottom_right = 26
-corner_radius_bottom_left = 26
-shadow_color = Color(0, 0, 0, 0.35)
-shadow_size = 10
-
-[sub_resource type="SystemFont" id="SystemFont_gss2c"]
-font_names = PackedStringArray("Andika", "Comic Sans MS", "Verdana", "DejaVu Sans", "Arial")
-font_weight = 700
-
-[sub_resource type="FontVariation" id="FontVariation_h022r"]
-base_font = SubResource("SystemFont_gss2c")
-spacing_glyph = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4jqwt"]
-content_margin_left = 10.0
+[gd_scene load_steps=7 format=3]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1"]
+[ext_resource type="Theme" path="res://ui/theme.tres" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/minimap.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/volume_sliders.gd" id="4"]
+[sub_resource type="StyleBoxFlat" id="Dark"]
+bg_color = Color(0.045,0.14,0.14,0.92)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+content_margin_left = 20.0
+content_margin_right = 20.0
+content_margin_top = 12.0
+content_margin_bottom = 12.0
+border_width_top = 1
+border_color = Color(0.44,0.58,0.5,0.4)
+[sub_resource type="StyleBoxFlat" id="Word"]
+bg_color = Color(0.035,0.12,0.12,0.96)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_left = 22
+corner_radius_bottom_right = 22
+content_margin_left = 24.0
+content_margin_right = 24.0
 content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.552941, 0.6, 0.682353, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kicr4"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.442353, 0.48, 0.545882, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mj13f"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.606588, 0.648, 0.720471, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+content_margin_bottom = 14.0
+border_width_top = 2
+border_color = Color(0.85,0.69,0.43,1)
+shadow_color = Color(0,0,0,0.25)
+shadow_size = 12
 
 [node name="Hud" type="CanvasLayer"]
-script = ExtResource("1_bo48s")
+script = ExtResource("1")
 
 [node name="Root" type="Control" parent="."]
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource("2")
 mouse_filter = 2
-theme = ExtResource("2_8qguk")
 
-[node name="TopLeft" type="VBoxContainer" parent="Root"]
+[node name="Position" type="Panel" parent="Root"]
 layout_mode = 0
 offset_left = 24.0
-offset_top = 8.0
-offset_right = 24.0
-offset_bottom = 8.0
+offset_top = 24.0
+offset_right = 208.0
+offset_bottom = 128.0
+theme_override_styles/panel = SubResource("Dark")
+mouse_filter = 2
 
-[node name="PlaceRow" type="HBoxContainer" parent="Root/TopLeft"]
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="PlaceLabel" type="Label" parent="Root/TopLeft/PlaceRow"]
+[node name="PlaceLabel" type="Label" parent="Root/Position"]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 110
-theme_override_colors/font_color = Color(1, 0.839216, 0.0392157, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 22
-text = "1"
-
-[node name="PlaceSuffix" type="Label" parent="Root/TopLeft/PlaceRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 0
-theme_override_font_sizes/font_size = 52
-theme_override_colors/font_color = Color(1, 0.839216, 0.0392157, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 16
-text = "er"
-
-[node name="LapLabel" type="Label" parent="Root/TopLeft"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 38
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 14
-text = "TOUR 1/3"
-
-[node name="Standings" type="VBoxContainer" parent="Root/TopLeft"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="TopRight" type="VBoxContainer" parent="Root"]
 layout_mode = 0
+offset_left = 16.0
+offset_top = 3.0
+offset_right = 106.0
+offset_bottom = 75.0
+text = "1"
+theme_override_font_sizes/font_size = 60
+theme_override_colors/font_color = Color(0.94,0.77,0.48,1)
+mouse_filter = 2
+
+
+[node name="PlaceSuffix" type="Label" parent="Root/Position"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 65.0
+offset_top = 14.0
+offset_right = 125.0
+offset_bottom = 58.0
+text = "er"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.94,0.77,0.48,1)
+mouse_filter = 2
+
+
+[node name="LapLabel" type="Label" parent="Root/Position"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 20.0
+offset_top = 75.0
+offset_right = 175.0
+offset_bottom = 99.0
+text = "TOUR 1/3"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
+
+
+[node name="Standings" type="VBoxContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 141.0
+offset_right = 208.0
+offset_bottom = 311.0
+theme_override_constants/separation = 6
+mouse_filter = 2
+
+[node name="Circuit" type="Label" parent="Root"]
+layout_mode = 0
+offset_left = -200.0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 60.0
+text = "L’ATELIER DES BOIS"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
+anchor_left = 0.5
+anchor_right = 0.5
+horizontal_alignment = 1
+theme_override_constants/outline_size = 4
+theme_override_colors/font_outline_color = Color(0.05,0.16,0.16,1)
+
+[node name="Stats" type="PanelContainer" parent="Root"]
+layout_mode = 0
+offset_left = -354.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 106.0
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -24.0
-offset_top = 12.0
-offset_right = -24.0
-grow_horizontal = 0
+theme_override_styles/panel = SubResource("Dark")
 
-[node name="Stats" type="HBoxContainer" parent="Root/TopRight"]
+[node name="Row" type="HBoxContainer" parent="Root/Stats"]
 layout_mode = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 16
 
-[node name="KpmBox" type="VBoxContainer" parent="Root/TopRight/Stats"]
+[node name="Kpm" type="VBoxContainer" parent="Root/Stats/Row"]
 layout_mode = 2
-theme_override_constants/separation = -6
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
 
-[node name="KpmTitle" type="Label" parent="Root/TopRight/Stats/KpmBox"]
+[node name="KpmTitle" type="Label" parent="Root/Stats/Row/Kpm"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 8
 text = "FRAPPES/MIN"
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.66,0.77,0.7,1)
+mouse_filter = 2
 horizontal_alignment = 1
 
-[node name="KpmLabel" type="Label" parent="Root/TopRight/Stats/KpmBox"]
+[node name="KpmLabel" type="Label" parent="Root/Stats/Row/Kpm"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 46
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 14
 text = "–"
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
 horizontal_alignment = 1
 
-[node name="AccBox" type="VBoxContainer" parent="Root/TopRight/Stats"]
+[node name="Acc" type="VBoxContainer" parent="Root/Stats/Row"]
 layout_mode = 2
-theme_override_constants/separation = -6
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
 
-[node name="AccTitle" type="Label" parent="Root/TopRight/Stats/AccBox"]
+[node name="AccTitle" type="Label" parent="Root/Stats/Row/Acc"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 8
 text = "PRÉCISION"
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.66,0.77,0.7,1)
+mouse_filter = 2
 horizontal_alignment = 1
 
-[node name="AccLabel" type="Label" parent="Root/TopRight/Stats/AccBox"]
+[node name="AccLabel" type="Label" parent="Root/Stats/Row/Acc"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 46
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 14
 text = "–"
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
 horizontal_alignment = 1
 
-[node name="SpeedBox" type="VBoxContainer" parent="Root/TopRight/Stats"]
+[node name="Speed" type="VBoxContainer" parent="Root/Stats/Row"]
 layout_mode = 2
-theme_override_constants/separation = -6
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
 
-[node name="SpeedTitle" type="Label" parent="Root/TopRight/Stats/SpeedBox"]
+[node name="SpeedTitle" type="Label" parent="Root/Stats/Row/Speed"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 8
 text = "KM/H"
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.66,0.77,0.7,1)
+mouse_filter = 2
 horizontal_alignment = 1
 
-[node name="SpeedLabel" type="Label" parent="Root/TopRight/Stats/SpeedBox"]
+[node name="SpeedLabel" type="Label" parent="Root/Stats/Row/Speed"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 46
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 14
-text = "–"
+text = "0"
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
 horizontal_alignment = 1
 
-[node name="Minimap" type="Control" parent="Root/TopRight"]
+[node name="Minimap" type="Control" parent="Root"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 210)
-layout_mode = 2
-size_flags_horizontal = 8
-script = ExtResource("3_136eg")
+layout_mode = 0
+offset_left = -204.0
+offset_top = 122.0
+offset_right = -24.0
+offset_bottom = 266.0
+anchor_left = 1.0
+anchor_right = 1.0
+custom_minimum_size = Vector2(180,144)
+script = ExtResource("3")
+mouse_filter = 2
 
 [node name="StatusLabel" type="Label" parent="Root"]
 unique_name_in_owner = true
 layout_mode = 0
+offset_left = -220.0
+offset_top = 86.0
+offset_right = 220.0
+offset_bottom = 130.0
+text = ""
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -0.5
-offset_top = 120.0
-offset_right = 0.5
-offset_bottom = 190.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 54
-theme_override_colors/font_color = Color(1, 0.839216, 0.0392157, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 18
 horizontal_alignment = 1
+theme_override_constants/outline_size = 6
+theme_override_colors/font_outline_color = Color(0.05,0.16,0.16,1)
 
 [node name="CenterLabel" type="Label" parent="Root"]
 unique_name_in_owner = true
 layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -160.0
-theme_override_font_sizes/font_size = 190
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.094, 0.243, 0.294, 1)
-theme_override_constants/outline_size = 30
+offset_left = 0.0
+offset_top = 150.0
+offset_right = 1280.0
+offset_bottom = 400.0
+text = ""
+theme_override_font_sizes/font_size = 126
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
+theme_override_constants/outline_size = 12
+theme_override_colors/font_outline_color = Color(0.05,0.16,0.16,1)
 
 [node name="WordPanel" type="PanelContainer" parent="Root"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(760, 0)
 layout_mode = 0
+offset_left = -350.0
+offset_top = -22.0
+offset_right = 350.0
+offset_bottom = -22.0
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
+anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = -380.0
-offset_top = -20.0
-offset_right = 380.0
-offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_oj5la")
+custom_minimum_size = Vector2(700,0)
+theme_override_styles/panel = SubResource("Word")
 
 [node name="WordBox" type="VBoxContainer" parent="Root/WordPanel"]
 layout_mode = 2
@@ -261,8 +265,6 @@ theme_override_constants/separation = 2
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_fonts/normal_font = SubResource("FontVariation_h022r")
-theme_override_font_sizes/normal_font_size = 104
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
@@ -271,66 +273,54 @@ autowrap_mode = 0
 [node name="HintLabel" type="Label" parent="Root/WordPanel/WordBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
-text = "Ton kart roule tout seul… prépare tes doigts !"
+text = "Prépare tes doigts…"
+theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.69,0.8,0.73,1)
+mouse_filter = 2
 horizontal_alignment = 1
 
 [node name="PauseLayer" type="ColorRect" parent="Root"]
 unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 visible = false
-layout_mode = 0
+color = Color(0.02,0.07,0.07,0.8)
+
+[node name="Center" type="CenterContainer" parent="Root/PauseLayer"]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.55)
 
-[node name="PauseCenter" type="CenterContainer" parent="Root/PauseLayer"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="PausePanel" type="PanelContainer" parent="Root/PauseLayer/PauseCenter"]
-custom_minimum_size = Vector2(660, 0)
+[node name="Panel" type="PanelContainer" parent="Root/PauseLayer/Center"]
 layout_mode = 2
+custom_minimum_size = Vector2(600,0)
 
-[node name="PauseBox" type="VBoxContainer" parent="Root/PauseLayer/PauseCenter/PausePanel"]
+[node name="Box" type="VBoxContainer" parent="Root/PauseLayer/Center/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 15
 
-[node name="PauseTitle" type="Label" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+[node name="PauseTitle" type="Label" parent="Root/PauseLayer/Center/Panel/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
-theme_override_colors/font_color = Color(0.094, 0.243, 0.294, 1)
-text = "Pause"
-horizontal_alignment = 1
+text = "Une petite pause"
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.09,0.22,0.22,1)
+mouse_filter = 2
 
-[node name="PauseTip" type="Label" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
-text = "Appuie sur Échap pour reprendre."
-horizontal_alignment = 1
 
-[node name="VolumeSliders" type="GridContainer" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+[node name="VolumeSliders" type="GridContainer" parent="Root/PauseLayer/Center/Panel/Box"]
 unique_name_in_owner = true
 layout_mode = 2
-script = ExtResource("9_vol")
+script = ExtResource("4")
 
-[node name="ResumeButton" type="Button" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+[node name="ResumeButton" type="Button" parent="Root/PauseLayer/Center/Panel/Box"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 34
-text = "Reprendre"
+text = "Reprendre la course"
 
-[node name="QuitButton" type="Button" parent="Root/PauseLayer/PauseCenter/PausePanel/PauseBox"]
+[node name="QuitButton" type="Button" parent="Root/PauseLayer/Center/Panel/Box"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_4jqwt")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_kicr4")
-theme_override_styles/hover = SubResource("StyleBoxFlat_mj13f")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 26
-text = "Quitter la course"
+text = "Retour à l’atelier"

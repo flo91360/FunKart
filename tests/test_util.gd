@@ -4,6 +4,10 @@ class_name TestUtil
 
 ## Fait pointer AppSettings et Profiles vers un dossier de test vide.
 static func reset_data(root: Window, data_dir: String) -> void:
+	# Le serveur sans écran démarre en 64 × 64 : imposer la vraie résolution
+	# évite les arrondis de police et permet de contrôler la mise en page.
+	if DisplayServer.get_name() == "headless":
+		root.size = Vector2i(1280, 720)
 	remove_dir(data_dir)
 	DirAccess.make_dir_recursive_absolute(data_dir)
 	var app = root.get_node("AppSettings")

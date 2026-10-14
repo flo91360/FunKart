@@ -21,6 +21,10 @@ var _char_buttons := {} # id -> Button
 
 func _ready() -> void:
 	Ui.backdrop($Root)
+	Ui.set_button_color(play_button, Color("#e8b76c"))
+	Ui.set_button_color(profile_select, Color("#365348"))
+	for button in [%SettingsButton, %HistoryButton, %QuitButton, %NewProfileButton]:
+		Ui.set_button_color(button, Color("#1b3c3c"))
 	var credits := AcceptDialog.new()
 	credits.title = "Crédits — FunKart"
 	credits.ok_button_text = "Fermer"
@@ -28,7 +32,7 @@ func _ready() -> void:
 	var license_text := RichTextLabel.new()
 	license_text.custom_minimum_size = Vector2(620, 360)
 	license_text.add_theme_font_size_override("normal_font_size", 18)
-	license_text.text = "FunKart — Festival de la forêt\nGraphismes procéduraux réalisés avec Godot.\n\nPolice Nunito : auteurs du projet Nunito.\n\n" + FileAccess.get_file_as_string("res://ui/fonts/OFL.txt")
+	license_text.text = "FunKart — L’atelier des bois\nModèles originaux façonnés pour FunKart.\n\nPolice Nunito : auteurs du projet Nunito.\n\n" + FileAccess.get_file_as_string("res://ui/fonts/OFL.txt")
 	credits.add_child(license_text)
 	var credits_button := LinkButton.new()
 	credits_button.text = "Crédits"
@@ -37,33 +41,10 @@ func _ready() -> void:
 	$Root.add_child(credits_button)
 	credits_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	credits_button.offset_left = 150
-	credits_button.offset_top = -26
+	credits_button.offset_top = -24
 	credits_button.offset_right = 220
 	credits_button.offset_bottom = -4
 	credits_button.pressed.connect(func(): credits.popup_centered(Vector2i(660, 440)))
-	var hero := Ui.label("LE FESTIVAL\nDE LA FORÊT", 34, Color("#fff1d6"), 2, Ui.NAVY)
-	hero.name = "FestivalTitle"
-	hero.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	$Root.add_child(hero)
-	hero.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	hero.offset_left = -420
-	hero.offset_top = 34
-	hero.offset_right = -40
-	hero.offset_bottom = 134
-	hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var tag := Ui.label("UN CLAVIER. UNE GRANDE AVENTURE.", 16, Color("#fff1d6"), 2, Ui.NAVY)
-	$Root.add_child(tag)
-	tag.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	tag.offset_left = -420
-	tag.offset_top = 140
-	tag.offset_right = -40
-	tag.offset_bottom = 170
-	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Ui.set_button_color(play_button, Ui.ORANGE)
-	for button in [%SettingsButton, %HistoryButton, %QuitButton]:
-		Ui.set_button_color(button, Ui.NAVY)
-	Ui.set_button_color(%NewProfileButton, Color("#cb7668"))
 	play_button.pressed.connect(func(): play_pressed.emit())
 	%SettingsButton.pressed.connect(func(): settings_dialog.open(Profiles.current))
 	%HistoryButton.pressed.connect(func(): history_dialog.open(Profiles.current))
@@ -86,11 +67,23 @@ func _ready() -> void:
 	%VersionLabel.text = "FunKart v" + str(ProjectSettings.get_setting("application/config/version", "?"))
 
 	for c in GameContent.get_content().playable_characters():
-		var b := Ui.button(c.display_name, 20)
-		b.custom_minimum_size = Vector2(120, 56)
+		var b := Button.new()
+		b.custom_minimum_size = Vector2(139, 104)
 		b.pressed.connect(_select_character.bind(c.id))
 		character_grid.add_child(b)
+		var portrait := Ui.portrait(c.id)
+		b.add_child(portrait)
+		portrait.position = Vector2(35, 0)
+		portrait.size = Vector2(70, 76)
+		var name_label := Ui.label(c.display_name, 15, Color("#e7e5d1"))
+		name_label.name = "Name"
+		name_label.position = Vector2(0, 77)
+		name_label.size = Vector2(139, 25)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(name_label)
 		_char_buttons[c.id] = b
+
 	_refresh()
 
 
@@ -106,7 +99,10 @@ func _refresh() -> void:
 	var content := GameContent.get_content()
 	for id in _char_buttons:
 		var selected: bool = id == Profiles.current.character_id
-		Ui.set_button_color(_char_buttons[id], content.character(id).kart_color, Ui.YELLOW if selected else Color.TRANSPARENT)
+		var button: Button = _char_buttons[id]
+		var shade := Color("#365348") if selected else Color("#183b39")
+		Ui.set_button_color(button, shade, Color("#e7b66b") if selected else Color("#426052"))
+		button.get_node("Name").add_theme_color_override("font_color", Color("#f4d49a") if selected else Color("#d4dfcf"))
 	character_name.text = content.character(Profiles.current.character_id).display_name
 	%WordsLabel.text = "Mots : " + ", ".join(Profiles.current.active_titles())
 

@@ -13,6 +13,9 @@ data/                     contenu livré avec le jeu (ressources Godot .tres)
   themes/*.tres           ambiances de circuit (TrackTheme)
   words/*.tres            listes de mots livrées avec le jeu (WordList)
 tracks/*.tscn             circuits (scène Track + courbe Path3D)
+assets/models/*.glb        modèles originaux : bolide, animaux et décor
+tools/build_models.py     source Blender des bolides et des treize animaux
+tools/build_scenery.py    source Blender des ateliers, arbres et champignons
 scenes/
   main.tscn               point d'entrée : Race + Menu
   race/race.tscn          monde 3D de la course
@@ -34,6 +37,7 @@ scripts/
     race_logic.gd         règles (sans affichage, testées) : vitesse, mots, turbo, adversaires, stats
     race.gd               monde 3D : karts, caméra, couloirs, enchaînement des modes
     track.gd              construction du circuit à partir de la courbe (outil d'éditeur)
+    woodland.gd           village forestier et atelier de présentation
     kart.gd               karts et pilotes
     sfx.gd                sons, musique, voix
   ui/                     écrans et fenêtres
@@ -94,14 +98,17 @@ pause et dans les réglages.
   et déplacer les points de la courbe : la route et le décor se reconstruisent.
   Le premier point est la ligne de départ ; le dernier point se raccorde au
   premier. Les propriétés du nœud racine règlent la largeur de la route, le
-  thème, la position de la tribune et la graine du décor.
+  thème et la graine du décor.
 - **Un nouveau circuit** : dupliquer `tracks/prairie.tscn`, modifier la courbe,
   puis l'ajouter à la liste `tracks` de `data/content.tres`.
 - **Une ambiance** : dupliquer `data/themes/prairie.tres` (couleurs du sol, de
   la route, du ciel, des arbres…) et l'assigner au circuit.
-- **Un pilote** : dupliquer un fichier de `data/characters/`, changer `id`,
-  couleurs, oreilles…, puis l'ajouter à `characters` dans `data/content.tres`
-  (`playable` : proposé à l'enfant ou adversaire).
+- **Un pilote** : ajouter un modèle `assets/models/<id>.glb` avec les pivots
+  `Head`, `EyeL` et `EyeR`, puis une ressource `data/characters/<id>.tres`
+  au catalogue `data/content.tres` (`playable` : proposé à l'enfant ou adversaire).
+  Le générateur `tools/build_models.py` donne les conventions et proportions.
+  Les anciens champs de formes de `CharacterData` restent lisibles pour la
+  compatibilité des données ; le rendu utilise désormais les modèles GLB.
 - **L'interface** : les scènes de `scenes/ui/` et `ui/theme.tres` s'éditent
   visuellement. Les nœuds utilisés par le code ont un nom unique (`%Nom`).
 

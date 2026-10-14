@@ -1,12 +1,12 @@
 class_name Ui
 ## Thème et petites fonctions pour construire l'interface.
 
-const INK := Color("#183e4b")
-const ORANGE := Color("#168b91")
+const INK := Color("#183a37")
+const ORANGE := Color("#325a55")
 const YELLOW := Color("#ffcf76")
 const GREEN := Color("#269779")
 const RED := Color("#db6869")
-const NAVY := Color("#183e4b")
+const NAVY := Color("#123735")
 
 static var _font: Font
 static var _word_font: Font
@@ -112,11 +112,12 @@ static func button(text: String, size := 24, color := ORANGE) -> Button:
 
 
 static func set_button_color(b: Button, color: Color, border := Color.TRANSPARENT) -> void:
-	var bw := 5 if border != Color.TRANSPARENT else 0
+	var bw := 2 if border != Color.TRANSPARENT else 0
+	b.add_theme_stylebox_override("focus", flat(Color.TRANSPARENT, 16, Color("#f1ddb6"), 2, 10))
 	b.add_theme_stylebox_override("normal", flat(color, 16, border, bw, 10))
 	b.add_theme_stylebox_override("hover", flat(color.lightened(0.12), 16, border, bw, 10))
 	b.add_theme_stylebox_override("pressed", flat(color.darkened(0.2), 16, border, bw, 10))
-	var text_color := INK if color.get_luminance() > 0.6 else Color.WHITE
+	var text_color := INK if color.get_luminance() > 0.5 else Color("#f3ead4")
 	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		b.add_theme_color_override(c, text_color)
 
@@ -161,11 +162,51 @@ static func backdrop(parent: Control) -> void:
 	shader.code = """
 shader_type canvas_item;
 void fragment() {
-	float edge = smoothstep(0.3, 0.85, distance(UV, vec2(0.6, 0.44)));
-	float bottom = smoothstep(0.7, 1.0, UV.y);
-	COLOR = vec4(0.035, 0.12, 0.16, edge * 0.38 + bottom * 0.28);
+	float left = 1.0 - smoothstep(0.16, 0.65, UV.x);
+	float bottom = smoothstep(0.62, 0.92, UV.y);
+	float edge = smoothstep(0.45, 0.9, distance(UV, vec2(0.64, 0.42)));
+	COLOR = vec4(0.025, 0.085, 0.083, clamp(left * 0.76 + bottom * 0.82 + edge * 0.16, 0.0, 0.94));
 }
 """
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	veil.material = material
+
+
+## Portrait 3D calculé une seule fois : les cartes montrent les vrais modèles.
+static func portrait(character_id: String) -> SubViewportContainer:
+	var holder := SubViewportContainer.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.stretch = true
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(96, 96)
+	viewport.own_world_3d = true
+	viewport.transparent_bg = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.msaa_3d = Viewport.MSAA_2X
+	holder.add_child(viewport)
+	var world := WorldEnvironment.new()
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color.TRANSPARENT
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color("#c8d6c7")
+	env.ambient_light_energy = 0.75
+	world.environment = env
+	viewport.add_child(world)
+	var light := DirectionalLight3D.new()
+	light.rotation_degrees = Vector3(-35, -35, 0)
+	light.light_energy = 0.8
+	viewport.add_child(light)
+	var path := "res://assets/models/%s.glb" % character_id
+	if not ResourceLoader.exists(path):
+		path = "res://assets/models/chat.glb"
+	var character: Node3D = load(path).instantiate()
+	viewport.add_child(character)
+	var camera := Camera3D.new()
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.size = 1.9
+	viewport.add_child(camera)
+	camera.position = Vector3(0, 2.14, -3.0)
+	camera.rotation.y = PI
+	return holder

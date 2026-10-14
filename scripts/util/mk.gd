@@ -13,7 +13,7 @@ static func mat(color: Color, unshaded := false, emission := 0.0) -> StandardMat
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
 	m.roughness = 0.8
-	m.metallic_specular = 0.2
+	m.metallic_specular = 0.35
 	if unshaded:
 		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	if emission > 0.0:

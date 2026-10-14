@@ -31,13 +31,13 @@ func _to_map(v: Vector2) -> Vector2:
 func _draw() -> void:
 	if points.is_empty():
 		return
-	Ui.flat(Color(0.06, 0.19, 0.23, 0.8), 20).draw(get_canvas_item(), Rect2(Vector2.ZERO, size))
+	Ui.flat(Color(0.045, 0.14, 0.14, 0.85), 20).draw(get_canvas_item(), Rect2(Vector2.ZERO, size))
 	var mapped := PackedVector2Array()
 	for v in points:
 		mapped.append(_to_map(v))
 	mapped.append(mapped[0])
-	draw_polyline(mapped, Color(0.1, 0.1, 0.12), 12.0, true)
-	draw_polyline(mapped, Color("#f7deb0"), 7.0, true)
+	draw_polyline(mapped, Color(0.1, 0.1, 0.12), 9.0, true)
+	draw_polyline(mapped, Color("#f7deb0"), 5.0, true)
 	draw_circle(mapped[0], 6.0, Color.WHITE)
 	for d in dots:
 		if not d[2]:
@@ -45,5 +45,5 @@ func _draw() -> void:
 			draw_circle(_to_map(d[0]), 5.5, d[1])
 	for d in dots:
 		if d[2]:
-			draw_circle(_to_map(d[0]), 11.0, Color.WHITE)
-			draw_circle(_to_map(d[0]), 8.0, d[1])
+			draw_circle(_to_map(d[0]), 8.0, Color.WHITE)
+			draw_circle(_to_map(d[0]), 5.5, d[1])
