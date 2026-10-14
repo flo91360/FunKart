@@ -30,6 +30,12 @@ Les versions de travail (non publiées) sont produites par GitHub à chaque
 modification : onglet **Actions** → dernière exécution de « Construire le
 jeu » → section **Artifacts**.
 
+Sur la branche expérimentale `test-graphic-codex`, choisir une exécution de
+cette branche puis **FunKart-Windows**. Une connexion à GitHub est nécessaire
+pour télécharger l’archive : la décompresser et lancer `FunKart.exe`.
+La direction artistique « L’atelier des bois » est décrite dans
+[docs/GRAPHICS.md](docs/GRAPHICS.md).
+
 Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêtre. <kbd>Échap</kbd> : pause.
 
 ## Règles
@@ -118,12 +124,14 @@ adversaires réglés à 16, 20 et 24 frappes/min.
 
 Le jeu est fait avec [Godot 4.4](https://godotengine.org) (gratuit et libre),
 avec le moteur de rendu « Compatibilité » pour tourner sur des ordinateurs
-modestes. Les modèles 3D sont assemblés à partir de formes simples et les sons
-sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
+modestes. Les modèles originaux sont livrés dans `assets/models/` au format
+GLB. Leurs scripts de création Blender sont dans `tools/` ; Blender n’est pas
+nécessaire pour ouvrir ou exporter le jeu. Les sons sont générés par le code.
 
 - Ouvrir le projet : lancer Godot 4.4 et importer `project.godot`.
 - Tests (aussi lancés par GitHub à chaque modification) :
   - données et profils : `godot --headless --path . --script res://tests/test_profiles.gd`
+  - modèles et interface : `godot --headless --path . --script res://tests/test_graphics.gd`
   - une course jouée avec de vrais événements clavier :
     `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
 - Export : `godot --headless --export-release "Windows" build/windows/FunKart.exe`

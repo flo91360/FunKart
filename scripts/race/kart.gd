@@ -2,8 +2,8 @@ class_name Kart
 extends Node3D
 ## Un kart avec son pilote. L'avant du kart est vers -Z.
 
-const WHEEL_R_REAR := 0.36
-const WHEEL_R_FRONT := 0.3
+const WHEEL_R_REAR := 0.46
+const WHEEL_R_FRONT := 0.46
 
 var info: CharacterData
 var model := Node3D.new() # inclinaison dans les virages
@@ -15,6 +15,9 @@ var smoke: CPUParticles3D
 var lateral := 0.0
 var target_lateral := 0.0
 var extra_distance := 0.0 # distance parcourue après l'arrivée (tour d'honneur)
+var driver_head: Node3D
+var driver_root: Node3D
+var eyes: Array[Node3D] = []
 var _t := randf() * 10.0
 
 
@@ -22,7 +25,7 @@ func _init(character: CharacterData = null, display_name := "", show_label := fa
 	info = character if character else GameContent.get_content().characters[0]
 	add_child(model)
 	model.add_child(body)
-	model.scale = Vector3.ONE * 1.3
+	model.scale = Vector3.ONE * 1.0
 	_build_kart()
 	_build_driver()
 	_build_effects()
@@ -30,131 +33,61 @@ func _init(character: CharacterData = null, display_name := "", show_label := fa
 		var label := Label3D.new()
 		label.text = display_name
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		label.font_size = 64
-		label.outline_size = 16
+		label.font_size = 48
+		label.outline_size = 6
 		label.pixel_size = 0.008
-		label.position = Vector3(0, 3.6, 0)
+		label.position = Vector3(0, 3.8, 0)
+		label.font = Ui.font()
 		label.modulate = Color.WHITE
 		label.outline_modulate = Color(0, 0, 0, 0.8)
 		add_child(label)
 
 
+const PAINTS := {
+	"chat": Color("#c88c4e"), "chien": Color("#7193a0"), "grenouille": Color("#7e9f78"),
+	"licorne": Color("#a98ca8"), "panda": Color("#596c72"), "lion": Color("#c9ac65"),
+	"singe": Color("#a87151"), "pingouin": Color("#719aa0"), "tortue": Color("#6f947d"),
+	"lapin": Color("#bb857c"), "renard": Color("#c18660"), "ours": Color("#81798f"),
+	"souris": Color("#ad8997"),
+}
+
+
 func _build_kart() -> void:
-	var kc: Color = info.kart_color
-	var dark := Color("#2b2d33")
-	Mk.part(body, Mk.box(Vector3(1.3, 0.22, 2.1)), kc, Vector3(0, 0.32, 0))
-	Mk.part(body, Mk.box(Vector3(0.28, 0.32, 1.2)), kc.darkened(0.15), Vector3(-0.72, 0.4, 0.05))
-	Mk.part(body, Mk.box(Vector3(0.28, 0.32, 1.2)), kc.darkened(0.15), Vector3(0.72, 0.4, 0.05))
-	Mk.part(body, Mk.box(Vector3(1.0, 0.3, 0.55)), kc, Vector3(0, 0.38, -1.1), Vector3(-12, 0, 0))
-	Mk.part(body, Mk.box(Vector3(1.55, 0.18, 0.24)), dark, Vector3(0, 0.26, -1.42))
-	Mk.part(body, Mk.box(Vector3(1.55, 0.2, 0.22)), dark, Vector3(0, 0.3, 1.15))
-	# siège
-	Mk.part(body, Mk.box(Vector3(0.8, 0.75, 0.2)), dark, Vector3(0, 0.8, 0.5), Vector3(-10, 0, 0))
-	Mk.part(body, Mk.box(Vector3(0.8, 0.15, 0.6)), dark, Vector3(0, 0.5, 0.22))
-	# moteur et pots d'échappement
-	Mk.part(body, Mk.box(Vector3(0.85, 0.45, 0.45)), Color("#8d99ae"), Vector3(0, 0.62, 0.95))
-	for x in [-0.25, 0.25]:
-		Mk.part(body, Mk.cyl(0.08, 0.08, 0.5, 12), Color("#c0c0c0"), Vector3(x, 0.72, 1.25), Vector3(90, 0, 0))
-	# volant
-	Mk.part(body, Mk.cyl(0.04, 0.04, 0.6, 8), dark, Vector3(0, 0.7, -0.45), Vector3(-40, 0, 0))
-	Mk.part(body, Mk.torus(0.13, 0.21), dark, Vector3(0, 0.95, -0.3), Vector3(55, 0, 0))
-	# roues (les roues avant tournent dans les virages)
-	for side in [-1.0, 1.0]:
-		var rear := _wheel(WHEEL_R_REAR, 0.38)
-		rear.position = Vector3(side * 0.84, WHEEL_R_REAR, 0.75)
-		body.add_child(rear)
-		var pivot := Node3D.new()
-		pivot.position = Vector3(side * 0.8, WHEEL_R_FRONT, -0.78)
-		body.add_child(pivot)
-		pivot.add_child(_wheel(WHEEL_R_FRONT, 0.3))
-		steer_pivots.append(pivot)
-
-
-func _wheel(r: float, w: float) -> Node3D:
-	var n := Node3D.new()
-	Mk.part(n, Mk.cyl(r, r, w, 18), Color("#1b1b1f"), Vector3.ZERO, Vector3(0, 0, 90))
-	Mk.part(n, Mk.cyl(r * 0.5, r * 0.5, w + 0.02, 12), info.kart_color.lightened(0.3), Vector3.ZERO, Vector3(0, 0, 90))
-	# un rayon pour voir la roue tourner
-	Mk.part(n, Mk.box(Vector3(w + 0.04, r * 1.2, 0.08)), Color("#eeeeee"), Vector3.ZERO)
-	wheels.append(n)
-	return n
+	var car: Node3D = load("res://assets/models/racer.glb").instantiate()
+	body.add_child(car)
+	var paint: Color = PAINTS.get(info.id, info.kart_color)
+	for node in car.find_children("*", "MeshInstance3D", true, false):
+		var mesh_node := node as MeshInstance3D
+		for surface in mesh_node.mesh.get_surface_count():
+			var material := mesh_node.get_active_material(surface) as StandardMaterial3D
+			if material and material.resource_name.begins_with("Paint"):
+				var colored := material.duplicate() as StandardMaterial3D
+				colored.albedo_color = paint
+				mesh_node.set_surface_override_material(surface, colored)
+	for wheel_name in ["WheelRearL", "WheelRearR", "WheelFrontL", "WheelFrontR"]:
+		var wheel := car.find_child(wheel_name, true, false) as Node3D
+		if wheel_name.begins_with("WheelFront"):
+			var pivot := Node3D.new()
+			wheel.get_parent().add_child(pivot)
+			pivot.transform = wheel.transform
+			wheel.owner = null
+			wheel.reparent(pivot, false)
+			wheel.transform = Transform3D.IDENTITY
+			steer_pivots.append(pivot)
+		wheels.append(wheel)
 
 
 func _build_driver() -> void:
-	var fur: Color = info.fur_color
-	var shirt: Color = info.shirt_color
-	Mk.part(body, Mk.capsule(0.32, 0.95), shirt, Vector3(0, 1.05, 0.28))
-	for side in [-1.0, 1.0]:
-		Mk.part(body, Mk.capsule(0.1, 0.6), shirt, Vector3(side * 0.26, 1.08, -0.08), Vector3(60, 0, 0))
-		Mk.part(body, Mk.sphere(0.1), fur, Vector3(side * 0.18, 0.95, -0.33))
-	var extra: String = info.extra
-	if extra == "turtle":
-		Mk.part(body, Mk.sphere(0.55, true), Color("#2e7d32"), Vector3(0, 1.1, 0.55), Vector3(90, 0, 0), Vector3(1, 1, 0.7))
-	var head := Node3D.new()
-	head.position = Vector3(0, 1.8, 0.2)
-	body.add_child(head)
-	_build_head(head)
-
-
-func _build_head(h: Node3D) -> void:
-	var fur: Color = info.fur_color
-	var ear_color: Color = info.ear_color
-	var extra: String = info.extra
-	var black := Color("#151515")
-	var white := Color("#ffffff")
-
-	if extra == "lion":
-		Mk.part(h, Mk.sphere(0.64), Color("#b5651d"), Vector3(0, 0, 0.14), Vector3.ZERO, Vector3(1, 1, 0.6))
-	Mk.part(h, Mk.sphere(0.42), fur)
-
-	match info.ears:
-		"cat":
-			for s in [-1.0, 1.0]:
-				Mk.part(h, Mk.cyl(0.0, 0.16, 0.36, 12), ear_color, Vector3(s * 0.24, 0.4, 0.02), Vector3(0, 0, -s * 22))
-		"round":
-			for s in [-1.0, 1.0]:
-				Mk.part(h, Mk.sphere(0.14), ear_color, Vector3(s * 0.3, 0.33, 0.04))
-		"floppy":
-			for s in [-1.0, 1.0]:
-				Mk.part(h, Mk.sphere(0.17), ear_color, Vector3(s * 0.42, -0.02, 0.05), Vector3(0, 0, s * 15), Vector3(0.55, 1.4, 0.9))
-		"long":
-			for s in [-1.0, 1.0]:
-				Mk.part(h, Mk.capsule(0.1, 0.8), ear_color, Vector3(s * 0.15, 0.68, 0.06), Vector3(0, 0, -s * 8))
-				Mk.part(h, Mk.capsule(0.05, 0.6), Color("#ffb3c6"), Vector3(s * 0.15, 0.68, -0.02), Vector3(0, 0, -s * 8))
-		"mouse":
-			for s in [-1.0, 1.0]:
-				Mk.part(h, Mk.sphere(0.24), ear_color, Vector3(s * 0.34, 0.34, 0.05), Vector3.ZERO, Vector3(1, 1, 0.35))
-		"monkey":
-			for s in [-1.0, 1.0]:
-				Mk.part(h, Mk.sphere(0.15), ear_color, Vector3(s * 0.44, 0.04, 0.02), Vector3.ZERO, Vector3(0.5, 1, 1))
-
-	match extra:
-		"unicorn":
-			Mk.part(h, Mk.cyl(0.0, 0.09, 0.5, 12), Color("#ffd60a"), Vector3(0, 0.48, -0.24), Vector3(-25, 0, 0))
-			for i in 4:
-				Mk.part(h, Mk.sphere(0.13), Color("#ff7ab6").lerp(Color("#7ad7ff"), i / 3.0), Vector3(0, 0.36 - i * 0.16, 0.3 + i * 0.04))
-		"panda":
-			for s in [-1.0, 1.0]:
-				Mk.part(h, Mk.sphere(0.13), black, Vector3(s * 0.15, 0.08, -0.31), Vector3.ZERO, Vector3(1, 1.2, 0.5))
-		"monkey":
-			Mk.part(h, Mk.sphere(0.32), ear_color, Vector3(0, -0.05, -0.2), Vector3.ZERO, Vector3(1.1, 0.9, 0.6))
-		"penguin":
-			Mk.part(h, Mk.sphere(0.33), white, Vector3(0, -0.02, -0.18), Vector3.ZERO, Vector3(1, 1, 0.6))
-			Mk.part(h, Mk.cyl(0.0, 0.1, 0.26, 10), Color("#ff9f1c"), Vector3(0, -0.1, -0.5), Vector3(-90, 0, 0))
-
-	# yeux
-	if extra == "frog":
-		for s in [-1.0, 1.0]:
-			Mk.part(h, Mk.sphere(0.18), white, Vector3(s * 0.2, 0.36, -0.14))
-			Mk.part(h, Mk.sphere(0.09), black, Vector3(s * 0.2, 0.38, -0.3))
-		Mk.part(h, Mk.box(Vector3(0.36, 0.04, 0.04)), Color("#b22222"), Vector3(0, -0.12, -0.4))
-	else:
-		for s in [-1.0, 1.0]:
-			Mk.part(h, Mk.sphere(0.11), white, Vector3(s * 0.15, 0.09, -0.34))
-			Mk.part(h, Mk.sphere(0.06), black, Vector3(s * 0.15, 0.09, -0.44))
-	if info.has_snout:
-		Mk.part(h, Mk.sphere(0.2), info.snout_color, Vector3(0, -0.12, -0.33), Vector3.ZERO, Vector3(1.1, 0.75, 0.8))
-		Mk.part(h, Mk.sphere(0.065), black, Vector3(0, -0.05, -0.5))
+	var path := "res://assets/models/%s.glb" % info.id
+	if not ResourceLoader.exists(path):
+		path = "res://assets/models/chat.glb"
+	driver_root = load(path).instantiate()
+	body.add_child(driver_root)
+	driver_head = driver_root.find_child("Head", true, false) as Node3D
+	for eye_name in ["EyeL", "EyeR"]:
+		var eye := driver_root.find_child(eye_name, true, false) as Node3D
+		if eye:
+			eyes.append(eye)
 
 
 func _build_effects() -> void:
@@ -163,7 +96,7 @@ func _build_effects() -> void:
 	fm.vertex_color_is_srgb = true
 	fm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	fm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	for x in [-0.25, 0.25]:
+	for x in [-0.5, 0.5]:
 		var f := CPUParticles3D.new()
 		f.amount = 30
 		f.lifetime = 0.25
@@ -179,7 +112,7 @@ func _build_effects() -> void:
 		f.scale_amount_min = 1.0
 		f.scale_amount_max = 1.8
 		f.color_ramp = Mk.gradient([Color("#fff3b0"), Color("#ffb703"), Color(1.0, 0.3, 0.0, 0.0)])
-		f.position = Vector3(x, 0.72, 1.55)
+		f.position = Vector3(x, 0.62, 1.65)
 		body.add_child(f)
 		flames.append(f)
 
@@ -217,6 +150,12 @@ func update_visual(track: Track, distance: float, speed: float, mult: float, dt:
 	for p in steer_pivots:
 		p.rotation.y = lerp_angle(p.rotation.y, steer, minf(1.0, dt * 8.0))
 	model.rotation.z = lerp(model.rotation.z, -steer * 0.12 * clampf(mult, 0.0, 2.0), minf(1.0, dt * 5.0))
+	if driver_head:
+		driver_head.rotation.z = -steer * 0.12 + sin(_t * 2.0) * 0.025
+		driver_head.rotation.y = lerp_angle(driver_head.rotation.y, -steer * 0.3, minf(1.0, dt * 5.0))
+	var blink := fposmod(_t, 4.8)
+	for eye in eyes:
+		eye.scale.y = maxf(0.12, absf(blink - 0.09) / 0.09) if blink < 0.18 else 1.0
 	body.position.y = sin(_t * 23.0) * 0.012 * clampf(mult, 0.2, 2.0)
 	for w in wheels:
 		w.rotation.x -= speed * dt / WHEEL_R_REAR

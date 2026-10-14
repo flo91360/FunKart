@@ -33,7 +33,7 @@ var logic: RaceLogic
 var karts := {} # Racer -> Kart
 var paused := false
 ## Décalage horizontal de la caméra en mode PREVIEW (< 0 : kart à droite de l'écran).
-var preview_side := -2.8
+var preview_side := -2.1
 var _track_key := ""
 ## Effets du moteur de rendu avancé (mode « Beau ») sur l'éclairage du thème.
 const ADVANCED_SUN_BOOST := 1.15
@@ -42,9 +42,41 @@ var _hud_timer := 0.0
 var _lane_timer := 0.0
 var _orbit := 0.0
 var _shake := 0.0
+var showroom: Node3D
+var motes: CPUParticles3D
 
 
 func _ready() -> void:
+	showroom = Woodland.showroom()
+	add_child(showroom)
+	var fill := DirectionalLight3D.new()
+	fill.rotation_degrees = Vector3(-25, 145, 0)
+	fill.light_color = Color("#91b8cb")
+	fill.light_energy = 0.36
+	add_child(fill)
+	motes = CPUParticles3D.new()
+	motes.amount = 48
+	motes.lifetime = 12.0
+	motes.preprocess = 8.0
+	motes.local_coords = false
+	motes.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	motes.emission_box_extents = Vector3(12, 4, 15)
+	motes.direction = Vector3.UP
+	motes.spread = 45
+	motes.initial_velocity_min = 0.08
+	motes.initial_velocity_max = 0.18
+	motes.gravity = Vector3.ZERO
+	var mote_mesh := Mk.sphere(0.025)
+	mote_mesh.radial_segments = 8
+	mote_mesh.rings = 4
+	motes.mesh = mote_mesh
+	var mote_material := Mk.mat(Color("#eacb88"), true).duplicate() as StandardMaterial3D
+	mote_material.vertex_color_use_as_albedo = true
+	mote_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	motes.material_override = mote_material
+	motes.color_ramp = Mk.gradient([Color(1, 1, 1, 0), Color(1, 1, 1, 0.7), Color(1, 1, 1, 0)])
+	motes.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(motes)
 	hud.visible = false
 	results.visible = false
 	hud.resume_pressed.connect(func(): set_paused(false))
@@ -88,6 +120,7 @@ func prepare(p: Profile) -> void:
 
 func show_preview() -> void:
 	mode = Mode.PREVIEW
+	showroom.visible = true
 	paused = false
 	_orbit = 0.0
 	sfx.stop_engine()
@@ -100,6 +133,7 @@ func show_preview() -> void:
 func start() -> void:
 	prepare(profile)
 	mode = Mode.RACE
+	showroom.visible = false
 	paused = false
 	results.visible = false
 	hud.visible = true
@@ -140,6 +174,7 @@ func _apply_theme(th: TrackTheme) -> void:
 	env.ambient_light_energy = th.ambient_energy
 	env.fog_light_color = th.fog_color
 	env.fog_density = th.fog_density
+	sun.light_color = Color("#ffe1ae")
 	sun.light_energy = th.sun_energy
 	sun.rotation_degrees = th.sun_rotation
 	if AppSettings.advanced_renderer_active():
@@ -247,6 +282,7 @@ func _show_results() -> void:
 	if mode != Mode.RACE:
 		return
 	mode = Mode.RESULTS
+	showroom.visible = true
 	_orbit = 0.0
 	sfx.stop_engine()
 	hud.visible = false
@@ -289,10 +325,11 @@ func set_paused(p: bool) -> void:
 func _process(delta: float) -> void:
 	if logic == null:
 		return
+	motes.global_position = camera.global_position - camera.global_basis.z * 9.0
 	_t += delta
 	match mode:
 		Mode.PREVIEW:
-			_update_karts(0.0)
+			_update_karts(delta)
 			_orbit_camera(delta, preview_side)
 		Mode.RACE:
 			var dt := 0.0 if paused else delta
@@ -316,16 +353,20 @@ func _process(delta: float) -> void:
 func _update_karts(dt: float) -> void:
 	for r in logic.racers:
 		var k: Kart = karts[r]
+		k.visible = mode == Mode.RACE or r.is_player
+		k.model.scale = Vector3.ONE * (1.22 if mode != Mode.RACE else 1.0)
 		var speed: float = logic.base_speed * r.mult
 		if r.finished:
 			# tour d'honneur au ralenti après la ligne
 			speed = logic.base_speed * 0.45
 			k.extra_distance += speed * dt
-		if logic.state == "countdown":
+		if logic.state == "countdown" or mode != Mode.RACE:
 			speed = 0.0
 		var boosting: bool = r.boost > 0.0 and r.word == "" and not r.finished
 		var slowed: bool = r.word != "" and logic.state == "running"
 		k.update_visual(track, r.distance + k.extra_distance, speed, r.mult, dt, boosting, slowed)
+		if mode != Mode.RACE and r.is_player:
+			k.global_transform = Transform3D(Basis(Vector3.UP, 0.18), showroom.position + Vector3.UP * 0.66)
 
 
 ## Pilote automatique : les karts changent de couloir pour doubler.
@@ -366,7 +407,7 @@ func _place_chase_camera(dt: float) -> void:
 	var p := logic.player
 	var k: Kart = karts[p]
 	var f := track.frame_at(p.distance + k.extra_distance)
-	var target := f.origin + f.basis.x * k.lateral * 0.7 + f.basis.z * 8.0 + Vector3.UP * 3.4
+	var target := f.origin + f.basis.x * k.lateral * 0.7 + f.basis.z * 9.2 + Vector3.UP * 4.1
 	var w := 1.0 if dt >= 1.0 else 1.0 - exp(-dt * 7.0)
 	camera.global_position = camera.global_position.lerp(target, w)
 	if _shake > 0.0:
@@ -374,8 +415,8 @@ func _place_chase_camera(dt: float) -> void:
 		camera.global_position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * _shake * 0.6
 	var look := f.origin + f.basis.x * k.lateral * 0.85 + Vector3.UP * 0.6 - f.basis.z * 6.0
 	camera.look_at(look)
-	camera.v_offset = -1.2 # remonte le kart au-dessus du panneau du mot
-	var fov_target := 70.0 + (p.mult - 1.0) * 14.0
+	camera.v_offset = -0.7 # remonte le kart au-dessus du panneau du mot
+	var fov_target := 65.0 + (p.mult - 1.0) * 10.0
 	camera.fov = lerpf(camera.fov, fov_target, 1.0 if dt >= 1.0 else 1.0 - exp(-dt * 4.0))
 
 
@@ -384,15 +425,15 @@ func _place_chase_camera(dt: float) -> void:
 func _orbit_camera(dt: float, side: float) -> void:
 	var k: Kart = karts[logic.player]
 	_orbit += dt
-	var center := k.global_position + Vector3.UP * 1.2
+	var center := k.global_position + Vector3.UP * 1.4
 	var fwd := -k.global_basis.z
-	var angle := 0.55 * signf(side) + sin(_orbit * 0.4) * 0.45
+	var angle := 0.55 * signf(side) + sin(_orbit * 0.2) * 0.12
 	var dir := fwd.rotated(Vector3.UP, angle)
-	camera.global_position = center + dir * 7.5 + Vector3.UP * 1.8
+	camera.global_position = center + dir * 9.8 + Vector3.UP * 3.0
 	camera.look_at(center)
 	camera.global_position += camera.global_basis.x * side
 	camera.v_offset = 0.0
-	camera.fov = 60.0
+	camera.fov = 42.0
 
 
 func _minimap_dots() -> Array:

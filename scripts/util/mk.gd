@@ -13,7 +13,7 @@ static func mat(color: Color, unshaded := false, emission := 0.0) -> StandardMat
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
 	m.roughness = 0.8
-	m.metallic_specular = 0.2
+	m.metallic_specular = 0.35
 	if unshaded:
 		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	if emission > 0.0:
@@ -42,6 +42,49 @@ static func box(size: Vector3) -> BoxMesh:
 	var m := BoxMesh.new()
 	m.size = size
 	return m
+
+
+## Carrosserie et mobilier : boîte biseautée, aux normales douces.
+static func rounded_box(size: Vector3, radius := 0.12) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var half := size * 0.5
+	var r := minf(radius, minf(half.x, minf(half.y, half.z)) * 0.9)
+	var inner := half - Vector3.ONE * r
+	for axis in 3:
+		var u := (axis + 1) % 3
+		var v := (axis + 2) % 3
+		var xs := [-half[u], -half[u] + r * 0.3, -half[u] + r, half[u] - r, half[u] - r * 0.3, half[u]]
+		var ys := [-half[v], -half[v] + r * 0.3, -half[v] + r, half[v] - r, half[v] - r * 0.3, half[v]]
+		for side in [-1.0, 1.0]:
+			for x in 5:
+				for y in 5:
+					var points: Array[Vector3] = []
+					var normals: Array[Vector3] = []
+					for corner in [Vector2i(x, y), Vector2i(x + 1, y), Vector2i(x, y + 1), Vector2i(x + 1, y + 1)]:
+						var p := Vector3.ZERO
+						p[axis] = half[axis] * side
+						p[u] = xs[corner.x]
+						p[v] = ys[corner.y]
+						var center := p.clamp(-inner, inner)
+						var normal := (p - center).normalized()
+						points.append(center + normal * r)
+						normals.append(normal)
+					for tri in [[0, 1, 2], [1, 3, 2]]:
+						if (points[tri[1]] - points[tri[0]]).cross(points[tri[2]] - points[tri[0]]).dot(normals[tri[0]]) > 0:
+							tri.reverse()
+						for i in tri:
+							st.set_normal(normals[i])
+							st.add_vertex(points[i])
+	return st.commit()
+
+
+static func lacquer(color: Color) -> StandardMaterial3D:
+	var material := mat(color).duplicate() as StandardMaterial3D
+	material.roughness = 0.28
+	material.metallic = 0.15
+	material.metallic_specular = 0.65
+	return material
 
 
 static func sphere(r: float, hemisphere := false) -> SphereMesh:

@@ -1,508 +1,298 @@
-[gd_scene load_steps=26 format=3]
-
-[ext_resource type="Script" path="res://scripts/ui/menu.gd" id="1_w6y0u"]
-[ext_resource type="Theme" path="res://ui/theme.tres" id="2_cx0sj"]
-[ext_resource type="Script" path="res://scripts/ui/settings_dialog.gd" id="3_ntye7"]
-[ext_resource type="Script" path="res://scripts/ui/history_dialog.gd" id="4_cghgw"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1pxh0"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.176471, 0.498039, 0.976471, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e11en"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.141176, 0.398431, 0.781177, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_288ov"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.275294, 0.558275, 0.979294, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tub5d"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.0901961, 0.694118, 0.411765, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dnmb1"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.0721569, 0.555294, 0.329412, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5j7hh"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.199373, 0.730824, 0.482353, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y7dvm"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.552941, 0.6, 0.682353, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ir0oc"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.442353, 0.48, 0.545882, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a7ikg"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.606588, 0.648, 0.720471, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v42es"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.552941, 0.6, 0.682353, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_47ju0"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.442353, 0.48, 0.545882, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l7g7x"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.606588, 0.648, 0.720471, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1y541"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.552941, 0.6, 0.682353, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5gu2s"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.442353, 0.48, 0.545882, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rjaru"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.606588, 0.648, 0.720471, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pda4b"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.0901961, 0.694118, 0.411765, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0g78n"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.0721569, 0.555294, 0.329412, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8v8yk"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.199373, 0.730824, 0.482353, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kdy02"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.552941, 0.6, 0.682353, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_35nwp"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.442353, 0.48, 0.545882, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r4o3g"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.606588, 0.648, 0.720471, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+[gd_scene load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/ui/menu.gd" id="1"]
+[ext_resource type="Theme" path="res://ui/theme.tres" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/settings_dialog.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/history_dialog.gd" id="4"]
 
 [node name="Menu" type="CanvasLayer"]
-script = ExtResource("1_w6y0u")
+script = ExtResource("1")
 
 [node name="Root" type="Control" parent="."]
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource("2_cx0sj")
+theme = ExtResource("2")
+mouse_filter = 2
 
-[node name="Panel" type="PanelContainer" parent="Root"]
-custom_minimum_size = Vector2(540, 0)
+[node name="Panel" type="Control" parent="Root"]
 layout_mode = 0
-offset_left = 36.0
-offset_top = 18.0
-offset_right = 36.0
-offset_bottom = 18.0
+offset_left = 48.0
+offset_top = 48.0
+offset_right = 458.0
+offset_bottom = 518.0
+mouse_filter = 2
 
-[node name="Box" type="VBoxContainer" parent="Root/Panel"]
-layout_mode = 2
-theme_override_constants/separation = 10
+[node name="Edition" type="Label" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 400.0
+offset_bottom = 28.0
+text = "LES PETITES COURSES · LES GRANDES AVENTURES"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.72,0.79,0.70,1)
+mouse_filter = 2
 
-[node name="Title" type="Label" parent="Root/Panel/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 84
-theme_override_colors/font_color = Color(1, 0.419608, 0.207843, 1)
-theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
-theme_override_constants/outline_size = 18
-text = "FunKart"
-horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="Root/Panel/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
-text = "La course où l'on avance en tapant au clavier !"
-horizontal_alignment = 1
-autowrap_mode = 3
+[node name="Title" type="Label" parent="Root/Panel"]
+layout_mode = 0
+offset_left = -4.0
+offset_top = 32.0
+offset_right = 406.0
+offset_bottom = 130.0
+text = "FUNKART"
+theme_override_font_sizes/font_size = 78
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
 
-[node name="WhoLabel" type="Label" parent="Root/Panel/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-text = "Qui joue ?"
 
-[node name="ProfileRow" type="HBoxContainer" parent="Root/Panel/Box"]
-layout_mode = 2
+[node name="Subtitle" type="Label" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 141.0
+offset_right = 364.0
+offset_bottom = 213.0
+text = "Un mot. Un élan.\nToute une aventure."
+theme_override_font_sizes/font_size = 25
+theme_override_colors/font_color = Color(0.8,0.85,0.78,1)
+mouse_filter = 2
+
+
+[node name="Who" type="Label" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 242.0
+offset_right = 364.0
+offset_bottom = 267.0
+text = "QUI PREND LE VOLANT ?"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.67,0.77,0.70,1)
+mouse_filter = 2
+
+
+[node name="ProfileRow" type="HBoxContainer" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 276.0
+offset_right = 340.0
+offset_bottom = 324.0
 theme_override_constants/separation = 8
 
-[node name="ProfileSelect" type="OptionButton" parent="Root/Panel/Box/ProfileRow"]
+[node name="ProfileSelect" type="OptionButton" parent="Root/Panel/ProfileRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 20
 
-[node name="NewProfileButton" type="Button" parent="Root/Panel/Box/ProfileRow"]
+[node name="NewProfileButton" type="Button" parent="Root/Panel/ProfileRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_1pxh0")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_e11en")
-theme_override_styles/hover = SubResource("StyleBoxFlat_288ov")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "+ Nouveau"
+text = "+"
+custom_minimum_size = Vector2(48,48)
 
-[node name="CharacterLabel" type="Label" parent="Root/Panel/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-text = "Choisis ton pilote"
-
-[node name="CharacterGrid" type="GridContainer" parent="Root/Panel/Box"]
+[node name="WordsLabel" type="Label" parent="Root/Panel"]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 4
-
-[node name="WordsLabel" type="Label" parent="Root/Panel/Box"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.372549, 0.392157, 0.439216, 1)
-theme_override_font_sizes/font_size = 18
+layout_mode = 0
+offset_left = 4.0
+offset_top = 334.0
+offset_right = 344.0
+offset_bottom = 372.0
 text = "Mots : Mots de base"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.7,0.79,0.72,1)
+mouse_filter = 2
 autowrap_mode = 3
 
-[node name="PlayButton" type="Button" parent="Root/Panel/Box"]
+[node name="PlayButton" type="Button" parent="Root/Panel"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 76)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_tub5d")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_dnmb1")
-theme_override_styles/hover = SubResource("StyleBoxFlat_5j7hh")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 52
-text = "JOUER !"
+layout_mode = 0
+offset_left = 0.0
+offset_top = 393.0
+offset_right = 340.0
+offset_bottom = 458.0
+text = "Prendre le départ"
+theme_override_font_sizes/font_size = 25
 
-[node name="ButtonsRow" type="HBoxContainer" parent="Root/Panel/Box"]
-layout_mode = 2
+[node name="Utility" type="HBoxContainer" parent="Root"]
+layout_mode = 0
+offset_left = -430.0
+offset_top = 28.0
+offset_right = -40.0
+offset_bottom = 68.0
+anchor_left = 1.0
+anchor_right = 1.0
 theme_override_constants/separation = 8
 
-[node name="SettingsButton" type="Button" parent="Root/Panel/Box/ButtonsRow"]
+[node name="SettingsButton" type="Button" parent="Root/Utility"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_y7dvm")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ir0oc")
-theme_override_styles/hover = SubResource("StyleBoxFlat_a7ikg")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
-text = "Réglages (adulte)"
+theme_override_font_sizes/font_size = 15
+text = "Réglages"
 
-[node name="HistoryButton" type="Button" parent="Root/Panel/Box/ButtonsRow"]
+[node name="HistoryButton" type="Button" parent="Root/Utility"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_v42es")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_47ju0")
-theme_override_styles/hover = SubResource("StyleBoxFlat_l7g7x")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 15
 text = "Historique"
 
-[node name="QuitButton" type="Button" parent="Root/Panel/Box/ButtonsRow"]
+[node name="QuitButton" type="Button" parent="Root/Utility"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_1y541")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5gu2s")
-theme_override_styles/hover = SubResource("StyleBoxFlat_rjaru")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 15
 text = "Quitter"
 
-[node name="VersionLabel" type="Label" parent="Root"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 12.0
-offset_top = -4.0
-offset_right = 12.0
-offset_bottom = -4.0
-grow_vertical = 0
-mouse_filter = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.9)
-theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
-theme_override_constants/outline_size = 4
+[node name="FestivalTitle" type="Label" parent="Root"]
+layout_mode = 0
+offset_left = -390.0
+offset_top = 87.0
+offset_right = -40.0
+offset_bottom = 117.0
+text = "L’ATELIER DES BOIS"
 theme_override_font_sizes/font_size = 14
-text = "v0.0.0"
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
+anchor_left = 1.0
+anchor_right = 1.0
+horizontal_alignment = 2
 
 [node name="CharacterName" type="Label" parent="Root"]
 unique_name_in_owner = true
 layout_mode = 0
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -30.0
-offset_right = -40.0
-offset_bottom = -30.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 64
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.113725, 0.207843, 0.341176, 1)
-theme_override_constants/outline_size = 18
+offset_left = -495.0
+offset_top = 132.0
+offset_right = -55.0
+offset_bottom = 182.0
 text = "Chat"
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
+anchor_left = 1.0
+anchor_right = 1.0
+horizontal_alignment = 2
+
+[node name="CharacterTag" type="Label" parent="Root"]
+layout_mode = 0
+offset_left = -495.0
+offset_top = 182.0
+offset_right = -55.0
+offset_bottom = 207.0
+text = "PILOTE DE L’ATELIER"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.75,0.83,0.72,1)
+mouse_filter = 2
+anchor_left = 1.0
+anchor_right = 1.0
+horizontal_alignment = 2
+
+[node name="Choose" type="Label" parent="Root"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = -182.0
+offset_right = 448.0
+offset_bottom = -158.0
+text = "CHOISIS TON COMPAGNON"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.76,0.83,0.75,1)
+mouse_filter = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+
+[node name="CharacterGrid" type="GridContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 48.0
+offset_top = -151.0
+offset_right = 1232.0
+offset_bottom = -45.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+columns = 8
+theme_override_constants/h_separation = 10
+
+[node name="VersionLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 12.0
+offset_top = -22.0
+offset_right = 122.0
+offset_bottom = -4.0
+text = "v0.0.0"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+mouse_filter = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
 
 [node name="NewProfileLayer" type="ColorRect" parent="Root"]
 unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 visible = false
-layout_mode = 0
+color = Color(0.02,0.08,0.08,0.8)
+
+[node name="Center" type="CenterContainer" parent="Root/NewProfileLayer"]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.55)
 
-[node name="@CenterContainer@15" type="CenterContainer" parent="Root/NewProfileLayer"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="@PanelContainer@16" type="PanelContainer" parent="Root/NewProfileLayer/@CenterContainer@15"]
-custom_minimum_size = Vector2(560, 0)
+[node name="Dialog" type="PanelContainer" parent="Root/NewProfileLayer/Center"]
 layout_mode = 2
+custom_minimum_size = Vector2(500,0)
 
-[node name="@VBoxContainer@17" type="VBoxContainer" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16"]
+[node name="Box" type="VBoxContainer" parent="Root/NewProfileLayer/Center/Dialog"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="NewProfileTitle" type="Label" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17"]
+[node name="Title" type="Label" parent="Root/NewProfileLayer/Center/Dialog/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-text = "Nouveau profil"
+text = "Un nouveau pilote"
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.1,0.23,0.23,1)
+mouse_filter = 2
 
-[node name="NewProfileHelp" type="Label" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.113725, 0.113725, 0.121569, 1)
-text = "Prénom de l'enfant"
 
-[node name="NewProfileName" type="LineEdit" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17"]
+[node name="NewProfileName" type="LineEdit" parent="Root/NewProfileLayer/Center/Dialog/Box"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+placeholder_text = "Prénom de l’enfant"
 max_length = 16
+theme_override_font_sizes/font_size = 26
 
-[node name="NewProfileButtons" type="HBoxContainer" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17"]
+[node name="Row" type="HBoxContainer" parent="Root/NewProfileLayer/Center/Dialog/Box"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="CreateProfileButton" type="Button" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17/NewProfileButtons"]
+[node name="CreateProfileButton" type="Button" parent="Root/NewProfileLayer/Center/Dialog/Box/Row"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_pda4b")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0g78n")
-theme_override_styles/hover = SubResource("StyleBoxFlat_8v8yk")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 28
-text = "Créer"
+text = "Bienvenue !"
 
-[node name="CancelProfileButton" type="Button" parent="Root/NewProfileLayer/@CenterContainer@15/@PanelContainer@16/@VBoxContainer@17/NewProfileButtons"]
+[node name="CancelProfileButton" type="Button" parent="Root/NewProfileLayer/Center/Dialog/Box/Row"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_kdy02")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_35nwp")
-theme_override_styles/hover = SubResource("StyleBoxFlat_r4o3g")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
+size_flags_horizontal = 3
 text = "Annuler"
 
 [node name="Settings" type="Control" parent="Root"]
 unique_name_in_owner = true
-anchors_preset = 0
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource("3_ntye7")
+script = ExtResource("3")
 
 [node name="History" type="Control" parent="Root"]
 unique_name_in_owner = true
-anchors_preset = 0
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource("4_cghgw")
+script = ExtResource("4")

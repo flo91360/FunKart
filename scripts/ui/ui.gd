@@ -1,12 +1,12 @@
 class_name Ui
 ## Thème et petites fonctions pour construire l'interface.
 
-const INK := Color("#1d1d1f")
-const ORANGE := Color("#ff6b35")
-const YELLOW := Color("#ffd60a")
-const GREEN := Color("#27ae60")
-const RED := Color("#e63946")
-const NAVY := Color("#1d3557")
+const INK := Color("#183a37")
+const ORANGE := Color("#325a55")
+const YELLOW := Color("#ffcf76")
+const GREEN := Color("#269779")
+const RED := Color("#db6869")
+const NAVY := Color("#123735")
 
 static var _font: Font
 static var _word_font: Font
@@ -15,19 +15,14 @@ static var _theme: Theme
 
 static func font() -> Font:
 	if _font == null:
-		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Arial Rounded MT Bold", "Nunito", "Verdana", "DejaVu Sans", "Arial"])
-		f.font_weight = 700
-		_font = f
+		_font = load("res://ui/fonts/NunitoBold.ttf")
 	return _font
 
 
 ## Police du mot à taper : lettres simples et bien espacées.
 static func word_font() -> Font:
 	if _word_font == null:
-		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Andika", "Comic Sans MS", "Verdana", "DejaVu Sans", "Arial"])
-		f.font_weight = 700
+		var f := font()
 		var v := FontVariation.new()
 		v.base_font = f
 		v.spacing_glyph = 6
@@ -40,6 +35,10 @@ static func flat(color: Color, radius := 16, border_color := Color.TRANSPARENT, 
 	s.bg_color = color
 	s.set_corner_radius_all(radius)
 	s.set_content_margin_all(pad)
+	if color.a > 0.5:
+		s.shadow_color = Color(0.04, 0.15, 0.19, 0.17)
+		s.shadow_size = 6
+		s.shadow_offset = Vector2(0, 3)
 	if border > 0:
 		s.border_color = border_color
 		s.set_border_width_all(border)
@@ -64,7 +63,7 @@ static func build_theme() -> Theme:
 	t.set_stylebox("normal", "Button", flat(ORANGE, 14, Color.TRANSPARENT, 0, 10))
 	t.set_stylebox("hover", "Button", flat(ORANGE.lightened(0.12), 14, Color.TRANSPARENT, 0, 10))
 	t.set_stylebox("pressed", "Button", flat(ORANGE.darkened(0.2), 14, Color.TRANSPARENT, 0, 10))
-	t.set_stylebox("disabled", "Button", flat(Color("#c8c8c8"), 14, Color.TRANSPARENT, 0, 10))
+	t.set_stylebox("disabled", "Button", flat(Color("#a7b9b8"), 14, Color.TRANSPARENT, 0, 10))
 	t.set_stylebox("focus", "Button", flat(Color.TRANSPARENT, 14, NAVY, 4, 10))
 	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
 		t.set_color(c, "Button", Color.WHITE)
@@ -73,8 +72,8 @@ static func build_theme() -> Theme:
 			t.set_stylebox(st, type, StyleBoxEmpty.new())
 		for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
 			t.set_color(c, type, INK)
-	t.set_stylebox("panel", "PanelContainer", flat(Color(1, 1, 1, 0.96), 22, Color.TRANSPARENT, 0, 24))
-	t.set_stylebox("panel", "Panel", flat(Color(1, 1, 1, 0.96), 22))
+	t.set_stylebox("panel", "PanelContainer", flat(Color("#fff5e5"), 24, Color.TRANSPARENT, 0, 24))
+	t.set_stylebox("panel", "Panel", flat(Color("#fff5e5"), 24))
 	t.set_color("font_color", "Label", INK)
 	t.set_stylebox("normal", "LineEdit", flat(Color.WHITE, 12, Color("#c9ccd6"), 3, 10))
 	t.set_stylebox("focus", "LineEdit", flat(Color.TRANSPARENT, 12, ORANGE, 3, 10))
@@ -113,11 +112,12 @@ static func button(text: String, size := 24, color := ORANGE) -> Button:
 
 
 static func set_button_color(b: Button, color: Color, border := Color.TRANSPARENT) -> void:
-	var bw := 5 if border != Color.TRANSPARENT else 0
-	b.add_theme_stylebox_override("normal", flat(color, 14, border, bw, 10))
-	b.add_theme_stylebox_override("hover", flat(color.lightened(0.12), 14, border, bw, 10))
-	b.add_theme_stylebox_override("pressed", flat(color.darkened(0.2), 14, border, bw, 10))
-	var text_color := INK if color.get_luminance() > 0.6 else Color.WHITE
+	var bw := 2 if border != Color.TRANSPARENT else 0
+	b.add_theme_stylebox_override("focus", flat(Color.TRANSPARENT, 16, Color("#f1ddb6"), 2, 10))
+	b.add_theme_stylebox_override("normal", flat(color, 16, border, bw, 10))
+	b.add_theme_stylebox_override("hover", flat(color.lightened(0.12), 16, border, bw, 10))
+	b.add_theme_stylebox_override("pressed", flat(color.darkened(0.2), 16, border, bw, 10))
+	var text_color := INK if color.get_luminance() > 0.5 else Color("#f3ead4")
 	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		b.add_theme_color_override(c, text_color)
 
@@ -149,3 +149,64 @@ static func format_time(s: float) -> String:
 		return "—"
 	var m := int(s / 60.0)
 	return "%d:%04.1f" % [m, s - m * 60.0]
+
+
+## Voile doux sur le fond 3D, sans intercepter les clics.
+static func backdrop(parent: Control) -> void:
+	var veil := ColorRect.new()
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(veil)
+	parent.move_child(veil, 0)
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+void fragment() {
+	float left = 1.0 - smoothstep(0.16, 0.65, UV.x);
+	float bottom = smoothstep(0.62, 0.92, UV.y);
+	float edge = smoothstep(0.45, 0.9, distance(UV, vec2(0.64, 0.42)));
+	COLOR = vec4(0.025, 0.085, 0.083, clamp(left * 0.76 + bottom * 0.82 + edge * 0.16, 0.0, 0.94));
+}
+"""
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	veil.material = material
+
+
+## Portrait 3D calculé une seule fois : les cartes montrent les vrais modèles.
+static func portrait(character_id: String) -> SubViewportContainer:
+	var holder := SubViewportContainer.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.stretch = true
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(96, 96)
+	viewport.own_world_3d = true
+	viewport.transparent_bg = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.msaa_3d = Viewport.MSAA_2X
+	holder.add_child(viewport)
+	var world := WorldEnvironment.new()
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color.TRANSPARENT
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color("#c8d6c7")
+	env.ambient_light_energy = 0.75
+	world.environment = env
+	viewport.add_child(world)
+	var light := DirectionalLight3D.new()
+	light.rotation_degrees = Vector3(-35, -35, 0)
+	light.light_energy = 0.8
+	viewport.add_child(light)
+	var path := "res://assets/models/%s.glb" % character_id
+	if not ResourceLoader.exists(path):
+		path = "res://assets/models/chat.glb"
+	var character: Node3D = load(path).instantiate()
+	viewport.add_child(character)
+	var camera := Camera3D.new()
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.size = 1.9
+	viewport.add_child(camera)
+	camera.position = Vector3(0, 2.14, -3.0)
+	camera.rotation.y = PI
+	return holder
