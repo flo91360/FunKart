@@ -1,11 +1,12 @@
 class_name Sfx
 extends Node
 ## Sons, musique et voix, générés par le code (aucun fichier audio).
+## La musique (un morceau par circuit) est jouée par MusicPlayer.
 
 const RATE := 22050.0
 
 var engine := AudioStreamPlayer.new()
-var music := AudioStreamPlayer.new()
+var music := MusicPlayer.new()
 var _pool: Array[AudioStreamPlayer] = []
 var _sounds := {}
 
@@ -28,9 +29,6 @@ func _ready() -> void:
 	engine.volume_db = -18.0
 	engine.bus = AppSettings.BUS_EFFECTS
 	add_child(engine)
-	music.stream = _wav(_music_loop(), true)
-	music.volume_db = -14.0
-	music.bus = AppSettings.BUS_MUSIC
 	add_child(music)
 
 
@@ -46,13 +44,14 @@ func play(sound_name: String) -> void:
 	_pool[0].play()
 
 
-func start_race_audio() -> void:
+## Moteur et musique de la course (song : morceau du circuit, MusicSynth.SONGS).
+func start_race_audio(song := "prairie") -> void:
 	if AppSettings.get_value("sound"):
 		engine.play()
-	if AppSettings.get_value("music") and not music.playing:
-		music.play()
-	elif not AppSettings.get_value("music"):
+	if not AppSettings.get_value("music"):
 		music.stop()
+	elif not music.playing or music.song_id != song:
+		music.play_song(song)
 
 
 func stop_engine() -> void:
@@ -122,37 +121,6 @@ func _engine_loop() -> PackedFloat32Array:
 		var t := i / RATE
 		var v := _osc("saw", t * 56.0) * 0.5 + _osc("square", t * 112.0) * 0.2 + (randf() - 0.5) * 0.08
 		out.append(v * 0.6)
-	return out
-
-
-## Petite boucle musicale joyeuse (do - sol - la mineur - fa).
-func _music_loop() -> PackedFloat32Array:
-	var beat := 60.0 / 150.0
-	var chords := [[261.6, 329.6, 392.0], [196.0, 246.9, 293.7], [220.0, 261.6, 329.6], [174.6, 220.0, 261.6]]
-	var melody := [784.0, 659.0, 784.0, 880.0, 784.0, 659.0, 587.0, 659.0,
-		587.0, 494.0, 587.0, 659.0, 587.0, 494.0, 392.0, 494.0,
-		523.0, 659.0, 880.0, 784.0, 659.0, 523.0, 587.0, 659.0,
-		698.0, 659.0, 587.0, 523.0, 587.0, 659.0, 587.0, 523.0]
-	var total := int(beat * 16.0 * RATE)
-	var out := PackedFloat32Array()
-	out.resize(total)
-	var eighth := beat / 2.0
-	for i in total:
-		var t := i / RATE
-		var bar := int(t / (beat * 4.0)) % 4
-		var chord: Array = chords[bar]
-		var e := int(t / eighth)
-		var te := t - e * eighth
-		var arp: float = chord[[0, 1, 2, 1][e % 4]] * 2.0
-		var v := _osc("square", t * arp) * 0.05 * exp(-6.0 * te)
-		var mel: float = melody[e % melody.size()]
-		v += _osc("triangle", t * mel) * 0.12 * exp(-3.0 * te)
-		var q := int(t / beat)
-		var tq := t - q * beat
-		v += _osc("triangle", t * chord[0] / 2.0) * 0.2 * exp(-2.0 * tq)
-		if q % 2 == 1 and tq < 0.04:
-			v += (randf() - 0.5) * 0.15 * (1.0 - tq / 0.04)
-		out[i] = v
 	return out
 
 

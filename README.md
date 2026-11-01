@@ -34,6 +34,8 @@ Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêt
 
 ## Règles
 
+- Quatre circuits au choix dans le menu (« Choisis ton circuit ») : la
+  Prairie, la Plage, la Montagne enneigée et le Canyon, chacun avec sa musique.
 - Le kart avance en pilote automatique (pas d'accélération, de frein ni de direction).
 - Régulièrement, un mot apparaît en grand en bas de l'écran.
 - **Tant que le mot n'est pas entièrement tapé, le kart ralentit.**

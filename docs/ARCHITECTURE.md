@@ -137,6 +137,13 @@ Deux bus audio, « Musique » et « Effets », sont créés au démarrage par
 `app.json`. Les curseurs (`scripts/ui/volume_sliders.gd`) sont dans le menu
 pause et dans les réglages.
 
+La musique de course est jouée par le code (`scripts/race/music_synth.gd`,
+`MusicSynth`) : chaque morceau de `SONGS` décrit son tempo, ses accords, sa
+mélodie (une note MIDI par croche) et l'ordre de ses parties. `MusicPlayer`
+(`scripts/race/music_player.gd`) envoie les échantillons au fur et à mesure
+(`AudioStreamGenerator`). Le morceau d'un circuit est choisi par son thème
+(`TrackTheme.music`).
+
 ## Modifier le contenu dans l'éditeur Godot
 
 - **Un circuit** : ouvrir `tracks/prairie.tscn`, sélectionner le nœud `Path`
@@ -144,10 +151,14 @@ pause et dans les réglages.
   Le premier point est la ligne de départ ; le dernier point se raccorde au
   premier. Les propriétés du nœud racine règlent la largeur de la route, le
   thème, la position de la tribune et la graine du décor.
-- **Un nouveau circuit** : dupliquer `tracks/prairie.tscn`, modifier la courbe,
-  puis l'ajouter à la liste `tracks` de `data/content.tres`.
-- **Une ambiance** : dupliquer `data/themes/prairie.tres` (couleurs du sol, de
-  la route, du ciel, des arbres…) et l'assigner au circuit.
+- **Un nouveau circuit** : dupliquer un circuit de `tracks/` (Prairie, Plage,
+  Montagne, Canyon), modifier la courbe, puis l'ajouter à la liste `tracks` de
+  `data/content.tres` : il apparaît dans le menu (« Choisis ton circuit »).
+  Le test des circuits (`tests/test_profiles.gd`) vérifie que la route ne se
+  touche pas et que la tribune est dégagée.
+- **Une ambiance** : dupliquer un thème de `data/themes/` (couleurs du sol, de
+  la route, du ciel, des arbres…, couleur du bouton dans le menu et musique)
+  et l'assigner au circuit.
 - **Un pilote** : dupliquer un fichier de `data/characters/`, changer `id`,
   couleurs, oreilles…, puis l'ajouter à `characters` dans `data/content.tres`
   (`playable` : proposé à l'enfant ou adversaire).
