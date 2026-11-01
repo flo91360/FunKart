@@ -59,6 +59,8 @@ func available_lists() -> Array:
 	var out := []
 	for wl in GameContent.get_content().word_lists:
 		out.append({"id": wl.id, "title": wl.title, "words": wl.words, "builtin": true})
+	# leçons du clavier, rangée par rangée (générées à partir des listes du jeu)
+	out.append_array(KeyboardLessons.lists())
 	for l in word_lists:
 		out.append({"id": l.id, "title": l.title, "words": PackedStringArray(l.words), "builtin": false})
 	return out

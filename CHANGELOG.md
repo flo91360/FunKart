@@ -10,6 +10,20 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.8.0] - 2026-11-01
+
+### Ajouté
+
+- Leçons du clavier, rangée par rangée, dans les listes de mots (Réglages →
+  Listes de mots) :
+  - Leçon 1 : rangée du milieu (q s d f g h j k l m), avec des exercices de
+    lettres (ff, jj, fj, dk…) ;
+  - Leçon 2 : + rangée du haut (a z e r t y u i o p) ;
+  - Leçon 3 : + rangée du bas (w x c v b n) ;
+  - Leçon 4 : les accents (é è à ç ù).
+  Chaque leçon n'utilise que les rangées déjà vues, et chaque mot contient au
+  moins une touche de la nouvelle rangée.
+
 ## [0.7.0] - 2026-11-01
 
 ### Ajouté

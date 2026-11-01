@@ -73,6 +73,13 @@ doublon, liste de base par défaut). Interface : `scripts/ui/word_lists_panel.gd
 .txt). `WordList.parse()` découpe un texte en mots. Les profils de la version 1
 (une seule liste recopiée) sont convertis à la lecture.
 
+## Leçons du clavier
+
+`scripts/data/keyboard_lessons.gd` (`KeyboardLessons`) : les leçons (rangées et
+exercices dans `LESSONS`) deviennent des listes de mots (`lists()`, identifiants
+`lecon_1`…`lecon_4`) à partir des listes du jeu, ajoutées par
+`Profile.available_lists()` après les listes du jeu.
+
 ## Réglages réservés aux adultes
 
 `scripts/ui/parent_gate.gd` (`ParentGate`) : calcul à résoudre, ouvert par le

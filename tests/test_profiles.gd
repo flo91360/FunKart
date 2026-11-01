@@ -217,6 +217,26 @@ func _run() -> void:
 		"mauvaise réponse refusée")
 	check(bool(app.DEFAULTS.parent_lock), "réglages protégés par défaut")
 
+	print("Leçons du clavier")
+	var lessons := KeyboardLessons.lists()
+	check(lessons.size() == 4 and lessons[0].id == "lecon_1" and lessons[3].id == "lecon_4", "4 leçons, rangée par rangée")
+	var lesson_ok := true
+	for i in lessons.size():
+		var spec: Dictionary = KeyboardLessons.LESSONS[i]
+		if lessons[i].words.size() < 15:
+			lesson_ok = false
+		for w in lessons[i].words:
+			if not KeyboardLessons.uses_only(w, spec.letters) or not KeyboardLessons.uses_any(w, spec.new):
+				lesson_ok = false
+	check(lesson_ok, "chaque leçon : au moins 15 mots, seulement les rangées vues, au moins une touche de la nouvelle rangée")
+	check(KeyboardLessons.uses_only("fjdk", KeyboardLessons.ROW_HOME) and not KeyboardLessons.uses_only("fja", KeyboardLessons.ROW_HOME),
+		"leçon 1 : rangée du milieu seulement")
+	var lp2 := Profile.create("Leçons")
+	check(lp2.find_list("lecon_3").get("builtin", false) and lp2.find_list("lecon_3").words.has("banane"), "leçons proposées avec les listes du jeu")
+	lp2.set_active("base", false)
+	lp2.set_active("lecon_1", true)
+	check(lp2.words() == lessons[0].words, "leçon cochée : ses mots en course")
+
 	print("Clavier à l'écran")
 	var missing := []
 	for ch in "abcdefghijklmnopqrstuvwxyzéèçàù'-":
