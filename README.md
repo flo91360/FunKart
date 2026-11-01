@@ -26,9 +26,9 @@ Les versions publiées sont sur la page **Releases** du dépôt
 `FunKart-vX.Y.Z-Windows.zip` de la dernière version. Le numéro de version est
 affiché en bas à gauche du menu du jeu.
 
-Les versions de travail (non publiées) sont produites par GitHub à chaque
-modification : onglet **Actions** → dernière exécution de « Construire le
-jeu » → section **Artifacts**.
+Les versions de travail (non publiées) sont produites par GitHub pour chaque
+pull request et chaque modification de `main` : onglet **Actions** → dernière
+exécution de « Construire le jeu » → section **Artifacts**.
 
 Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêtre. <kbd>Échap</kbd> : pause.
 
@@ -134,7 +134,8 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
 - **Publier une version** : augmenter `config/version` dans `project.godot`
   (ex. `0.3.0`), décrire les nouveautés dans [CHANGELOG.md](CHANGELOG.md)
   (section `## [0.3.0] - AAAA-MM-JJ`) et fusionner dans `main`. GitHub
-  construit le jeu, lance les tests, puis crée automatiquement le tag `v0.3.0`
+  construit le jeu, lance les tests, puis (dans un job séparé, le seul autorisé
+  à écrire dans le dépôt) crée automatiquement le tag `v0.3.0`
   (annoté avec le changelog de la version) et la Release, dont la description
   reprend la section du changelog, avec les fichiers à télécharger. Sans
   section dans le changelog, elle est rédigée à partir des titres des commits

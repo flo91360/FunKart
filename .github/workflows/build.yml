@@ -1,11 +1,12 @@
 name: Construire le jeu
 
 on:
+  # Sur main (et sur un tag « v0.1.0 ») : construction, tests et, si un nouveau
+  # numéro de version (config/version dans project.godot) arrive, publication
+  # d'une version (Release GitHub avec le jeu). Les autres branches sont
+  # construites par leur pull request, une seule fois.
   push:
-    branches: ["**"]
-    # Une version (Release GitHub avec le jeu) est publiée automatiquement
-    # quand un nouveau numéro de version (config/version dans project.godot)
-    # arrive sur main. Pousser un tag « v0.1.0 » publie aussi une version.
+    branches: [main]
     tags: ["v*"]
   pull_request:
     branches: [main]
@@ -23,36 +24,39 @@ concurrency:
   group: validation-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# Par défaut, lecture seule : seul le job « release » peut écrire dans le dépôt.
+permissions:
+  contents: read
+
 env:
   GODOT_VERSION: 4.4.1
 
 jobs:
+  # Construction et tests : ne peut rien modifier dans le dépôt.
   export:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
       version: ${{ steps.version.outputs.version }}
-    permissions:
-      contents: write
+      release_tag: ${{ steps.version.outputs.release_tag }}
     steps:
-      - uses: actions/checkout@v4
+      # Actions épinglées par SHA (commentaire : version correspondante).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          # Historique et tags complets : le changelog d'une version liste les
-          # commits depuis le tag précédent.
-          fetch-depth: 0
 
       - name: Version à publier
         id: version
         run: |
           version=$(sed -n 's/^config\/version="\(.*\)"/\1/p' project.godot)
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          tag=""
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             if [ "v$version" != "${GITHUB_REF_NAME}" ]; then
               echo "::error::Le tag ${GITHUB_REF_NAME} ne correspond pas à la version du jeu (v$version, dans project.godot)."
               exit 1
             fi
-            echo "RELEASE_TAG=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+            tag="${GITHUB_REF_NAME}"
           elif [ "${{ inputs.publier }}" = "true" ]; then
             if [ "${GITHUB_REF_NAME}" != "main" ]; then
               echo "::error::Une version se publie depuis la branche main."
@@ -62,16 +66,17 @@ jobs:
               echo "::error::La version v$version est déjà publiée : augmenter config/version dans project.godot."
               exit 1
             fi
-            echo "RELEASE_TAG=v$version" >> "$GITHUB_ENV"
+            tag="v$version"
           elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_REF_NAME}" = "main" ]; then
             # Publication automatique : un nouveau numéro de version arrive sur main.
             if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
               echo "Version v$version déjà publiée : rien à publier."
             else
               echo "Nouvelle version v$version : elle sera publiée."
-              echo "RELEASE_TAG=v$version" >> "$GITHUB_ENV"
+              tag="v$version"
             fi
           fi
+          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Vérifier le changelog
         run: |
@@ -89,14 +94,19 @@ jobs:
       - name: Installer Godot et les modèles d'export
         run: |
           base=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
-          wget -q $base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
-          wget -q $base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
-          unzip -q Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          editor=Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          templates=Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          wget -q $base/$editor $base/$templates $base/SHA512-SUMS.txt
+          # Fichiers vérifiés avec les sommes de contrôle publiées par Godot.
+          grep -E "  ($editor|$templates)\$" SHA512-SUMS.txt > sommes.txt
+          [ "$(wc -l < sommes.txt)" -eq 2 ] || { echo "::error::Sommes de contrôle de Godot introuvables."; exit 1; }
+          sha512sum -c sommes.txt
+          unzip -q $editor
           sudo mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot
           mkdir -p ~/.local/share/godot/export_templates
-          unzip -q Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          unzip -q $templates
           mv templates ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          rm -f *.zip *.tpz
+          rm -f *.zip *.tpz SHA512-SUMS.txt sommes.txt
 
       - name: Importer le projet
         run: godot --headless --import
@@ -113,24 +123,51 @@ jobs:
           godot --headless --export-release "Windows" build/windows/FunKart.exe
           godot --headless --export-release "Linux" build/linux/FunKart.x86_64
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: FunKart-Windows
           path: build/windows/FunKart.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: FunKart-Linux
           path: build/linux/FunKart.x86_64
 
+  # Publication d'une version : seulement après des tests réussis, et seul job
+  # autorisé à écrire (changelog, tag, Release).
+  release:
+    needs: export
+    if: needs.export.outputs.release_tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ needs.export.outputs.release_tag }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Historique et tags complets : le changelog d'une version liste les
+          # commits depuis le tag précédent.
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: FunKart-Windows
+          path: build/windows
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: FunKart-Linux
+          path: build/linux
+
       - name: Préparer les fichiers de la version
-        if: env.RELEASE_TAG != ''
         run: |
           cd build/windows && zip -9 ../FunKart-${RELEASE_TAG}-Windows.zip FunKart.exe && cd ../..
+          chmod +x build/linux/FunKart.x86_64
           cd build/linux && zip -9 ../FunKart-${RELEASE_TAG}-Linux.zip FunKart.x86_64
 
       - name: Préparer le changelog de la version
-        if: env.RELEASE_TAG != ''
         id: changelog
         run: |
           version="${RELEASE_TAG#v}"
@@ -150,19 +187,21 @@ jobs:
 
       - name: Enregistrer le changelog sur main
         # Seulement si la section a été rédigée automatiquement.
-        if: env.RELEASE_TAG != '' && steps.changelog.outputs.genere == 'true'
+        if: steps.changelog.outputs.genere == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898+github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
           git commit -m "Changelog de la version ${RELEASE_TAG}"
           if ! git push origin HEAD:refs/heads/main; then
-            echo "::warning::CHANGELOG.md n'a pas pu être enregistré sur main (main a changé ou est protégée) : ajouter la section ${RELEASE_TAG} à la main."
-            git reset -q --hard HEAD~1
+            # Pas de tag ni de Release sans le changelog sur main : sinon la
+            # vérification du changelog échouerait ensuite sur toutes les
+            # pull requests. La prochaine construction de main réessaiera.
+            echo "::error::CHANGELOG.md n'a pas pu être enregistré sur main (main a changé ou est protégée) : version ${RELEASE_TAG} non publiée. Elle le sera à la prochaine construction de main, ou ajouter la section à la main."
+            exit 1
           fi
 
       - name: Créer le tag de la version
-        if: env.RELEASE_TAG != ''
         run: |
           if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null; then
             echo "Le tag ${RELEASE_TAG} existe déjà."
@@ -176,8 +215,7 @@ jobs:
           git push origin "refs/tags/${RELEASE_TAG}"
 
       - name: Publier la version sur GitHub
-        if: env.RELEASE_TAG != ''
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           name: FunKart ${{ env.RELEASE_TAG }}
