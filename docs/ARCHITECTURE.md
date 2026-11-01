@@ -73,6 +73,13 @@ doublon, liste de base par défaut). Interface : `scripts/ui/word_lists_panel.gd
 .txt). `WordList.parse()` découpe un texte en mots. Les profils de la version 1
 (une seule liste recopiée) sont convertis à la lecture.
 
+## Progression et records
+
+`scripts/data/progress.gd` (`Progress`) : meilleur score (`best_kpm()`),
+nouveau record (`is_record()`, utilisé par `Race._show_results()`) et points
+de la courbe (`series()`), dessinée par `scripts/ui/progress_chart.gd` dans
+l'historique. Seules comptent les courses d'au moins `AutoLevel.MIN_WORDS` mots.
+
 ## Adversaires automatiques
 
 Réglage du profil `bot_auto`. `scripts/race/auto_level.gd` (`AutoLevel`)

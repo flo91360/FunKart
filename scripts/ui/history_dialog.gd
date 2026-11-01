@@ -11,6 +11,8 @@ var _confirm_clear: ConfirmationDialog
 var _letters: Label
 var _practice_btn: Button
 var _hard: Array = [] # lettres à travailler (LetterStats.difficult)
+var _chart: ProgressChart
+var _best: Label
 
 
 func _ready() -> void:
@@ -19,6 +21,11 @@ func _ready() -> void:
 	var box: VBoxContainer = ov[1]
 	_title = Ui.label("Historique", 38)
 	box.add_child(_title)
+	# Courbe de progression et record.
+	_chart = ProgressChart.new()
+	box.add_child(_chart)
+	_best = Ui.label("", 20)
+	box.add_child(_best)
 	# Lettres à travailler sur les dernières courses, et liste d'entraînement.
 	var letters_row := HBoxContainer.new()
 	letters_row.add_theme_constant_override("separation", 12)
@@ -31,7 +38,7 @@ func _ready() -> void:
 	_practice_btn.pressed.connect(_create_practice_list)
 	letters_row.add_child(_practice_btn)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size.y = 360
+	scroll.custom_minimum_size.y = 150
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(scroll)
 	_grid = GridContainer.new()
@@ -101,6 +108,9 @@ func refresh() -> void:
 			_grid.add_child(Ui.label(str(c), 18))
 	_status.text = "" if not all.is_empty() else "Aucune course pour le moment."
 	all.reverse()
+	_chart.set_points(Progress.series(all))
+	var best := Progress.best_kpm(all)
+	_best.text = ("Record : %d frappes par minute" % roundi(best)) if best > 0.0 else "Record : pas encore de course complète."
 	_hard = LetterStats.difficult(LetterStats.from_history(all))
 	if _hard.is_empty():
 		_letters.text = "Lettres à travailler : aucune pour le moment (%d dernières courses)." % LetterStats.RECENT_RACES

@@ -102,7 +102,9 @@ Pendant la course et à l'arrivée :
   prochaines courses.
 
 Chaque course est enregistrée dans l'**historique** du profil (menu →
-Historique). L'export CSV (Excel ou LibreOffice) regroupe tous les profils dans
+Historique), avec la **courbe de progression** des frappes par minute (30
+dernières courses, records en doré) et le record du profil. Quand l'enfant bat
+son record, l'écran d'arrivée affiche « NOUVEAU RECORD ! ». L'export CSV (Excel ou LibreOffice) regroupe tous les profils dans
 le fichier `FunKart_historique.csv` du dossier Documents.
 
 ## Réglages (menu → Réglages (adulte), propres à chaque profil)

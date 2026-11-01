@@ -11,7 +11,8 @@ const PLACE_COLORS := [Color("#ffd60a"), Color("#d9dde4"), Color("#e09f5a")]
 var replay_button: Button
 
 
-func show_results(logic: RaceLogic, player_name: String) -> void:
+## previous_best > 0 : nouveau record de frappes par minute (ancien record).
+func show_results(logic: RaceLogic, player_name: String, previous_best := -1.0) -> void:
 	for c in box.get_children():
 		c.queue_free()
 	var standings := logic.standings()
@@ -26,6 +27,16 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(title)
+	if previous_best > 0.0:
+		var rec := Ui.label("NOUVEAU RECORD ! %d frappes/min (avant : %d)" % [roundi(logic.kpm()), roundi(previous_best)],
+			30, Ui.YELLOW, 10, Ui.NAVY)
+		rec.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(rec)
+		# petit rebond pour attirer l'œil
+		rec.resized.connect(func(): rec.pivot_offset = rec.size / 2.0)
+		var tw := rec.create_tween().set_loops(3)
+		tw.tween_property(rec, "scale", Vector2(1.12, 1.12), 0.25)
+		tw.tween_property(rec, "scale", Vector2.ONE, 0.25)
 
 	# Classement et statistiques : défilent si l'écran est trop petit,
 	# pour que les boutons restent toujours visibles en bas.

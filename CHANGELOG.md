@@ -10,6 +10,15 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.6.0] - 2026-11-01
+
+### Ajouté
+
+- « NOUVEAU RECORD ! » à l'arrivée quand l'enfant bat sa meilleure vitesse
+  (frappes par minute), avec l'ancien record.
+- Historique : courbe de progression des frappes par minute sur les 30
+  dernières courses (records en doré) et record du profil.
+
 ## [0.5.0] - 2026-11-01
 
 ### Ajouté
