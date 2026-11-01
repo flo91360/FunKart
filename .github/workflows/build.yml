@@ -115,7 +115,11 @@ jobs:
         run: godot --headless --path . --script res://tests/test_profiles.gd
 
       - name: Test (course jouée automatiquement)
-        run: godot --headless --path . --script res://tests/autoplay.gd -- --fast
+        # La Prairie, puis la Montagne (montées et descentes : la caméra doit
+        # rester au-dessus de la route et le kart visible).
+        run: |
+          godot --headless --path . --script res://tests/autoplay.gd -- --fast
+          godot --headless --path . --script res://tests/autoplay.gd -- --fast --track=2
 
       - name: Captures d'écran d'une course
         # Course jouée dans un écran virtuel avec rendu logiciel (Mesa) : les
@@ -125,9 +129,14 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends xvfb libgl1-mesa-dri libglx-mesa0 > /dev/null
-          mkdir -p build/captures
-          xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
-            --script res://tests/autoplay.gd -- --fast --shots="$PWD/build/captures"
+          # La Prairie (0) et la Montagne (2, avec ses montées et descentes) ; les
+          # miniatures (--thumbs) sont aussi écrites dans ce journal.
+          for track in 0 2; do
+            mkdir -p "build/captures/circuit_$track"
+            xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
+              --script res://tests/autoplay.gd -- --fast --thumbs --track=$track \
+              --shots="$PWD/build/captures/circuit_$track"
+          done
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

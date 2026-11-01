@@ -3,7 +3,12 @@ extends SceneTree
 ## clavier (avec une erreur volontaire), jusqu'à l'arrivée ; vérifie que la
 ## course est enregistrée dans l'historique du profil.
 ##
-## godot --path . --script res://tests/autoplay.gd -- [--shots=dossier] [--fast] [--bots=N]
+## godot --path . --script res://tests/autoplay.gd -- [--shots=dossier] [--fast] [--bots=N] [--track=N] [--thumbs]
+## --track : circuit (0 : la Prairie). --thumbs (avec --shots) : chaque capture est
+## aussi écrite en petit dans la sortie (JPEG en base64, lignes « THUMB »), pour
+## la voir dans le journal de la CI sans télécharger les Artifacts.
+## Pendant la course, la caméra doit rester au-dessus de la route et du sol, et
+## le kart visible au-dessus du panneau du mot.
 ## Les données de test sont dans user://test_autoplay (les vrais profils ne sont pas touchés).
 ## Sans --shots, peut tourner en mode --headless.
 
@@ -24,6 +29,11 @@ var made_error := false
 var shots_taken := {}
 var finished_at := -1.0
 var bot_count := 3
+var track_index := 0
+var thumbs := false
+var cam_clearance := INF # plus petite hauteur de la caméra au-dessus de la route ou du sol
+var kart_hidden := 0 # images où le kart est caché par le panneau du mot
+var running_frames := 0
 
 
 func _initialize() -> void:
@@ -34,6 +44,10 @@ func _initialize() -> void:
 			bot_count = int(arg.get_slice("=", 1))
 		if arg == "--fast":
 			Engine.time_scale = 4.0
+		if arg.begins_with("--track="):
+			track_index = int(arg.get_slice("=", 1))
+		if arg == "--thumbs":
+			thumbs = true
 
 
 ## Appelé à la première image : les autoloads (AppSettings, Profiles) sont prêts.
@@ -44,6 +58,7 @@ func _setup() -> void:
 	p.name = "Léa"
 	p.settings["laps"] = 1
 	p.settings["bot_count"] = bot_count
+	p.track_index = track_index
 	profiles.save_profile(p)
 	root.get_node("AppSettings").data["fullscreen"] = false
 	main = load("res://scenes/main.tscn").instantiate()
@@ -68,6 +83,7 @@ func _process(delta: float) -> bool:
 	if race.mode == MODE_RACE and logic.state == "countdown" and logic.countdown < 2.2:
 		_shot_once("countdown")
 	if race.mode == MODE_RACE and logic.state == "running":
+		_check_camera(logic)
 		var p := logic.player
 		if p.word != "" and elapsed >= next_key_at:
 			if not made_error and p.typed == 1:
@@ -90,6 +106,15 @@ func _process(delta: float) -> bool:
 		print("STANDINGS ", logic.standings().map(func(r): return "%s %.1f" % [r.name, logic.finish_of(r)]))
 		if h.size() != 1 or int(h.back().words) < 1 or int(h.back().errors) < 1 or h.back().get("word_lists", "") != "Mots de base":
 			push_error("Résultat inattendu")
+			quit(1)
+			return false
+		print("CAMERA hauteur mini au-dessus de la route : %.2f m ; kart caché par le panneau : %d images sur %d" % [cam_clearance, kart_hidden, running_frames])
+		if cam_clearance < 1.0:
+			push_error("La caméra est descendue trop près de la route ou du sol (%.2f m)" % cam_clearance)
+			quit(1)
+			return false
+		if kart_hidden > 0:
+			push_error("Le kart a été caché par le panneau du mot (%d images)" % kart_hidden)
 			quit(1)
 			return false
 		print("OK")
@@ -121,6 +146,22 @@ func _check_version_label() -> bool:
 	return true
 
 
+## La caméra reste au-dessus de la route et du sol ; le kart reste visible
+## au-dessus du panneau du mot, roues comprises (après la première seconde,
+## le temps du cadrage).
+func _check_camera(logic: RaceLogic) -> void:
+	running_frames += 1
+	var k = race.karts[logic.player] # Kart (non typé : le script ne dépend pas des classes de la course)
+	var d: float = logic.player.distance + k.extra_distance
+	var cam: Camera3D = race.camera
+	var road_y: float = maxf(race.track.frame_at(d).origin.y, 0.0)
+	cam_clearance = minf(cam_clearance, cam.global_position.y - road_y)
+	if logic.time > 1.0:
+		var spot := cam.unproject_position(k.global_position + Vector3.UP * 0.1)
+		if spot.y > race.hud.word_panel.global_position.y:
+			kart_hidden += 1
+
+
 func _key(ch: String) -> void:
 	var ev := InputEventKey.new()
 	ev.pressed = true
@@ -145,5 +186,8 @@ func _shot(shot_name: String) -> void:
 	await process_frame
 	var img := root.get_viewport().get_texture().get_image()
 	img.save_png(shots_dir.path_join("%02d_%s.png" % [shot_index, shot_name]))
+	if thumbs:
+		img.resize(480, int(480.0 * img.get_height() / img.get_width()), Image.INTERPOLATE_BILINEAR)
+		print("THUMB %d_%s %s" % [track_index, shot_name, Marshalls.raw_to_base64(img.save_jpg_to_buffer(0.6))])
 	shot_index += 1
 	print("shot ", shot_name)

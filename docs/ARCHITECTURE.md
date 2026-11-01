@@ -119,6 +119,16 @@ repris dans le message d'erreur. Réglage du profil : `keyboard`.
 La CI joue aussi une course dans un écran virtuel et enregistre des captures
 d'écran (Artifacts « Captures » de « Construire le jeu »).
 
+## Caméra de course
+
+`Race._place_chase_camera()` place la caméra derrière et au-dessus du kart
+(`CAMERA_BACK`, `CAMERA_HEIGHT`), jamais à moins de `CAMERA_MIN_CLEARANCE` de
+la route ou du sol. Pour que le kart reste visible au-dessus du panneau du mot
+(dont la hauteur dépend de la taille du mot et du clavier), l'image est
+décentrée vers le haut (projection « frustum », `_set_lens()`), sans abaisser
+la caméra. Le test `tests/autoplay.gd` vérifie les deux pendant une course.
+`Track.keep_above_ground()` garde la route au-dessus du sol.
+
 ## Graphismes
 
 Le jeu utilise par défaut le moteur de rendu « Compatibilité » (OpenGL), qui

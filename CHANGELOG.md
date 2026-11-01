@@ -10,6 +10,19 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.9.1] - 2026-11-01
+
+### Corrigé
+
+- Caméra de course : avec le clavier à l'écran, elle descendait au ras de la
+  route (vue écrasée, kart énorme) et passait parfois sous la route. Elle
+  reste maintenant derrière et au-dessus du kart, jamais à moins de 1,60 m de
+  la route ou du sol, et le kart est cadré juste au-dessus du panneau du mot.
+- La route ne passe plus sous l'herbe par endroits (les karts semblaient
+  rouler sous le sol, surtout sur la Prairie).
+- « Ralenti… » / « TURBO ! » est affiché en haut de l'écran et ne cache plus
+  le kart.
+
 ## [0.9.0] - 2026-11-01
 
 ### Ajouté
