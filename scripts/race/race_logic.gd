@@ -7,6 +7,9 @@ extends RefCounted
 ## kart ralentit ; une fois tapé, le kart reçoit un turbo temporaire.
 ## Les adversaires suivent exactement les mêmes règles : ils « tapent » leurs
 ## mots à une vitesse (en frappes par minute) réglée par l'adulte.
+## Le turbo dure « boost_duration » secondes, même si le mot suivant est déjà
+## affiché. Un mot sans aucune bonne lettre pendant SKIP_AFTER secondes est
+## passé (sans turbo) : l'enfant n'est jamais bloqué sur un mot.
 
 signal countdown_tick(n: int)
 signal race_started
@@ -14,6 +17,7 @@ signal word_started(word: String)
 signal key_ok(typed: int)
 signal key_error(expected: String)
 signal word_completed(word: String)
+signal word_skipped(word: String)
 signal player_finished
 
 const ACCENTS := {
@@ -26,6 +30,8 @@ const ACCENTS := {
 }
 
 const GRID_ROW_SPACING := 5.0
+## Secondes sans bonne lettre avant de passer le mot.
+const SKIP_AFTER := 15.0
 
 
 class Racer:
@@ -41,6 +47,7 @@ class Racer:
 	var word_elapsed := 0.0
 	var word_duration := 0.0
 	var word_errors := 0
+	var stuck := 0.0 # secondes depuis la dernière bonne lettre
 	var next_word_in := 1.5
 	var boost := 0.0
 	var finished := false
@@ -50,7 +57,7 @@ class Racer:
 	func copy():
 		var r = Racer.new()
 		for p in ["name", "character", "is_player", "kpm", "slot", "distance", "mult", "word",
-				"typed", "word_elapsed", "word_duration", "word_errors", "next_word_in", "boost",
+				"typed", "word_elapsed", "word_duration", "word_errors", "stuck", "next_word_in", "boost",
 				"finished", "finish_time"]:
 			r.set(p, get(p))
 		return r
@@ -68,7 +75,7 @@ var countdown := 3.0
 var racers: Array = []
 var player: Racer
 var finished_count := 0
-var stats := {"correct": 0, "errors": 0, "active_time": 0.0, "words": []}
+var stats := {"correct": 0, "errors": 0, "active_time": 0.0, "words": [], "skipped": 0}
 var _recent: Array[String] = []
 
 
@@ -76,11 +83,14 @@ func _init(p_settings: Dictionary, word_list: PackedStringArray, p_track_length:
 		player_info: Dictionary, bot_infos: Array) -> void:
 	settings = p_settings
 	var max_len := int(settings.max_word_length)
+	var all_words := PackedStringArray()
 	for w in word_list:
+		all_words.append(WordList.typeable(w))
+	for w in all_words:
 		if w.length() <= max_len:
 			words.append(w)
 	if words.is_empty():
-		words = word_list if not word_list.is_empty() else PackedStringArray(["kart"])
+		words = all_words if not all_words.is_empty() else PackedStringArray(["kart"])
 	laps = int(settings.laps)
 	track_length = p_track_length
 	race_length = laps * track_length
@@ -147,18 +157,21 @@ func _update_racer(r, dt: float, now: float, live: bool) -> void:
 			_spawn_word(r, live)
 	else:
 		r.word_elapsed += dt
+		r.stuck += dt
 		if r.is_player and live:
 			stats.active_time += dt
 		if not r.is_player and r.word_elapsed >= r.word_duration:
 			_complete_word(r, live)
+		elif r.is_player and r.stuck >= SKIP_AFTER:
+			_skip_word(r, live)
 	if r.boost > 0.0:
 		r.boost = maxf(0.0, r.boost - dt)
 
 	var target := 1.0
-	if r.word != "":
-		target = float(settings.slow_factor)
-	elif r.boost > 0.0:
+	if r.boost > 0.0:
 		target = float(settings.boost_factor)
+	elif r.word != "":
+		target = float(settings.slow_factor)
 	var rate := 4.0 if target > r.mult else 3.0
 	r.mult += (target - r.mult) * minf(1.0, rate * dt)
 	r.distance += base_speed * r.mult * dt
@@ -179,6 +192,7 @@ func _spawn_word(r, live: bool) -> void:
 	r.typed = 0
 	r.word_elapsed = 0.0
 	r.word_errors = 0
+	r.stuck = 0.0
 	if not r.is_player:
 		# Temps de frappe simulé avec un peu de variabilité (±20 %).
 		r.word_duration = r.word.length() * 60.0 / maxf(1.0, r.kpm) * randf_range(0.8, 1.2)
@@ -197,6 +211,16 @@ func _complete_word(r, live: bool) -> void:
 		word_completed.emit(w)
 
 
+## Mot passé sans turbo (aucune bonne lettre depuis SKIP_AFTER secondes).
+func _skip_word(r, live: bool) -> void:
+	var w: String = r.word
+	r.word = ""
+	r.next_word_in = float(settings.word_gap)
+	if live:
+		stats.skipped += 1
+		word_skipped.emit(w)
+
+
 static func normalize_char(c: String, accents_tolerant: bool) -> String:
 	var s := c.to_lower()
 	if accents_tolerant:
@@ -213,6 +237,7 @@ func handle_char(c: String) -> void:
 	var tol := bool(settings.accents_tolerant)
 	if normalize_char(c, tol) == normalize_char(expected, tol):
 		p.typed += 1
+		p.stuck = 0.0
 		stats.correct += 1
 		key_ok.emit(p.typed)
 		if p.typed >= p.word.length():

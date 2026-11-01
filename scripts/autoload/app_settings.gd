@@ -158,16 +158,47 @@ func restart() -> void:
 	get_tree().quit()
 
 
+## Lit un fichier JSON. S'il est abîmé (coupure de courant pendant
+## l'enregistrement…), la copie de secours « .bak » est lue à la place.
 static func read_json(file_path: String) -> Variant:
-	if not FileAccess.file_exists(file_path):
-		return null
-	return JSON.parse_string(FileAccess.get_file_as_string(file_path))
+	for p in [file_path, file_path + ".bak"]:
+		if not FileAccess.file_exists(p):
+			continue
+		var json := JSON.new()
+		if json.parse(FileAccess.get_file_as_string(p)) == OK:
+			if p != file_path:
+				push_warning("Fichier abîmé, copie de secours utilisée : %s" % file_path)
+			return json.data
+		push_warning("Fichier illisible : %s" % p)
+	return null
 
 
+static func _is_valid_json(file_path: String) -> bool:
+	return JSON.new().parse(FileAccess.get_file_as_string(file_path)) == OK
+
+
+## Enregistre sans risque : écrit d'abord un fichier temporaire, garde la version
+## précédente en « .bak », puis met le nouveau fichier à sa place. Un fichier
+## abîmé n'écrase pas la copie de secours : il est gardé en « .abime ».
 static func write_json(file_path: String, value: Variant) -> bool:
-	var f := FileAccess.open(file_path, FileAccess.WRITE)
+	var tmp := file_path + ".tmp"
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		push_error("Impossible d'écrire %s" % file_path)
 		return false
 	f.store_string(JSON.stringify(value, "\t"))
+	var ok := f.get_error() == OK
+	f.close()
+	if not ok:
+		DirAccess.remove_absolute(tmp)
+		push_error("Impossible d'écrire %s" % file_path)
+		return false
+	if FileAccess.file_exists(file_path):
+		var keep := file_path + (".bak" if _is_valid_json(file_path) else ".abime")
+		if FileAccess.file_exists(keep):
+			DirAccess.remove_absolute(keep)
+		DirAccess.rename_absolute(file_path, keep)
+	if DirAccess.rename_absolute(tmp, file_path) != OK:
+		push_error("Impossible d'écrire %s" % file_path)
+		return false
 	return true

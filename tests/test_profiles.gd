@@ -131,6 +131,54 @@ func _run() -> void:
 	lp.remove_list(mine.id)
 	check(lp.active_lists == ["base"] and lp.word_lists.is_empty(), "liste supprimée : retour à la liste de base")
 
+	check(Array(WordList.parse("cœur Œuf ex æquo")) == ["coeur", "Oeuf", "ex", "aequo"], "œ et æ remplacés par des lettres du clavier")
+	var bad_settings := Profile.from_dict({"id": "y", "name": "Y", "settings": {"bot_kpm": "vite", "laps": "deux", "word_gap": 3}})
+	check(bad_settings.get_setting("bot_kpm") is Array and int(bad_settings.get_setting("laps")) == 3 and float(bad_settings.get_setting("word_gap")) == 3.0,
+		"réglages du mauvais type ignorés")
+
+	print("Règles de la course")
+	check(RaceLogic.normalize_char("É", true) == "e" and RaceLogic.normalize_char("É", false) == "é", "accents facultatifs")
+	var logic := RaceLogic.new(Profile.DEFAULT_SETTINGS.duplicate(true), PackedStringArray(["cœur"]), 600.0,
+		{"name": "Test", "character": "chat"}, [])
+	check(Array(logic.words) == ["coeur"], "mot avec œ : se tape « coeur »")
+	logic.state = "running"
+	logic.update(2.0)
+	check(logic.player.word == "coeur", "un mot apparaît")
+	for ch in "coeur":
+		logic.handle_char(ch)
+	check(logic.player.word == "" and logic.player.boost > 0.0 and logic.stats.words.size() == 1, "mot tapé : turbo")
+	logic.player.next_word_in = 0.0
+	for i in 10:
+		logic.update(0.1)
+	check(logic.player.word != "" and logic.player.mult > 1.2, "le turbo continue quand le mot suivant est déjà affiché")
+	for i in 200:
+		logic.update(0.1)
+	check(logic.stats.skipped == 1 and logic.stats.words.size() == 1, "mot passé après %d s sans bonne lettre" % int(RaceLogic.SKIP_AFTER))
+
+	print("Fichiers abîmés")
+	var jp := DATA_DIR.path_join("essai.json")
+	app.write_json(jp, ["a"])
+	app.write_json(jp, ["a", "b"])
+	check(app.read_json(jp) == ["a", "b"] and FileAccess.file_exists(jp + ".bak") and not FileAccess.file_exists(jp + ".tmp"), "enregistrement avec copie de secours")
+	var broken := FileAccess.open(jp, FileAccess.WRITE)
+	broken.store_string("[\"a\", \"b")
+	broken.close()
+	check(app.read_json(jp) == ["a"], "fichier abîmé : la copie de secours est relue")
+	app.write_json(jp, ["a", "c"])
+	check(app.read_json(jp) == ["a", "c"] and app.read_json(jp + ".bak") == ["a"] and FileAccess.file_exists(jp + ".abime"),
+		"fichier abîmé gardé à part, copie de secours conservée")
+	var hist_path := DATA_DIR.path_join("profiles").path_join(profiles.current.id).path_join("history.json")
+	var before_runs: int = profiles.history().size()
+	profiles.add_history({"date": "2026-11-01", "kpm": 12.0})
+	var broken_hist := FileAccess.open(hist_path, FileAccess.WRITE)
+	broken_hist.store_string("")
+	broken_hist.close()
+	profiles.add_history({"date": "2026-11-02", "kpm": 13.0})
+	# La course enregistrée au moment de la coupure est dans le fichier abîmé
+	# (gardé en .abime) ; toutes les courses d'avant sont retrouvées.
+	check(profiles.history().size() == before_runs + 1 and FileAccess.file_exists(hist_path + ".abime"),
+		"historique abîmé : les anciennes courses ne sont pas perdues")
+
 	print("Éditeur de liste")
 	var cur: Profile = profiles.current
 	# Chargé à l'exécution : le script utilise l'autoload Profiles.

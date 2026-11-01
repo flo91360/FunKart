@@ -153,7 +153,8 @@ static func from_dict(d: Dictionary) -> Profile:
 	var s: Variant = d.get("settings", {})
 	if s is Dictionary:
 		for key in s:
-			if p.settings.has(key):
+			# Une valeur du mauvais type (fichier modifié à la main) est ignorée.
+			if p.settings.has(key) and _same_kind(s[key], DEFAULT_SETTINGS[key]):
 				p.settings[key] = s[key]
 	var wl: Variant = d.get("word_lists", [])
 	var lists: Array = wl if wl is Array else []
@@ -167,6 +168,13 @@ static func from_dict(d: Dictionary) -> Profile:
 		var act: Variant = d.get("active_lists", ["base"])
 		p.active_lists = act if act is Array else ["base"]
 	return p
+
+
+static func _same_kind(value: Variant, reference: Variant) -> bool:
+	var numbers := [TYPE_INT, TYPE_FLOAT]
+	if typeof(reference) in numbers:
+		return typeof(value) in numbers
+	return typeof(value) == typeof(reference)
 
 
 ## Version 1 : une seule liste choisie parmi les listes du profil (la liste de

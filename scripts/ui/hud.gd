@@ -24,6 +24,8 @@ const IDLE_HINT := "Ton kart roule tout seul… prépare tes doigts !"
 @onready var minimap: Minimap = %Minimap
 @onready var pause_layer: Control = %PauseLayer
 var _center_tween: Tween
+var _shake_tween: Tween
+var _shake_x := 0.0 # position du panneau du mot au repos
 var _uppercase := false
 
 
@@ -84,9 +86,15 @@ func set_hint(text: String, error := false) -> void:
 
 func shake_word() -> void:
 	var tw := create_tween()
-	var x := word_panel.position.x
+	# Plusieurs erreurs de suite : on repart toujours de la position de repos,
+	# sinon le panneau resterait décalé.
+	if _shake_tween and _shake_tween.is_running():
+		_shake_tween.kill()
+	else:
+		_shake_x = word_panel.position.x
+	_shake_tween = tw
 	for dx in [-14.0, 14.0, -8.0, 8.0, 0.0]:
-		tw.tween_property(word_panel, "position:x", x + dx, 0.04)
+		tw.tween_property(word_panel, "position:x", _shake_x + dx, 0.04)
 
 
 func show_center(text: String, hold := 0.8) -> void:
@@ -118,12 +126,12 @@ func update_race(logic: RaceLogic) -> void:
 	acc_label.text = "%d%%" % roundi(logic.accuracy() * 100.0) if keys > 0 else "–"
 	var p := logic.player
 	speed_label.text = str(roundi(logic.base_speed * p.mult * 3.6)) if logic.state != "countdown" else "0"
-	if logic.state == "running" and p.word != "":
-		status_label.text = "Ralenti…"
-		status_label.add_theme_color_override("font_color", Color("#ffb4a2"))
-	elif logic.state == "running" and p.boost > 0.0:
+	if logic.state == "running" and p.boost > 0.0:
 		status_label.text = "TURBO !"
 		status_label.add_theme_color_override("font_color", Ui.YELLOW)
+	elif logic.state == "running" and p.word != "":
+		status_label.text = "Ralenti…"
+		status_label.add_theme_color_override("font_color", Color("#ffb4a2"))
 	else:
 		status_label.text = ""
 

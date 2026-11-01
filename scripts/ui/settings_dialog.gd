@@ -52,8 +52,10 @@ func _ready() -> void:
 	_name_edit.max_length = 16
 	_name_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name_edit.text_changed.connect(func(t):
-		profile.name = t.strip_edges()
-		_save())
+		# Un prénom vide n'est pas enregistré (le profil garde l'ancien).
+		if t.strip_edges() != "":
+			profile.name = t.strip_edges()
+			_save())
 	name_row.add_child(_name_edit)
 	_delete_button = Ui.button("Supprimer ce profil", 18, Ui.RED)
 	_delete_button.pressed.connect(func(): _confirm_delete.popup_centered())
