@@ -10,6 +10,16 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.2.3] - 2026-11-01
+
+### Modifié
+
+- `FunKart.exe` a maintenant l'icône du jeu (au lieu de celle de Godot) et
+  son numéro de version dans ses propriétés Windows (clic droit →
+  Propriétés → Détails).
+- Le jeu est un peu plus léger : les captures d'écran de la documentation ne
+  sont plus incluses dans l'exécutable.
+
 ## [0.2.2] - 2026-11-01
 
 ### Corrigé
