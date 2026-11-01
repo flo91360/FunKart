@@ -282,6 +282,7 @@ func _show_results() -> void:
 		"avg_word_time": logic.average_word_time(),
 		"time": logic.player.finish_time,
 		"bot_kpm": bot_kpm,
+		"letters": logic.stats.letters,
 	}, profile)
 
 

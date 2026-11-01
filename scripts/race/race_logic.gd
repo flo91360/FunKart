@@ -48,6 +48,7 @@ class Racer:
 	var word_duration := 0.0
 	var word_errors := 0
 	var stuck := 0.0 # secondes depuis la dernière bonne lettre
+	var last_key_at := 0.0 # moment (dans le mot) de la dernière bonne lettre
 	var next_word_in := 1.5
 	var boost := 0.0
 	var finished := false
@@ -57,7 +58,7 @@ class Racer:
 	func copy():
 		var r = Racer.new()
 		for p in ["name", "character", "is_player", "kpm", "slot", "distance", "mult", "word",
-				"typed", "word_elapsed", "word_duration", "word_errors", "stuck", "next_word_in", "boost",
+				"typed", "word_elapsed", "word_duration", "word_errors", "stuck", "last_key_at", "next_word_in", "boost",
 				"finished", "finish_time"]:
 			r.set(p, get(p))
 		return r
@@ -75,7 +76,8 @@ var countdown := 3.0
 var racers: Array = []
 var player: Racer
 var finished_count := 0
-var stats := {"correct": 0, "errors": 0, "active_time": 0.0, "words": [], "skipped": 0}
+## letters : chiffres par lettre attendue (voir LetterStats).
+var stats := {"correct": 0, "errors": 0, "active_time": 0.0, "words": [], "skipped": 0, "letters": {}}
 var _recent: Array[String] = []
 
 
@@ -193,6 +195,7 @@ func _spawn_word(r, live: bool) -> void:
 	r.word_elapsed = 0.0
 	r.word_errors = 0
 	r.stuck = 0.0
+	r.last_key_at = 0.0
 	if not r.is_player:
 		# Temps de frappe simulé avec un peu de variabilité (±20 %).
 		r.word_duration = r.word.length() * 60.0 / maxf(1.0, r.kpm) * randf_range(0.8, 1.2)
@@ -235,7 +238,16 @@ func handle_char(c: String) -> void:
 		return
 	var expected := p.word[p.typed]
 	var tol := bool(settings.accents_tolerant)
+	var letter := normalize_char(expected, false)
+	var ls: Array = stats.letters.get(letter, LetterStats.empty())
+	stats.letters[letter] = ls
 	if normalize_char(c, tol) == normalize_char(expected, tol):
+		ls[LetterStats.OK] += 1
+		if p.typed > 0:
+			# temps pour trouver la lettre (pas pour la première : lecture du mot)
+			ls[LetterStats.TIME] += p.word_elapsed - p.last_key_at
+			ls[LetterStats.TIMED] += 1
+		p.last_key_at = p.word_elapsed
 		p.typed += 1
 		p.stuck = 0.0
 		stats.correct += 1
@@ -244,6 +256,7 @@ func handle_char(c: String) -> void:
 			_complete_word(p, true)
 	else:
 		stats.errors += 1
+		ls[LetterStats.ERRORS] += 1
 		p.word_errors += 1
 		key_error.emit(expected)
 

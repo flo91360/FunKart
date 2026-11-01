@@ -73,6 +73,14 @@ doublon, liste de base par défaut). Interface : `scripts/ui/word_lists_panel.gd
 .txt). `WordList.parse()` découpe un texte en mots. Les profils de la version 1
 (une seule liste recopiée) sont convertis à la lecture.
 
+## Statistiques par lettre
+
+`RaceLogic.stats.letters` note, pour chaque lettre attendue, `[bonnes frappes,
+erreurs, temps pour la trouver, nombre de temps mesurés]` ; c'est enregistré
+dans l'historique (clé `letters`). `scripts/data/letter_stats.gd`
+(`LetterStats`) réunit les dernières courses, choisit les lettres à travailler
+(`difficult()`) et fabrique la liste d'entraînement (`practice_words()`).
+
 ## Clavier à l'écran
 
 `scripts/ui/keyboard_view.gd` (`KeyboardView`) dessine le clavier AZERTY sous

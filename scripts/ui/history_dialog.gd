@@ -8,6 +8,9 @@ var _title: Label
 var _grid: GridContainer
 var _status: Label
 var _confirm_clear: ConfirmationDialog
+var _letters: Label
+var _practice_btn: Button
+var _hard: Array = [] # lettres à travailler (LetterStats.difficult)
 
 
 func _ready() -> void:
@@ -16,8 +19,19 @@ func _ready() -> void:
 	var box: VBoxContainer = ov[1]
 	_title = Ui.label("Historique", 38)
 	box.add_child(_title)
+	# Lettres à travailler sur les dernières courses, et liste d'entraînement.
+	var letters_row := HBoxContainer.new()
+	letters_row.add_theme_constant_override("separation", 12)
+	box.add_child(letters_row)
+	_letters = Ui.label("", 20)
+	_letters.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_letters.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	letters_row.add_child(_letters)
+	_practice_btn = Ui.button("Créer une liste d'entraînement", 18, Color("#17b169"))
+	_practice_btn.pressed.connect(_create_practice_list)
+	letters_row.add_child(_practice_btn)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size.y = 420
+	scroll.custom_minimum_size.y = 360
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(scroll)
 	_grid = GridContainer.new()
@@ -86,3 +100,24 @@ func refresh() -> void:
 		for c in cells:
 			_grid.add_child(Ui.label(str(c), 18))
 	_status.text = "" if not all.is_empty() else "Aucune course pour le moment."
+	all.reverse()
+	_hard = LetterStats.difficult(LetterStats.from_history(all))
+	if _hard.is_empty():
+		_letters.text = "Lettres à travailler : aucune pour le moment (%d dernières courses)." % LetterStats.RECENT_RACES
+	else:
+		_letters.text = "Lettres à travailler (%d dernières courses) : %s" % [LetterStats.RECENT_RACES, LetterStats.describe(_hard)]
+	_practice_btn.visible = not _hard.is_empty()
+
+
+## Liste personnelle de mots contenant les lettres à travailler, cochée pour
+## les prochaines courses.
+func _create_practice_list() -> void:
+	var letters := LetterStats.letters_of(_hard)
+	var pool := PackedStringArray()
+	for source in profile.available_lists():
+		pool.append_array(source.words)
+	var words := LetterStats.practice_words(pool, letters)
+	var practice := profile.add_list("Entraînement : " + ", ".join(letters), words)
+	profile.set_active(practice.id, true)
+	Profiles.save_profile(profile)
+	_status.text = "Liste « %s » créée (%d mots) et cochée pour les prochaines courses (Réglages → Listes de mots)." % [practice.title, words.size()]

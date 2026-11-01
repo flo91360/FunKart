@@ -94,7 +94,12 @@ Pendant la course et à l'arrivée :
   (les moments sans mot ne sont pas comptés) ;
 - **précision** : bonnes frappes ÷ total des frappes ;
 - nombre de mots, temps moyen par mot, erreurs, temps de course, place ;
-- listes de mots utilisées (dans l'export CSV).
+- listes de mots utilisées (dans l'export CSV) ;
+- **lettres à travailler** : lettres souvent ratées ou cherchées longtemps
+  (à l'arrivée, dans l'historique sur les 20 dernières courses et dans
+  l'export CSV). Dans l'historique, « Créer une liste d'entraînement » crée
+  une liste personnelle de mots contenant ces lettres et la coche pour les
+  prochaines courses.
 
 Chaque course est enregistrée dans l'**historique** du profil (menu →
 Historique). L'export CSV (Excel ou LibreOffice) regroupe tous les profils dans

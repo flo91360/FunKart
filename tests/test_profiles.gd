@@ -155,6 +155,32 @@ func _run() -> void:
 		logic.update(0.1)
 	check(logic.stats.skipped == 1 and logic.stats.words.size() == 1, "mot passé après %d s sans bonne lettre" % int(RaceLogic.SKIP_AFTER))
 
+	print("Statistiques par lettre")
+	var lg := RaceLogic.new(Profile.DEFAULT_SETTINGS.duplicate(true), PackedStringArray(["bob"]), 600.0,
+		{"name": "Test", "character": "chat"}, [])
+	lg.state = "running"
+	lg.update(2.0)
+	lg.handle_char("b")
+	lg.update(0.5)
+	lg.handle_char("x")
+	lg.handle_char("o")
+	lg.update(0.3)
+	lg.handle_char("b")
+	var lb: Array = lg.stats.letters.get("b", [])
+	var lo: Array = lg.stats.letters.get("o", [])
+	check(lb.size() == 4 and lb[0] == 2 and lb[1] == 0 and lb[3] == 1 and absf(lb[2] - 0.3) < 0.01, "lettre b : 2 bonnes frappes, temps sans la première lettre")
+	check(lo.size() == 4 and lo[0] == 1 and lo[1] == 1 and absf(lo[2] - 0.5) < 0.01, "lettre o : l'erreur est comptée sur la lettre attendue")
+	var total := {"b": [10, 0, 5.0, 10], "n": [6, 4, 6.0, 6], "e": [10, 0, 20.0, 10], "z": [1, 1, 0.0, 0]}
+	var hard := LetterStats.difficult(total)
+	check(Array(LetterStats.letters_of(hard)) == ["n", "e"], "lettres à travailler : erreurs puis lenteur, lettres trop rares ignorées")
+	check(LetterStats.describe(hard) == "n (40 % d'erreurs), e (lente : 2,0 s)", "description des lettres à travailler")
+	var hist := [{"letters": {"n": [1, 1, 0.5, 1]}}, {"letters": {"n": [1, 0, 0.5, 1]}}, {"kpm": 3.0}]
+	var agg := LetterStats.from_history(hist)
+	check(agg.has("n") and int(agg.n[0]) == 2 and int(agg.n[1]) == 1 and LetterStats.from_history(hist, 1).is_empty(),
+		"total des dernières courses (anciennes courses sans lettres acceptées)")
+	check(Array(LetterStats.practice_words(PackedStringArray(["banane", "nez", "chat", "Nana", "nana"]), PackedStringArray(["n"])))
+		== ["Nana", "banane", "nez", "n"], "liste d'entraînement : mots avec le plus de lettres à travailler")
+
 	print("Clavier à l'écran")
 	var missing := []
 	for ch in "abcdefghijklmnopqrstuvwxyzéèçàù'-":

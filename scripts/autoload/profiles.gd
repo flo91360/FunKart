@@ -117,7 +117,7 @@ func export_csv(dir := "") -> String:
 	if f == null:
 		return ""
 	f.store_buffer(PackedByteArray([0xEF, 0xBB, 0xBF]))
-	f.store_line("profil;date;pilote;place;participants;tours;frappes_par_minute;precision_pct;mots;erreurs;temps_moyen_par_mot_s;temps_course_s;adversaires_frappes_par_minute;listes_de_mots")
+	f.store_line("profil;date;pilote;place;participants;tours;frappes_par_minute;precision_pct;mots;erreurs;temps_moyen_par_mot_s;temps_course_s;adversaires_frappes_par_minute;listes_de_mots;lettres_a_travailler")
 	for p in profiles:
 		for h in history(p):
 			var cols := [p.name, h.get("date", ""), h.get("character", ""), h.get("place", 0),
@@ -125,7 +125,8 @@ func export_csv(dir := "") -> String:
 				"%.1f" % (float(h.get("accuracy", 0)) * 100.0), h.get("words", 0), h.get("errors", 0),
 				"%.2f" % float(h.get("avg_word_time", 0)), "%.1f" % float(h.get("time", 0)),
 				" / ".join(PackedStringArray(Array(h.get("bot_kpm", [])).map(func(v): return str(int(v))))),
-				h.get("word_lists", "")]
+				h.get("word_lists", ""),
+				" ".join(LetterStats.letters_of(LetterStats.difficult(LetterStats.from_history([h]), 3, 2)))]
 			var cells := PackedStringArray()
 			for c in cols:
 				cells.append("\"%s\"" % str(c).replace("\"", "\"\""))
