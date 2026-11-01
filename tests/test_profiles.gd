@@ -57,6 +57,16 @@ func track_separation(tr: Track) -> float:
 	return best
 
 
+## Hauteur la plus basse de la surface de la route (le sol est à y = 0).
+func lowest_road(tr: Track) -> float:
+	var lowest := INF
+	var d := 0.0
+	while d < tr.length:
+		lowest = minf(lowest, tr.frame_at(d).origin.y)
+		d += 1.0
+	return lowest
+
+
 ## Distance du centre de la tribune aux portions de route qui ne la longent pas.
 func stand_clearance(tr: Track) -> float:
 	var pts := track_points(tr)
@@ -286,13 +296,16 @@ func _run() -> void:
 		var th: TrackTheme = tr.track_theme
 		var sep := track_separation(tr)
 		var stand := stand_clearance(tr)
-		print("  %s : %.0f m, portions éloignées à %.0f m au moins, tribune à %.0f m, musique « %s »" % [tr.title, tr.length, sep, stand, th.music])
+		var lowest := lowest_road(tr)
+		print("  %s : %.0f m, portions éloignées à %.0f m au moins, tribune à %.0f m, route au plus bas à %.2f m du sol, musique « %s »" % [tr.title, tr.length, sep, stand, lowest, th.music])
 		if tr.length < 450.0 or tr.length > 900.0 or sep < 2.0 * (tr.road_half_width + Track.CURB) + 5.0 or stand < 30.0:
+			circuits_ok = false
+		if lowest < 0.05:
 			circuits_ok = false
 		if not MusicSynth.SONGS.has(th.music) or tracks_content.track_title(i) != tr.title or tracks_content.track_theme(i) != th:
 			circuits_ok = false
 		tr.free()
-	check(circuits_ok, "circuits : longueur, route qui ne se touche pas, tribune dégagée, titre et musique")
+	check(circuits_ok, "circuits : longueur, route qui ne se touche pas ni ne passe sous le sol, tribune dégagée, titre et musique")
 	var songs_ok := true
 	for song_name in MusicSynth.SONGS:
 		var song: Dictionary = MusicSynth.SONGS[song_name]

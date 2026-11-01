@@ -116,6 +116,23 @@ static func smooth_curve(points: PackedVector3Array, smoothness := 0.22) -> Curv
 	return c
 
 
+## La route ne passe jamais sous le sol (y = 0, où est posée l'herbe) : les
+## poignées de la courbe sont limitées pour que tous ses points de contrôle
+## restent au-dessus, et une courbe de Bézier reste entre ses points de contrôle.
+static func keep_above_ground(c: Curve3D) -> void:
+	for i in c.point_count:
+		var pos := c.get_point_position(i)
+		if pos.y < 0.0:
+			pos.y = 0.0
+			c.set_point_position(i, pos)
+		var p_in := c.get_point_in(i)
+		var p_out := c.get_point_out(i)
+		p_in.y = clampf(p_in.y, -pos.y, pos.y)
+		p_out.y = clampf(p_out.y, -pos.y, pos.y)
+		c.set_point_in(i, p_in)
+		c.set_point_out(i, p_out)
+
+
 func _queue_rebuild() -> void:
 	if not is_inside_tree() or _rebuild_queued:
 		return
@@ -128,8 +145,9 @@ func rebuild() -> void:
 	var path := get_node_or_null("Path") as Path3D
 	if path == null or path.curve == null or path.curve.point_count < 3:
 		return
-	# Courbe fermée : on recopie le premier point à la fin.
 	curve = path.curve.duplicate()
+	keep_above_ground(curve)
+	# Courbe fermée : on recopie le premier point à la fin.
 	curve.add_point(curve.get_point_position(0), curve.get_point_in(0), curve.get_point_out(0))
 	curve.bake_interval = 0.5
 	length = curve.get_baked_length()

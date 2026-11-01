@@ -37,13 +37,23 @@ var preview_side := -2.8
 var _track_key := ""
 ## Effets du moteur de rendu avancé (mode « Beau ») sur l'éclairage du thème.
 const ADVANCED_SUN_BOOST := 1.15
-## Le clavier à l'écran agrandit le panneau du mot : la caméra remonte le kart d'autant.
-const KEYBOARD_CAMERA_SHIFT := 2.2
+## Caméra de course : derrière et au-dessus du kart (mètres).
+const CAMERA_BACK := 10.0
+const CAMERA_HEIGHT := 3.8
+const CAMERA_AIM_AHEAD := 8.0
+## La caméra ne descend jamais à moins de cette hauteur au-dessus de la route ou du sol.
+const CAMERA_MIN_CLEARANCE := 1.6
+## Place du kart à l'écran : fraction de la hauteur libre au-dessus du panneau
+## du mot (0 : en haut de l'écran, 1 : juste au bord du panneau).
+const KART_SCREEN_SPOT := 0.78
 var _t := 0.0
 var _hud_timer := 0.0
 var _lane_timer := 0.0
 var _orbit := 0.0
 var _shake := 0.0
+var _fov := 70.0
+## Décentrement vertical de l'objectif (voir _set_lens).
+var _lens_y := 0.0
 
 
 func _ready() -> void:
@@ -384,22 +394,53 @@ func _update_lanes(dt: float) -> void:
 			k.target_lateral = best
 
 
+## Caméra de course, derrière le kart. Elle ne descend jamais sous la route ni
+## sous le sol (montées, descentes, creux). Le kart est cadré juste au-dessus
+## du panneau du mot par un décentrement de l'objectif (_set_lens), sans
+## abaisser la caméra : la hauteur du panneau varie (taille du mot, clavier).
 func _place_chase_camera(dt: float) -> void:
 	var p := logic.player
 	var k: Kart = karts[p]
-	var f := track.frame_at(p.distance + k.extra_distance)
-	var target := f.origin + f.basis.x * k.lateral * 0.7 + f.basis.z * 8.0 + Vector3.UP * 3.4
+	var d: float = p.distance + k.extra_distance
+	var f := track.frame_at(d)
+	var target := f.origin + f.basis.x * k.lateral * 0.7 + f.basis.z * CAMERA_BACK + Vector3.UP * CAMERA_HEIGHT
 	var w := 1.0 if dt >= 1.0 else 1.0 - exp(-dt * 7.0)
-	camera.global_position = camera.global_position.lerp(target, w)
+	var pos := camera.global_position.lerp(target, w)
+	var road_y := maxf(f.origin.y, track.frame_at(d - CAMERA_BACK).origin.y)
+	pos.y = maxf(pos.y, maxf(road_y, 0.0) + CAMERA_MIN_CLEARANCE)
+	camera.global_position = pos
+	var look := f.origin + f.basis.x * k.lateral * 0.85 + Vector3.UP * 0.6 - f.basis.z * CAMERA_AIM_AHEAD
+	camera.look_at(look)
 	if _shake > 0.0:
 		_shake = maxf(0.0, _shake - dt)
-		camera.global_position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * _shake * 0.6
-	var look := f.origin + f.basis.x * k.lateral * 0.85 + Vector3.UP * 0.6 - f.basis.z * 6.0
-	camera.look_at(look)
-	# remonte le kart au-dessus du panneau du mot (et du clavier s'il est affiché)
-	camera.v_offset = -1.2 - (KEYBOARD_CAMERA_SHIFT if hud.keyboard.visible else 0.0)
+		camera.global_position += camera.global_basis.x * randf_range(-1, 1) * _shake * 0.6
 	var fov_target := 70.0 + (p.mult - 1.0) * 14.0
-	camera.fov = lerpf(camera.fov, fov_target, 1.0 if dt >= 1.0 else 1.0 - exp(-dt * 4.0))
+	_fov = fov_target if dt >= 1.0 else lerpf(_fov, fov_target, 1.0 - exp(-dt * 4.0))
+	var wanted := _lens_offset_for(k.global_position + Vector3.UP * 1.2, _fov)
+	_lens_y = wanted if dt >= 1.0 else lerpf(_lens_y, wanted, 1.0 - exp(-dt * 6.0))
+	_set_lens(_fov, _lens_y)
+
+
+## Objectif de la caméra : angle de vue vertical (degrés) et décentrement
+## vertical (comme un objectif à décentrement : l'image glisse vers le haut
+## ou le bas sans que la caméra bouge).
+func _set_lens(fov_deg: float, offset_y: float) -> void:
+	camera.projection = Camera3D.PROJECTION_FRUSTUM
+	camera.size = 2.0 * camera.near * tan(deg_to_rad(fov_deg) / 2.0)
+	camera.frustum_offset = Vector2(0.0, offset_y)
+
+
+## Décentrement qui place ce point juste au-dessus du panneau du mot.
+func _lens_offset_for(anchor: Vector3, fov_deg: float) -> float:
+	var local := camera.global_transform.affine_inverse() * anchor
+	if local.z > -0.5:
+		return _lens_y
+	var screen_h := get_viewport().get_visible_rect().size.y
+	var free_h := hud.word_panel.global_position.y if hud.word_panel.global_position.y > 0.0 else screen_h
+	var spot := clampf(free_h * KART_SCREEN_SPOT / screen_h, 0.2, 0.8) # fraction depuis le haut
+	var half := camera.near * tan(deg_to_rad(fov_deg) / 2.0)
+	# hauteur du point sur le plan proche, moins celle voulue à l'écran
+	return clampf(local.y * camera.near / -local.z - (1.0 - 2.0 * spot) * half, -half, half)
 
 
 ## Caméra qui se balance autour du kart du joueur (menu, arrivée), vue de trois quarts avant.
@@ -414,8 +455,8 @@ func _orbit_camera(dt: float, side: float) -> void:
 	camera.global_position = center + dir * 7.5 + Vector3.UP * 1.8
 	camera.look_at(center)
 	camera.global_position += camera.global_basis.x * side
-	camera.v_offset = 0.0
-	camera.fov = 60.0
+	_lens_y = 0.0
+	_set_lens(60.0, 0.0)
 
 
 func _minimap_dots() -> Array:
