@@ -73,6 +73,13 @@ doublon, liste de base par défaut). Interface : `scripts/ui/word_lists_panel.gd
 .txt). `WordList.parse()` découpe un texte en mots. Les profils de la version 1
 (une seule liste recopiée) sont convertis à la lecture.
 
+## Adversaires automatiques
+
+Réglage du profil `bot_auto`. `scripts/race/auto_level.gd` (`AutoLevel`)
+calcule le niveau de l'enfant (`reference_kpm()` : médiane des frappes par
+minute des dernières courses de l'historique) et la vitesse des adversaires
+(`bot_kpm()`, coefficients `FACTORS`), utilisée par `Race.prepare()`.
+
 ## Statistiques par lettre
 
 `RaceLogic.stats.letters` note, pour chaque lettre attendue, `[bonnes frappes,

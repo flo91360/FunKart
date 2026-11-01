@@ -181,6 +181,17 @@ func _run() -> void:
 	check(Array(LetterStats.practice_words(PackedStringArray(["banane", "nez", "chat", "Nana", "nana"]), PackedStringArray(["n"])))
 		== ["Nana", "banane", "nez", "n"], "liste d'entraînement : mots avec le plus de lettres à travailler")
 
+	print("Adversaires automatiques")
+	var runs := [{"kpm": 99.0, "words": 1}, {"kpm": 10.0, "words": 5}, {"kpm": 30.0, "words": 5}, {"kpm": 20.0, "words": 5},
+		{"kpm": 40.0, "words": 5}, {"kpm": 20.0, "words": 5}, {"kpm": 25.0, "words": 5}]
+	check(AutoLevel.reference_kpm(runs) == 25.0, "niveau : médiane des 5 dernières courses (course trop courte ignorée)")
+	check(AutoLevel.reference_kpm([]) == -1.0 and AutoLevel.reference_kpm([{"kpm": 30.0, "words": 1}]) == -1.0, "pas de niveau sans course utilisable")
+	check(AutoLevel.reference_kpm([{"kpm": 20.0, "words": 5}, {"kpm": 30.0, "words": 5}]) == 25.0, "médiane d'un nombre pair de courses")
+	check(AutoLevel.bot_kpm([{"kpm": 20.0, "words": 5}], 3, [11, 12, 13]) == [17.0, 20.0, 23.0], "adversaires autour du niveau de l'enfant")
+	check(AutoLevel.bot_kpm([], 2, [11, 12, 13]) == [11.0, 12.0], "sans historique : valeurs réglées à la main")
+	check(AutoLevel.bot_kpm([{"kpm": 2.0, "words": 5}], 1, []) == [AutoLevel.MIN_KPM], "vitesse minimale")
+	check(not bool(Profile.new().get_setting("bot_auto")), "adversaires automatiques désactivés par défaut")
+
 	print("Clavier à l'écran")
 	var missing := []
 	for ch in "abcdefghijklmnopqrstuvwxyzéèçàù'-":

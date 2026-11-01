@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS := {
 	"laps": 3,
 	"bot_count": 3,
 	"bot_kpm": [16, 20, 24, 18, 22],
+	"bot_auto": false, # adversaires automatiques : leur vitesse suit celle de l'enfant (AutoLevel)
 	"lap_time": 20.0,
 	"word_gap": 2.5,
 	"slow_factor": 0.4,

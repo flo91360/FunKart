@@ -18,6 +18,9 @@ var _delete_button: Button
 var _controls := {} # clé du réglage -> contrôle
 var _app_checks := {} # clé du réglage de l'ordinateur -> CheckBox
 var _bot_spins: Array[SpinBox] = []
+var _bot_auto: CheckBox
+var _bot_preset: OptionButton
+var _bot_auto_info: Label
 var _word_lists: WordListsPanel
 var _list_editor: WordListEditor
 var _confirm_delete: ConfirmationDialog
@@ -91,6 +94,17 @@ func _ready() -> void:
 	var help := Ui.label("Un adversaire réglé sur 30 frappes/min va à peu près aussi vite qu'un enfant qui tape 30 frappes/min.", 18, Color("#5f6470"))
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	inner.add_child(help)
+	_bot_auto = CheckBox.new()
+	_bot_auto.text = "Adversaires automatiques : leur vitesse suit celle de l'enfant"
+	_bot_auto.add_theme_font_size_override("font_size", 20)
+	_bot_auto.toggled.connect(func(on):
+		profile.settings["bot_auto"] = on
+		_save()
+		_refresh_bot_spins())
+	inner.add_child(_bot_auto)
+	_bot_auto_info = Ui.label("", 18, Color("#5f6470"))
+	_bot_auto_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	inner.add_child(_bot_auto_info)
 	var bots_row := HBoxContainer.new()
 	bots_row.add_theme_constant_override("separation", 14)
 	inner.add_child(bots_row)
@@ -110,6 +124,7 @@ func _ready() -> void:
 		_refresh_bot_spins()
 		preset.select(0))
 	bots_row.add_child(preset)
+	_bot_preset = preset
 	var bot_chars := GameContent.get_content().bot_characters()
 	for i in bot_chars.size():
 		var col := VBoxContainer.new()
@@ -309,7 +324,25 @@ func _check(parent: Control, text: String, key: String) -> void:
 
 
 func _refresh_bot_spins() -> void:
+	var auto := bool(profile.get_setting("bot_auto"))
+	var count := int(profile.get_setting("bot_count"))
 	var kpm: Array = profile.get_setting("bot_kpm")
+	# Adversaires automatiques qui suivent l'enfant (sinon : réglage à la main).
+	var following := false
+	_bot_auto.set_pressed_no_signal(auto)
+	if auto:
+		var history: Array = Profiles.history(profile)
+		var ref := AutoLevel.reference_kpm(history)
+		following = ref > 0.0
+		kpm = AutoLevel.bot_kpm(history, _bot_spins.size(), kpm)
+		if ref > 0.0:
+			_bot_auto_info.text = "Niveau actuel de %s : environ %d frappes/min (médiane des %d dernières courses). Les adversaires s'adaptent à chaque course." % [profile.name, roundi(ref), AutoLevel.RECENT]
+		else:
+			_bot_auto_info.text = "Pas encore assez de courses : les valeurs ci-dessous servent en attendant. Les adversaires s'adapteront ensuite au niveau de %s." % profile.name
+	else:
+		_bot_auto_info.text = ""
+	_bot_auto_info.visible = auto
+	_bot_preset.disabled = following
 	for i in _bot_spins.size():
 		_bot_spins[i].set_value_no_signal(float(kpm[i]) if i < kpm.size() else 20.0)
-		_bot_spins[i].editable = i < int(profile.get_setting("bot_count"))
+		_bot_spins[i].editable = i < count and not following
