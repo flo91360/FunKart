@@ -73,6 +73,12 @@ doublon, liste de base par défaut). Interface : `scripts/ui/word_lists_panel.gd
 .txt). `WordList.parse()` découpe un texte en mots. Les profils de la version 1
 (une seule liste recopiée) sont convertis à la lecture.
 
+## Réglages réservés aux adultes
+
+`scripts/ui/parent_gate.gd` (`ParentGate`) : calcul à résoudre, ouvert par le
+menu avant « Réglages (adulte) » quand le réglage de l'ordinateur
+`parent_lock` (dans `app.json`) est activé.
+
 ## Progression et records
 
 `scripts/data/progress.gd` (`Progress`) : meilleur score (`best_kpm()`),

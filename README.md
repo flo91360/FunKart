@@ -109,6 +109,10 @@ le fichier `FunKart_historique.csv` du dossier Documents.
 
 ## Réglages (menu → Réglages (adulte), propres à chaque profil)
 
+Un petit calcul (par exemple 7 × 8) est demandé avant d'ouvrir les réglages,
+pour que l'enfant ne les change pas seul. Cette protection se désactive dans
+les réglages : « Protéger les réglages (calcul) », section « Cet ordinateur ».
+
 | Réglage | Effet |
 | --- | --- |
 | Nombre de tours | Longueur de la course (3 par défaut) |

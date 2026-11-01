@@ -167,7 +167,8 @@ func _ready() -> void:
 	var app_row := HBoxContainer.new()
 	app_row.add_theme_constant_override("separation", 24)
 	inner.add_child(app_row)
-	for item in [["Sons", "sound"], ["Musique", "music"], ["Plein écran (F11)", "fullscreen"]]:
+	for item in [["Sons", "sound"], ["Musique", "music"], ["Plein écran (F11)", "fullscreen"],
+			["Protéger les réglages (calcul)", "parent_lock"]]:
 		var cb := CheckBox.new()
 		cb.text = item[0]
 		cb.add_theme_font_size_override("font_size", 20)

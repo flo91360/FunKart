@@ -10,6 +10,16 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.7.0] - 2026-11-01
+
+### Ajouté
+
+- « Réglages (adulte) » est protégé : un petit calcul (par exemple 7 × 8) est
+  demandé avant d'ouvrir les réglages, pour que l'enfant ne les change pas
+  seul. En cas d'erreur, un autre calcul est proposé. La protection se
+  désactive dans les réglages (« Protéger les réglages (calcul) », section
+  « Cet ordinateur »).
+
 ## [0.6.0] - 2026-11-01
 
 ### Ajouté

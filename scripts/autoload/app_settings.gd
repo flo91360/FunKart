@@ -13,6 +13,7 @@ const DEFAULTS := {
 	"volume_music": 0.7,
 	"volume_effects": 0.8,
 	"graphics": 1,
+	"parent_lock": true, # calcul à résoudre avant d'ouvrir les réglages (ParentGate)
 	"last_profile": "",
 }
 
