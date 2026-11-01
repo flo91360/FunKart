@@ -10,6 +10,18 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.4.0] - 2026-11-01
+
+### Ajouté
+
+- Statistiques par lettre : pendant la course, le jeu note pour chaque lettre
+  les erreurs et le temps mis à la trouver.
+- Historique : « Lettres à travailler » sur les 20 dernières courses (lettres
+  souvent ratées ou cherchées longtemps), et bouton « Créer une liste
+  d'entraînement » qui crée et coche une liste de mots contenant ces lettres.
+- Écran d'arrivée : « Lettres à retravailler » de la course.
+- Export CSV : colonne `lettres_a_travailler`.
+
 ## [0.3.0] - 2026-11-01
 
 ### Ajouté

@@ -82,6 +82,13 @@ func show_results(logic: RaceLogic, player_name: String) -> void:
 		v.add_child(b)
 		grid.add_child(cell)
 
+	# Lettres ratées ou cherchées longtemps pendant cette course.
+	var hard := LetterStats.difficult(logic.stats.letters, 3, 2)
+	if not hard.is_empty():
+		var tip := Ui.label("Lettres à retravailler : " + "  ".join(LetterStats.letters_of(hard)), 20, Color("#5f6470"))
+		tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		middle.add_child(tip)
+
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 10)
 	box.add_child(buttons)
