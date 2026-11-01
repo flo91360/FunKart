@@ -117,11 +117,44 @@ jobs:
       - name: Test (course jouée automatiquement)
         run: godot --headless --path . --script res://tests/autoplay.gd -- --fast
 
+      - name: Installer rcedit (icône et version de l'exe Windows)
+        # Godot modifie les ressources de l'exe (icône, version) avec rcedit,
+        # un outil Windows lancé ici avec Wine.
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends wine wine64 > /dev/null
+          wine_bin=$(command -v wine64 || command -v wine64-stable || command -v wine || true)
+          [ -n "$wine_bin" ] || { echo "::error::Wine introuvable."; exit 1; }
+          wget -q -O /tmp/rcedit-x64.exe https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe
+          echo "3e7801db1a5edbec91b49a24a094aad776cb4515488ea5a4ca2289c400eade2a  /tmp/rcedit-x64.exe" | sha256sum -c -
+          # Réglages de l'éditeur Godot : chemins de Wine et de rcedit.
+          mkdir -p ~/.config/godot
+          for f in ~/.config/godot/editor_settings-4.tres ~/.config/godot/editor_settings-4.4.tres; do
+            [ -f "$f" ] || printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\n' > "$f"
+            echo "export/windows/wine = \"$wine_bin\"" >> "$f"
+            echo 'export/windows/rcedit = "/tmp/rcedit-x64.exe"' >> "$f"
+          done
+          # Premier lancement de Wine (création de son dossier) avant l'export.
+          WINEDEBUG=-all WINEDLLOVERRIDES="mscoree,mshtml=" "$wine_bin" /tmp/rcedit-x64.exe --help > /dev/null 2>&1 || true
+          echo "Wine : $wine_bin ($("$wine_bin" --version 2>/dev/null))"
+
       - name: Exporter pour Windows et Linux
+        env:
+          WINEDEBUG: -all
+          # Pas d'installation de Mono ni de Gecko par Wine (inutiles à rcedit).
+          WINEDLLOVERRIDES: "mscoree,mshtml="
         run: |
           mkdir -p build/windows build/linux
           godot --headless --export-release "Windows" build/windows/FunKart.exe
           godot --headless --export-release "Linux" build/linux/FunKart.x86_64
+
+      - name: Vérifier l'exécutable Windows (icône et version)
+        run: |
+          python3 -m venv /tmp/verif
+          /tmp/verif/bin/pip install --quiet --require-hashes -r .github/scripts/verifier_exe.requirements.txt
+          /tmp/verif/bin/python .github/scripts/verifier_exe.py build/windows/FunKart.exe \
+            ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/windows_release_x86_64.exe \
+            "${{ steps.version.outputs.version }}"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
