@@ -265,7 +265,12 @@ func _show_results() -> void:
 	sfx.stop_engine()
 	hud.visible = false
 	results.visible = true
-	results.show_results(logic, profile.name)
+	# Record : comparé aux courses d'avant (celle-ci n'est pas encore enregistrée).
+	var previous_best := Progress.best_kpm(Profiles.history(profile))
+	var record := Progress.is_record(previous_best, logic.kpm(), logic.stats.words.size())
+	results.show_results(logic, profile.name, previous_best if record else -1.0)
+	if record:
+		sfx.play("word")
 	var bot_kpm := []
 	for r in logic.racers:
 		if not r.is_player:
@@ -287,6 +292,7 @@ func _show_results() -> void:
 		"bot_kpm": bot_kpm,
 		"bot_auto": bool(profile.get_setting("bot_auto")),
 		"letters": logic.stats.letters,
+		"record": record,
 	}, profile)
 
 

@@ -192,6 +192,17 @@ func _run() -> void:
 	check(AutoLevel.bot_kpm([{"kpm": 2.0, "words": 5}], 1, []) == [AutoLevel.MIN_KPM], "vitesse minimale")
 	check(not bool(Profile.new().get_setting("bot_auto")), "adversaires automatiques désactivés par défaut")
 
+	print("Progression et records")
+	var courses := [{"kpm": 15.0, "words": 5}, {"kpm": 40.0, "words": 1}, {"kpm": 12.0, "words": 5},
+		{"kpm": 18.0, "words": 6, "accuracy": 0.9}, {"kpm": 18.0, "words": 6}, {"kpm": 22.0, "words": 6}]
+	check(Progress.best_kpm(courses) == 22.0 and Progress.best_kpm([]) == -1.0, "record : course trop courte ignorée")
+	var pts := Progress.series(courses)
+	check(pts.size() == 5 and pts.map(func(pt): return pt.record) == [false, false, true, false, true],
+		"courbe : records quand une course bat toutes les précédentes (pas la première, pas une égalité)")
+	check(Progress.series(courses, 2).size() == 2 and float(pts[2].accuracy) == 0.9, "courbe : dernières courses et précision")
+	check(Progress.is_record(20.0, 25.0, 5) and not Progress.is_record(-1.0, 25.0, 5) and not Progress.is_record(20.0, 25.0, 1),
+		"nouveau record : il faut une course d'avant et assez de mots")
+
 	print("Clavier à l'écran")
 	var missing := []
 	for ch in "abcdefghijklmnopqrstuvwxyzéèçàù'-":
