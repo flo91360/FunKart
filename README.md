@@ -75,6 +75,11 @@ cochées. Les listes choisies sont rappelées dans le menu (« Mots : … »).
 - **Listes du jeu** : Mots de base, Lettres seules, Syllabes, Mots courts,
   Animaux, Fruits et légumes, Kart et course, École. Le bouton « Voir / copier »
   permet d'en faire une copie à modifier.
+- **Leçons du clavier**, rangée par rangée : Leçon 1 (rangée du milieu,
+  q s d f g h j k l m, avec des exercices de lettres), Leçon 2 (+ rangée du
+  haut), Leçon 3 (+ rangée du bas), Leçon 4 (les accents é è à ç ù). Chaque
+  leçon n'utilise que les rangées déjà vues ; cocher une leçon à la fois et
+  passer à la suivante quand l'enfant est à l'aise.
 - **Listes personnelles** (propres à chaque enfant) : « + Nouvelle liste »,
   puis taper ou coller les mots, un par ligne ou séparés par des espaces ou
   des virgules. Les chiffres, symboles et emojis sont ignorés, les doublons
