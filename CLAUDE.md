@@ -13,7 +13,10 @@ et messages de commit en français.
 
 - Chaque changement passe par une pull request vers `main`.
 - Quand la CI de la pull request est verte, sans conflit ni commentaire en
-  attente : la fusionner sans redemander.
+  attente : la fusionner sans redemander. C'est une autorisation explicite et
+  permanente du propriétaire du dépôt (confirmée le 2026-11-01) : ne pas lui
+  demander son accord avant de fusionner. Après avoir ouvert la pull request,
+  suivre sa CI, corriger si elle est rouge, et fusionner dès qu'elle est verte.
 - Une fonctionnalité visible pour l'enfant ou l'adulte augmente
   `config/version` dans `project.godot` (0.x.0 ; 0.x.y pour une correction)
   et ajoute la section `## [0.x.y] - AAAA-MM-JJ` correspondante en tête de
