@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/race/track.gd" id="1_track"]
+[ext_resource type="Resource" path="res://data/themes/plage.tres" id="2_theme"]
+
+[sub_resource type="Curve3D" id="Curve3D_plage"]
+_data = {
+"points": PackedVector3Array(1.76, 0, 26.4, -1.76, 0, -26.4, 0, 0, 0, -3.3, 0, 23.76, 3.3, 0, -23.76, 0, 0, -70, -11.44, 0, 11, 11.44, 0, -11, 15, 0, -108, -17.6, -0.22, 0, 17.6, 0.22, 0, 52, 0, -120, -17.16, -0.22, -6.6, 17.16, 0.22, 6.6, 95, 1, -108, -16.06, 0.22, -2.2, 16.06, -0.22, 2.2, 130, 1, -90, -14.3, 0.22, -3.96, 14.3, -0.22, 3.96, 168, 0, -98, -5.28, -0.22, -13.86, 5.28, 0.22, 13.86, 195, 0, -72, 6.6, -0.22, -12.54, -6.6, 0.22, 12.54, 192, 1, -35, 9.24, -0.22, -11, -9.24, 0.22, 11, 165, 1, -15, 8.8, 0, -13.2, -8.8, 0, 13.2, 150, 2, 15, 14.3, 0.44, -7.7, -14.3, -0.44, 7.7, 125, 1, 45, 17.6, 0.22, -3.74, -17.6, -0.22, 3.74, 85, 0, 50, 16.94, 0, 0, -16.94, 0, 0, 45, 0, 62, 9.9, 0, 13.64, -9.9, 0, -13.64, 8, 0, 50),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 15
+
+[node name="Plage" type="Node3D"]
+script = ExtResource("1_track")
+title = "La Plage"
+track_theme = ExtResource("2_theme")
+
+[node name="Path" type="Path3D" parent="."]
+curve = SubResource("Curve3D_plage")

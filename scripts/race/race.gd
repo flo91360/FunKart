@@ -113,7 +113,7 @@ func start() -> void:
 	hud.update_race(logic)
 	hud.show_center("3", 0.6)
 	sfx.play("count")
-	sfx.start_race_audio()
+	sfx.start_race_audio(track.track_theme.music)
 	get_viewport().gui_release_focus()
 	_place_chase_camera(1.0)
 

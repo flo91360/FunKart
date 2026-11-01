@@ -41,6 +41,26 @@ func bot_characters() -> Array[CharacterData]:
 	return out
 
 
+## Propriété du nœud racine d'un circuit, lue dans sa scène sans la
+## construire (pour le menu) ; null si elle n'y est pas.
+func track_property(index: int, property: String) -> Variant:
+	var state := tracks[index].get_state()
+	for i in state.get_node_property_count(0):
+		if state.get_node_property_name(0, i) == property:
+			return state.get_node_property_value(0, i)
+	return null
+
+
+func track_title(index: int) -> String:
+	var title: Variant = track_property(index, "title")
+	return String(title) if title != null else "Circuit %d" % (index + 1)
+
+
+func track_theme(index: int) -> TrackTheme:
+	var theme: Variant = track_property(index, "track_theme")
+	return theme if theme is TrackTheme else TrackTheme.new()
+
+
 func word_list(id: String) -> WordList:
 	for wl in word_lists:
 		if wl.id == id:

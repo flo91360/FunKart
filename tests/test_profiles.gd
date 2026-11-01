@@ -32,6 +32,45 @@ func check(cond: bool, what: String) -> void:
 		push_error("ÉCHEC " + what)
 
 
+## Points du circuit tous les 5 m.
+func track_points(tr: Track) -> Array:
+	var pts := []
+	var d := 0.0
+	while d < tr.length:
+		pts.append(tr.curve.sample_baked(d))
+		d += 5.0
+	return pts
+
+
+## Plus petite distance (vue de dessus) entre deux portions de route éloignées
+## de plus de 60 m le long du circuit : la route ne doit pas se toucher.
+func track_separation(tr: Track) -> float:
+	var pts := track_points(tr)
+	var n := pts.size()
+	var best := INF
+	for i in n:
+		for j in range(i + 1, n):
+			if mini(j - i, n - (j - i)) * 5.0 > 60.0:
+				var a: Vector3 = pts[i]
+				var b: Vector3 = pts[j]
+				best = minf(best, Vector2(a.x - b.x, a.z - b.z).length())
+	return best
+
+
+## Distance du centre de la tribune aux portions de route qui ne la longent pas.
+func stand_clearance(tr: Track) -> float:
+	var pts := track_points(tr)
+	var center: Vector3 = tr._grandstand_center()
+	var i0 := int(tr.grandstand_distance / 5.0)
+	var n := pts.size()
+	var best := INF
+	for i in n:
+		if mini(absi(i - i0), n - absi(i - i0)) * 5.0 > 50.0:
+			var pt: Vector3 = pts[i]
+			best = minf(best, Vector2(pt.x - center.x, pt.z - center.z).length())
+	return best
+
+
 func _run() -> void:
 	var app = root.get_node("AppSettings")
 	var profiles = root.get_node("Profiles")
@@ -236,6 +275,50 @@ func _run() -> void:
 	lp2.set_active("base", false)
 	lp2.set_active("lecon_1", true)
 	check(lp2.words() == lessons[0].words, "leçon cochée : ses mots en course")
+
+	print("Circuits et musiques")
+	var tracks_content := GameContent.get_content()
+	check(tracks_content.tracks.size() == 4, "4 circuits")
+	var circuits_ok := true
+	for i in tracks_content.tracks.size():
+		var tr: Track = tracks_content.tracks[i].instantiate()
+		root.add_child(tr)
+		var th: TrackTheme = tr.track_theme
+		var sep := track_separation(tr)
+		var stand := stand_clearance(tr)
+		print("  %s : %.0f m, portions éloignées à %.0f m au moins, tribune à %.0f m, musique « %s »" % [tr.title, tr.length, sep, stand, th.music])
+		if tr.length < 450.0 or tr.length > 900.0 or sep < 2.0 * (tr.road_half_width + Track.CURB) + 5.0 or stand < 30.0:
+			circuits_ok = false
+		if not MusicSynth.SONGS.has(th.music) or tracks_content.track_title(i) != tr.title or tracks_content.track_theme(i) != th:
+			circuits_ok = false
+		tr.free()
+	check(circuits_ok, "circuits : longueur, route qui ne se touche pas, tribune dégagée, titre et musique")
+	var songs_ok := true
+	for song_name in MusicSynth.SONGS:
+		var song: Dictionary = MusicSynth.SONGS[song_name]
+		for part in song.sections:
+			var sec: Dictionary = song.sections[part]
+			if sec.melody.size() != 32 or sec.chords.size() != 4:
+				songs_ok = false
+			for chord in sec.chords:
+				if MusicSynth.chord_tones(chord).size() != 3:
+					songs_ok = false
+		for item in song.form:
+			if not song.sections.has(String(item).trim_suffix("+")):
+				songs_ok = false
+		var samples := MusicSynth.new(song_name).render(int(MusicSynth.RATE))
+		var sum := 0.0
+		for sv in samples:
+			if not is_finite(sv) or absf(sv) > 1.0:
+				songs_ok = false
+			sum += sv * sv
+		var rms := sqrt(sum / samples.size())
+		print("  musique « %s » : %.0f s avant de recommencer, volume moyen %.3f" % [song_name, MusicSynth.song_seconds(song_name), rms])
+		if rms < 0.01 or MusicSynth.song_seconds(song_name) < 30.0:
+			songs_ok = false
+	check(songs_ok, "musiques : parties complètes, plus de 30 s avant de recommencer, son audible sans saturation")
+	check(MusicSynth.chord_tones("Am") == [57, 60, 64] and MusicSynth.chord_tones("Bb") == [58, 62, 65]
+		and absf(MusicSynth.midi_freq(69) - 440.0) < 0.01, "accords et notes")
 
 	print("Clavier à l'écran")
 	var missing := []

@@ -10,6 +10,19 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.9.0] - 2026-11-01
+
+### Ajouté
+
+- Trois nouveaux circuits, à choisir dans le menu (« Choisis ton circuit »,
+  en haut à droite) : la Plage (sable, mer et dunes), la Montagne enneigée
+  (neige, sapins, montées et descentes) et le Canyon (roche rouge au coucher
+  du soleil). Le circuit choisi apparaît derrière le menu et est retenu pour
+  chaque enfant.
+- Une musique par circuit, plus longue et plus variée : chaque morceau
+  enchaîne plusieurs parties (de 35 à 45 secondes avant de recommencer, au
+  lieu d'une petite boucle de 6 secondes), avec batterie, basse et mélodie.
+
 ## [0.8.0] - 2026-11-01
 
 ### Ajouté

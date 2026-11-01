@@ -30,3 +30,8 @@ extends Resource
 @export var cloud_count := 22
 @export var grandstand := true
 @export var flags := PackedColorArray([Color("#e63946"), Color("#ffd60a"), Color("#2d7ff9"), Color("#17b169")])
+@export_group("Menu et musique")
+## Couleur du bouton du circuit dans le menu.
+@export var menu_color := Color("#3fb24f")
+## Morceau joué pendant la course (identifiant de MusicSynth.SONGS).
+@export var music := "prairie"
