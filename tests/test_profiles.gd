@@ -203,6 +203,20 @@ func _run() -> void:
 	check(Progress.is_record(20.0, 25.0, 5) and not Progress.is_record(-1.0, 25.0, 5) and not Progress.is_record(20.0, 25.0, 1),
 		"nouveau record : il faut une course d'avant et assez de mots")
 
+	print("Réglages réservés aux adultes")
+	var gate_rng := RandomNumberGenerator.new()
+	gate_rng.seed = 42
+	var in_range := true
+	for i in 50:
+		var q: Array = ParentGate.make_question(gate_rng)
+		if q[0] < ParentGate.MIN_FACTOR or q[0] > ParentGate.MAX_FACTOR or q[1] < ParentGate.MIN_FACTOR or q[1] > ParentGate.MAX_FACTOR:
+			in_range = false
+	check(in_range, "calcul : deux nombres de 6 à 9")
+	check(ParentGate.is_correct("56", 7, 8) and ParentGate.is_correct(" 56 ", 7, 8), "bonne réponse acceptée")
+	check(not ParentGate.is_correct("54", 7, 8) and not ParentGate.is_correct("", 7, 8) and not ParentGate.is_correct("5a", 7, 8),
+		"mauvaise réponse refusée")
+	check(bool(app.DEFAULTS.parent_lock), "réglages protégés par défaut")
+
 	print("Clavier à l'écran")
 	var missing := []
 	for ch in "abcdefghijklmnopqrstuvwxyzéèçàù'-":

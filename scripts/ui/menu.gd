@@ -17,11 +17,20 @@ signal profile_changed
 @onready var history_dialog: HistoryDialog = %History
 
 var _char_buttons := {} # id -> Button
+## Calcul « Réservé aux adultes » avant les réglages (si la protection est active).
+var _gate: ParentGate
 
 
 func _ready() -> void:
 	play_button.pressed.connect(func(): play_pressed.emit())
-	%SettingsButton.pressed.connect(func(): settings_dialog.open(Profiles.current))
+	_gate = ParentGate.new()
+	add_child(_gate)
+	_gate.passed.connect(func(): settings_dialog.open(Profiles.current))
+	%SettingsButton.pressed.connect(func():
+		if AppSettings.get_value("parent_lock"):
+			_gate.open()
+		else:
+			settings_dialog.open(Profiles.current))
 	%HistoryButton.pressed.connect(func(): history_dialog.open(Profiles.current))
 	%QuitButton.pressed.connect(func(): get_tree().quit())
 	%NewProfileButton.pressed.connect(_open_new_profile)
@@ -93,6 +102,7 @@ func _create_profile() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or not (event is InputEventKey) or not event.pressed or event.keycode != KEY_ESCAPE:
 		return
+	_gate.visible = false
 	if settings_dialog.visible:
 		settings_dialog.close_dialog()
 	history_dialog.visible = false
