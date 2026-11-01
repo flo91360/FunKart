@@ -10,6 +10,23 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.2.2] - 2026-11-01
+
+### Corrigé
+
+- Un mot avec `œ` ou `æ` (« cœur », « œuf ») se tape maintenant `oe` / `ae` :
+  il n'est plus impossible à taper au clavier.
+- Un mot sans aucune bonne lettre pendant 15 secondes est passé : l'enfant
+  n'est plus bloqué jusqu'à l'arrivée.
+- Le turbo dure toute la « Durée du turbo », même quand le mot suivant
+  apparaît déjà (avant, une courte pause entre deux mots l'annulait).
+- Le mot à taper ne reste plus décalé sur le côté après plusieurs erreurs
+  rapprochées.
+- L'historique et les profils ne peuvent plus être perdus si l'ordinateur
+  s'éteint pendant un enregistrement : une copie de secours est relue.
+- Un prénom vide n'est plus enregistré ; un fichier de profil modifié à la
+  main avec des valeurs invalides ne fait plus planter la course.
+
 ## [0.2.1] - 2026-10-12
 
 ### Modifié

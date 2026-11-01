@@ -7,6 +7,16 @@ extends Resource
 @export var title := ""
 @export var words := PackedStringArray()
 
+## Lettres absentes du clavier AZERTY standard : remplacées par ce qui se tape.
+const REPLACEMENTS := {"œ": "oe", "Œ": "Oe", "æ": "ae", "Æ": "Ae", "ß": "ss", "’": "'"}
+
+
+## Le mot tel qu'il peut être tapé au clavier (« cœur » -> « coeur »).
+static func typeable(word: String) -> String:
+	for k in REPLACEMENTS:
+		word = word.replace(k, REPLACEMENTS[k])
+	return word
+
 
 ## Découpe un texte en mots : séparés par des retours à la ligne, espaces,
 ## virgules ou points-virgules (pratique pour coller une liste). Ne garde que
@@ -17,7 +27,7 @@ static func parse(text: String) -> PackedStringArray:
 	var cleaned := text.replace("﻿", "")
 	for sep in [",", ";", "\t", "\r", "\n"]:
 		cleaned = cleaned.replace(sep, " ")
-	for token in cleaned.split(" ", false):
+	for token in typeable(cleaned).split(" ", false):
 		var w := ""
 		var has_letter := false
 		for ch in token:

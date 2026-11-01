@@ -56,7 +56,10 @@ profiles/<id>/history.json        courses de ce profil
 ```
 
 Ce sont des fichiers JSON (lisibles, sans risque à copier d'un ordinateur à
-l'autre). Un dossier par profil laisse la place aux futurs fichiers propres à
+l'autre). Chaque enregistrement (`AppSettings.write_json`) écrit d'abord un
+fichier `.tmp`, garde la version précédente en `.bak` (relue si le fichier est
+abîmé, par exemple après une coupure de courant) et met de côté un fichier
+abîmé en `.abime` au lieu de l'écraser. Un dossier par profil laisse la place aux futurs fichiers propres à
 l'enfant (personnage personnalisé, circuits créés…).
 
 ## Listes de mots

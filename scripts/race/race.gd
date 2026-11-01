@@ -76,6 +76,7 @@ func prepare(p: Profile) -> void:
 	logic.key_ok.connect(_on_key_ok)
 	logic.key_error.connect(_on_key_error)
 	logic.word_completed.connect(_on_word_completed)
+	logic.word_skipped.connect(_on_word_skipped)
 	logic.player_finished.connect(_on_player_finished)
 	for r in logic.racers:
 		var k := Kart.new(content.character(r.character), r.name, not r.is_player)
@@ -231,6 +232,10 @@ func _on_word_completed(word: String) -> void:
 			hud.clear_word())
 
 
+func _on_word_skipped(_word: String) -> void:
+	hud.clear_word("Ce mot est passé, le suivant arrive !")
+
+
 func _on_player_finished() -> void:
 	sfx.play("finish")
 	hud.clear_word("Arrivée !")
@@ -323,8 +328,8 @@ func _update_karts(dt: float) -> void:
 			k.extra_distance += speed * dt
 		if logic.state == "countdown":
 			speed = 0.0
-		var boosting: bool = r.boost > 0.0 and r.word == "" and not r.finished
-		var slowed: bool = r.word != "" and logic.state == "running"
+		var boosting: bool = r.boost > 0.0 and not r.finished
+		var slowed: bool = r.word != "" and r.boost <= 0.0 and logic.state == "running"
 		k.update_visual(track, r.distance + k.extra_distance, speed, r.mult, dt, boosting, slowed)
 
 
