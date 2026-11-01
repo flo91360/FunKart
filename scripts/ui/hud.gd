@@ -23,6 +23,8 @@ const IDLE_HINT := "Ton kart roule tout seul… prépare tes doigts !"
 @onready var hint_label: Label = %HintLabel
 @onready var minimap: Minimap = %Minimap
 @onready var pause_layer: Control = %PauseLayer
+## Clavier à l'écran, sous le mot (désactivable dans les réglages du profil).
+var keyboard: KeyboardView
 var _center_tween: Tween
 var _shake_tween: Tween
 var _shake_x := 0.0 # position du panneau du mot au repos
@@ -33,6 +35,9 @@ func _ready() -> void:
 	%ResumeButton.pressed.connect(func(): resume_pressed.emit())
 	%QuitButton.pressed.connect(func(): quit_pressed.emit())
 	pause_layer.visible = false
+	keyboard = KeyboardView.new()
+	keyboard.name = "Keyboard"
+	word_label.get_parent().add_child(keyboard)
 
 
 func setup(track_points: PackedVector2Array, laps: int, profile: Profile) -> void:
@@ -40,6 +45,7 @@ func setup(track_points: PackedVector2Array, laps: int, profile: Profile) -> voi
 	var size: int = WORD_SIZES[clampi(int(profile.get_setting("text_size")), 0, 2)]
 	word_label.add_theme_font_size_override("normal_font_size", size)
 	word_label.custom_minimum_size.y = size * 1.25
+	keyboard.visible = bool(profile.get_setting("keyboard"))
 	minimap.set_track(track_points)
 	lap_label.text = "TOUR 1/%d" % laps
 	pause_layer.visible = false
@@ -67,6 +73,10 @@ func show_word(word: String, typed: int, success := false) -> void:
 		else:
 			s += "[color=#9aa0ac]%s[/color]" % ch
 	word_label.text = s + "[/center]"
+	if success or typed >= word.length():
+		keyboard.clear()
+	else:
+		keyboard.show_char(word[typed])
 	if success:
 		var tw := create_tween()
 		word_panel.pivot_offset = word_panel.size / 2.0
@@ -76,6 +86,7 @@ func show_word(word: String, typed: int, success := false) -> void:
 
 func clear_word(hint := IDLE_HINT) -> void:
 	word_label.text = ""
+	keyboard.clear()
 	set_hint(hint)
 
 

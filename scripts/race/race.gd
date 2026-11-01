@@ -37,6 +37,8 @@ var preview_side := -2.8
 var _track_key := ""
 ## Effets du moteur de rendu avancé (mode « Beau ») sur l'éclairage du thème.
 const ADVANCED_SUN_BOOST := 1.15
+## Le clavier à l'écran agrandit le panneau du mot : la caméra remonte le kart d'autant.
+const KEYBOARD_CAMERA_SHIFT := 2.2
 var _t := 0.0
 var _hud_timer := 0.0
 var _lane_timer := 0.0
@@ -217,7 +219,11 @@ func _on_key_ok(typed: int) -> void:
 func _on_key_error(expected: String) -> void:
 	var letter := expected.to_upper() if profile.get_setting("uppercase") else expected
 	hud.shake_word()
-	hud.set_hint("Oups ! Cherche la lettre « %s »" % letter, true)
+	var finger := KeyboardView.finger_hint(expected)
+	if finger != "":
+		hud.set_hint("Oups ! Cherche « %s » : %s" % [letter, finger], true)
+	else:
+		hud.set_hint("Oups ! Cherche la lettre « %s »" % letter, true)
 	sfx.play("key_error")
 	_shake = 0.15
 
@@ -379,7 +385,8 @@ func _place_chase_camera(dt: float) -> void:
 		camera.global_position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * _shake * 0.6
 	var look := f.origin + f.basis.x * k.lateral * 0.85 + Vector3.UP * 0.6 - f.basis.z * 6.0
 	camera.look_at(look)
-	camera.v_offset = -1.2 # remonte le kart au-dessus du panneau du mot
+	# remonte le kart au-dessus du panneau du mot (et du clavier s'il est affiché)
+	camera.v_offset = -1.2 - (KEYBOARD_CAMERA_SHIFT if hud.keyboard.visible else 0.0)
 	var fov_target := 70.0 + (p.mult - 1.0) * 14.0
 	camera.fov = lerpf(camera.fov, fov_target, 1.0 if dt >= 1.0 else 1.0 - exp(-dt * 4.0))
 

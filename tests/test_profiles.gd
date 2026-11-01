@@ -155,6 +155,21 @@ func _run() -> void:
 		logic.update(0.1)
 	check(logic.stats.skipped == 1 and logic.stats.words.size() == 1, "mot passé après %d s sans bonne lettre" % int(RaceLogic.SKIP_AFTER))
 
+	print("Clavier à l'écran")
+	var missing := []
+	for ch in "abcdefghijklmnopqrstuvwxyzéèçàù'-":
+		if KeyboardView.keys_for(ch).size() != 1:
+			missing.append(ch)
+	check(missing.is_empty(), "toutes les lettres sont sur le clavier AZERTY %s" % str(missing))
+	check(KeyboardView.keys_for("F") == ["f"] and KeyboardView.finger_hint("f") == "index gauche" and KeyboardView.finger_hint("j") == "index droit",
+		"doigts : f = index gauche, j = index droit")
+	check(KeyboardView.finger_hint("a") == "auriculaire gauche" and KeyboardView.finger_hint("m") == "auriculaire droit" and KeyboardView.finger_hint("e") == "majeur gauche",
+		"doigts : a, m, e")
+	check(KeyboardView.keys_for("ê") == ["^", "e"] and KeyboardView.finger_hint("ê") == "^ puis e (majeur gauche)" and KeyboardView.finger_hint("ï") == "Maj + ^ puis i (majeur droit)",
+		"accents circonflexe et tréma : deux touches")
+	check(KeyboardView.keys_for("€").is_empty() and KeyboardView.finger_hint("€") == "", "caractère absent du clavier")
+	check(bool(Profile.new().get_setting("keyboard")), "clavier affiché par défaut")
+
 	print("Fichiers abîmés")
 	var jp := DATA_DIR.path_join("essai.json")
 	app.write_json(jp, ["a"])

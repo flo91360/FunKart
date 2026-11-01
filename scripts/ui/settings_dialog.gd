@@ -136,6 +136,7 @@ func _ready() -> void:
 	_check(checks, "Mots en MAJUSCULES", "uppercase")
 	_check(checks, "Accents facultatifs (e pour é)", "accents_tolerant")
 	_check(checks, "Lire le mot à voix haute", "speak")
+	_check(checks, "Clavier à l'écran (doigts en couleur)", "keyboard")
 
 	# Mots
 	inner.add_child(_section("Listes de mots"))

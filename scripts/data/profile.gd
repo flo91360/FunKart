@@ -25,6 +25,7 @@ const DEFAULT_SETTINGS := {
 	"accents_tolerant": true,
 	"text_size": 1,
 	"speak": false,
+	"keyboard": true, # clavier à l'écran avec les doigts en couleur
 }
 
 var id := ""
