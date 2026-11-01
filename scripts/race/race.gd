@@ -43,9 +43,10 @@ const CAMERA_HEIGHT := 3.8
 const CAMERA_AIM_AHEAD := 8.0
 ## La caméra ne descend jamais à moins de cette hauteur au-dessus de la route ou du sol.
 const CAMERA_MIN_CLEARANCE := 1.6
-## Place du kart à l'écran : fraction de la hauteur libre au-dessus du panneau
-## du mot (0 : en haut de l'écran, 1 : juste au bord du panneau).
-const KART_SCREEN_SPOT := 0.78
+## Place du centre du kart à l'écran : fraction de la hauteur libre au-dessus
+## du panneau du mot (0 : en haut de l'écran, 1 : au bord du panneau). Ses
+## roues restent ainsi visibles au-dessus du panneau.
+const KART_SCREEN_SPOT := 0.68
 var _t := 0.0
 var _hud_timer := 0.0
 var _lane_timer := 0.0

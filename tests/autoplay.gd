@@ -147,7 +147,8 @@ func _check_version_label() -> bool:
 
 
 ## La caméra reste au-dessus de la route et du sol ; le kart reste visible
-## au-dessus du panneau du mot (après la première seconde, le temps du cadrage).
+## au-dessus du panneau du mot, roues comprises (après la première seconde,
+## le temps du cadrage).
 func _check_camera(logic: RaceLogic) -> void:
 	running_frames += 1
 	var k = race.karts[logic.player] # Kart (non typé : le script ne dépend pas des classes de la course)
@@ -156,7 +157,7 @@ func _check_camera(logic: RaceLogic) -> void:
 	var road_y: float = maxf(race.track.frame_at(d).origin.y, 0.0)
 	cam_clearance = minf(cam_clearance, cam.global_position.y - road_y)
 	if logic.time > 1.0:
-		var spot := cam.unproject_position(k.global_position + Vector3.UP * 1.2)
+		var spot := cam.unproject_position(k.global_position + Vector3.UP * 0.1)
 		if spot.y > race.hud.word_panel.global_position.y:
 			kart_hidden += 1
 
