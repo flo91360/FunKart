@@ -10,6 +10,17 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.5.0] - 2026-11-01
+
+### Ajouté
+
+- Adversaires automatiques (Réglages → « Adversaires automatiques ») : leur
+  vitesse suit celle de l'enfant, d'après la médiane de ses frappes par
+  minute sur ses 5 dernières courses. Les adversaires sont répartis autour de
+  son niveau (85 %, 100 %, 115 %…), pour qu'il gagne parfois et progresse.
+  Les réglages affichent le niveau actuel de l'enfant. Tant qu'il n'a pas
+  encore de course, les valeurs réglées à la main servent. Désactivé par défaut.
+
 ## [0.4.0] - 2026-11-01
 
 ### Ajouté

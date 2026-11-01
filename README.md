@@ -112,6 +112,7 @@ le fichier `FunKart_historique.csv` du dossier Documents.
 | Nombre de tours | Longueur de la course (3 par défaut) |
 | Nombre d'adversaires | 0 à 5 |
 | Frappes/min de chaque adversaire | Leur niveau, à régler selon l'objectif de l'enfant (préréglages disponibles) |
+| Adversaires automatiques | Leur vitesse suit celle de l'enfant (médiane de ses 5 dernières courses) : un peu plus lents, à son niveau, un peu plus rapides… Désactivé par défaut |
 | Pause entre deux mots | Temps de répit après chaque mot |
 | Durée d'un tour sans mot | Vitesse de base des karts |
 | Ralentissement / turbo | Intensité de la pénalité et de la récompense |

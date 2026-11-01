@@ -66,8 +66,11 @@ func prepare(p: Profile) -> void:
 	var content := GameContent.get_content()
 	var bots := []
 	var bot_chars := content.bot_characters()
+	var bot_count := mini(int(p.get_setting("bot_count")), bot_chars.size())
 	var kpm: Array = p.get_setting("bot_kpm")
-	for i in mini(int(p.get_setting("bot_count")), bot_chars.size()):
+	if p.get_setting("bot_auto"):
+		kpm = AutoLevel.bot_kpm(Profiles.history(p), bot_count, kpm)
+	for i in bot_count:
 		var c := bot_chars[i]
 		bots.append({"name": c.display_name, "character": c.id, "kpm": float(kpm[i]) if i < kpm.size() else 20.0})
 	var player_name := p.name if p.name != "" else "Toi"
@@ -282,6 +285,7 @@ func _show_results() -> void:
 		"avg_word_time": logic.average_word_time(),
 		"time": logic.player.finish_time,
 		"bot_kpm": bot_kpm,
+		"bot_auto": bool(profile.get_setting("bot_auto")),
 		"letters": logic.stats.letters,
 	}, profile)
 
