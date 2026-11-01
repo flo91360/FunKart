@@ -10,6 +10,20 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.3.0] - 2026-11-01
+
+### Ajouté
+
+- Clavier AZERTY à l'écran, sous le mot à taper : chaque touche a la couleur
+  du doigt qui doit la taper (auriculaire, annulaire, majeur, index, pouce) et
+  la touche attendue est surlignée en jaune. Les touches F et J ont leur
+  repère, comme sur un vrai clavier. Pour « ê » ou « ï », les deux touches
+  (accent puis lettre) sont montrées.
+- Après une erreur, le jeu dit quel doigt utiliser
+  (« Oups ! Cherche « f » : index gauche »).
+- Réglage « Clavier à l'écran » (propre à chaque enfant, activé par défaut) :
+  à décocher quand l'enfant n'en a plus besoin.
+
 ## [0.2.3] - 2026-11-01
 
 ### Modifié

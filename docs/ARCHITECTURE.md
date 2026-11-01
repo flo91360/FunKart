@@ -73,6 +73,17 @@ doublon, liste de base par défaut). Interface : `scripts/ui/word_lists_panel.gd
 .txt). `WordList.parse()` découpe un texte en mots. Les profils de la version 1
 (une seule liste recopiée) sont convertis à la lecture.
 
+## Clavier à l'écran
+
+`scripts/ui/keyboard_view.gd` (`KeyboardView`) dessine le clavier AZERTY sous
+le mot (ajouté par `Hud`). Les rangées, les doigts et leurs couleurs sont des
+constantes en tête du fichier ; `keys_for()` donne les touches d'un caractère
+(deux pour « ê » : `^` puis `e`) et `finger_hint()` le doigt à utiliser,
+repris dans le message d'erreur. Réglage du profil : `keyboard`.
+
+La CI joue aussi une course dans un écran virtuel et enregistre des captures
+d'écran (Artifacts « Captures » de « Construire le jeu »).
+
 ## Graphismes
 
 Le jeu utilise par défaut le moteur de rendu « Compatibilité » (OpenGL), qui

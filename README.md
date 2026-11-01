@@ -42,7 +42,11 @@ Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêt
 - Si aucune bonne lettre n'est tapée pendant 15 secondes, le mot est passé
   (sans turbo) : l'enfant n'est jamais bloqué.
 - La lettre attendue est surlignée en jaune. Une mauvaise touche ne fait pas
-  avancer le mot : le mot tremble et le jeu indique la lettre à chercher.
+  avancer le mot : le mot tremble et le jeu indique la lettre à chercher et le
+  doigt à utiliser.
+- Sous le mot, un **clavier AZERTY** montre la touche à taper ; chaque touche a
+  la couleur du doigt qui la tape. Il se désactive dans les réglages
+  (« Clavier à l'écran ») quand l'enfant n'en a plus besoin.
 - Les touches maintenues enfoncées ne comptent qu'une fois (pas de répétition
   automatique).
 - Majuscules et minuscules sont toujours acceptées ; les accents sont
@@ -109,6 +113,7 @@ le fichier `FunKart_historique.csv` du dossier Documents.
 | Longueur max des mots | Filtre la liste de mots |
 | Taille du mot, MAJUSCULES | Lisibilité (les touches du clavier sont souvent en majuscules) |
 | Accents facultatifs | Accepte `e` pour `é`, etc. |
+| Clavier à l'écran | Clavier AZERTY sous le mot, touche attendue surlignée, couleurs des doigts (à décocher quand l'enfant est à l'aise) |
 | Lire le mot à voix haute | Synthèse vocale du système (si une voix française est installée) |
 | Sons, musique, plein écran | Communs à tous les profils |
 | Volumes (général, musique, effets) | Aussi réglables pendant la course : <kbd>Échap</kbd> → curseurs de volume |

@@ -117,6 +117,24 @@ jobs:
       - name: Test (course jouée automatiquement)
         run: godot --headless --path . --script res://tests/autoplay.gd -- --fast
 
+      - name: Captures d'écran d'une course
+        # Course jouée dans un écran virtuel avec rendu logiciel (Mesa) : les
+        # images (menu, compte à rebours, mots, turbo, arrivée) sont dans les
+        # Artifacts (« Captures »), pour voir l'interface sans lancer le jeu.
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends xvfb libgl1-mesa-dri libglx-mesa0 > /dev/null
+          mkdir -p build/captures
+          xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
+            --script res://tests/autoplay.gd -- --fast --shots="$PWD/build/captures"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Captures
+          path: build/captures
+          if-no-files-found: ignore
+
       - name: Installer rcedit (icône et version de l'exe Windows)
         # Godot modifie les ressources de l'exe (icône, version) avec rcedit,
         # un outil Windows lancé ici avec Wine.
