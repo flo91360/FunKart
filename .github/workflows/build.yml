@@ -130,6 +130,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends xvfb libgl1-mesa-dri libglx-mesa0 > /dev/null
+          # Les captures ne font pas partie du jeu : Godot ignore le dossier
+          # build/ (sinon il les importerait et les emballerait dans l'exe).
+          mkdir -p build && touch build/.gdignore
           # La Prairie (0) et la Montagne (2, avec ses montées et descentes) ; les
           # miniatures (--thumbs) sont aussi écrites dans ce journal.
           for track in 0 2; do

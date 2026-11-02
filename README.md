@@ -171,6 +171,10 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
 L'organisation du code et la façon de modifier le contenu (circuits,
 personnages, thèmes, mots) sont décrites dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+Les polices du jeu (Fredoka, Lilita One, Andika) sont sous licence libre SIL
+Open Font License : voir [ui/fonts/LISEZMOI.md](ui/fonts/LISEZMOI.md). Leurs
+licences sont aussi emballées dans le jeu exporté.
+
 ## Archivage Google Drive
 
 Chaque Release publiée joint aussi `FunKart.exe`. Le site PlaniFiKateur l'archive

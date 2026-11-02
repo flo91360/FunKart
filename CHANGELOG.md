@@ -48,6 +48,11 @@ titres des commits.
   nouvelles couleurs : boutons en relief, panneaux arrondis, minicarte plus
   lisible, traits de vitesse pendant le turbo, confettis à l'arrivée.
 
+### Corrigé
+
+- Le jeu téléchargé est plus léger : les captures d'écran des tests
+  automatiques n'y sont plus emballées.
+
 ## [0.9.1] - 2026-11-01
 
 ### Corrigé
