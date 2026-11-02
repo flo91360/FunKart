@@ -34,6 +34,7 @@ var thumbs := false
 var cam_clearance := INF # plus petite hauteur de la caméra au-dessus de la route ou du sol
 var kart_hidden := 0 # images où le kart est caché par le panneau du mot
 var running_frames := 0
+var player_finished_for := 0.0 # temps écoulé depuis l'arrivée du joueur
 
 
 func _initialize() -> void:
@@ -97,6 +98,13 @@ func _process(delta: float) -> bool:
 				_shot_once("word_%d" % logic.stats.words.size())
 		if p.boost > 1.5 and p.word == "":
 			_shot_once("boost")
+	if race.mode == MODE_RACE and logic.player.finished:
+		player_finished_for += delta
+		if player_finished_for > 0.6 and not shots_taken.has("arrivee"):
+			_shot_once("arrivee")
+			if not _check_center_label():
+				quit(1)
+				return false
 	if race.mode == MODE_RESULTS and finished_at < 0.0:
 		finished_at = elapsed
 	if finished_at > 0.0 and elapsed - finished_at > 1.0:
@@ -123,6 +131,23 @@ func _process(delta: float) -> bool:
 		push_error("La course ne s'est pas terminée à temps")
 		quit(1)
 	return false
+
+
+## « ARRIVÉE ! » s'affiche en entier, au-dessus du panneau du mot.
+func _check_center_label() -> bool:
+	var hud = race.hud
+	var label: Label = hud.center_label
+	var font := label.get_theme_font("font")
+	var size := label.get_theme_font_size("font_size")
+	var text_h := font.get_height(size)
+	var rect := label.get_global_rect()
+	var text_bottom := rect.position.y + (rect.size.y + text_h) / 2.0
+	var panel_top: float = hud.word_panel.global_position.y
+	print("ARRIVEE bas du texte : %.0f ; haut du panneau du mot : %.0f" % [text_bottom, panel_top])
+	if text_bottom > panel_top:
+		push_error("« ARRIVÉE ! » est caché par le panneau du mot")
+		return false
+	return true
 
 
 ## Le numéro de version est affiché en petit, en bas à gauche du menu principal,

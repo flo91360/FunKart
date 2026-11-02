@@ -179,7 +179,12 @@ func shake_word() -> void:
 		tw.tween_property(word_panel, "position:x", _shake_x + dx, 0.04)
 
 
+## Grand texte au centre (compte à rebours, « ARRIVÉE ! »), centré dans la
+## place libre au-dessus du panneau du mot pour ne pas être caché par lui.
 func show_center(text: String, hold := 0.8) -> void:
+	var root_h := (center_label.get_parent() as Control).size.y
+	var free_bottom := maxf(word_panel.position.y - 12.0, 260.0)
+	center_label.offset_bottom = free_bottom - root_h
 	center_label.text = text
 	center_label.pivot_offset = center_label.size / 2.0
 	if _center_tween:
