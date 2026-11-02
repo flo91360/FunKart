@@ -34,6 +34,7 @@ var thumbs := false
 var cam_clearance := INF # plus petite hauteur de la caméra au-dessus de la route ou du sol
 var kart_hidden := 0 # images où le kart est caché par le panneau du mot
 var running_frames := 0
+var player_finished_for := 0.0 # temps écoulé depuis l'arrivée du joueur
 
 
 func _initialize() -> void:
@@ -97,6 +98,13 @@ func _process(delta: float) -> bool:
 				_shot_once("word_%d" % logic.stats.words.size())
 		if p.boost > 1.5 and p.word == "":
 			_shot_once("boost")
+	if race.mode == MODE_RACE and logic.player.finished:
+		player_finished_for += delta
+		if player_finished_for > 0.6 and not shots_taken.has("arrivee"):
+			_shot_once("arrivee")
+			if not _check_center_label():
+				quit(1)
+				return false
 	if race.mode == MODE_RESULTS and finished_at < 0.0:
 		finished_at = elapsed
 	if finished_at > 0.0 and elapsed - finished_at > 1.0:
@@ -123,6 +131,24 @@ func _process(delta: float) -> bool:
 		push_error("La course ne s'est pas terminée à temps")
 		quit(1)
 	return false
+
+
+## « ARRIVÉE ! » s'affiche en entier dans la place libre : entre le classement
+## et la minimap, entre les stats du haut et le panneau du mot.
+func _check_center_label() -> bool:
+	var hud = race.hud
+	var label: Label = hud.center_label
+	var font := label.get_theme_font("font")
+	var size := label.get_theme_font_size("font_size")
+	var rect := label.get_global_rect()
+	var text_w := font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var text := Rect2(rect.get_center().x - text_w / 2.0, rect.position.y, text_w, font.get_ascent(size))
+	var box: Rect2 = hud.center_text_box()
+	print("ARRIVEE texte %s (taille %d) ; place libre %s" % [text, size, box])
+	if not box.grow(1.0).encloses(text):
+		push_error("« ARRIVÉE ! » déborde de la place libre (classement, minimap, stats ou panneau du mot)")
+		return false
+	return true
 
 
 ## Le numéro de version est affiché en petit, en bas à gauche du menu principal,

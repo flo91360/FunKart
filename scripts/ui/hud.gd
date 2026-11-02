@@ -7,6 +7,7 @@ signal resume_pressed
 signal quit_pressed
 
 const WORD_SIZES := [72, 104, 140]
+const CENTER_FONT_SIZE := 190 # grand texte central, avant d'être rétréci pour tenir
 const IDLE_HINT := "Ton kart roule tout seul… prépare tes doigts !"
 
 ## Traits de vitesse sur les bords de l'écran pendant le turbo.
@@ -179,18 +180,58 @@ func shake_word() -> void:
 		tw.tween_property(word_panel, "position:x", _shake_x + dx, 0.04)
 
 
+## Place libre pour le grand texte central, en coordonnées de l'écran.
+func center_text_box() -> Rect2:
+	var margin := 16.0
+	var left := ($Root/TopLeft as Control).get_global_rect().end.x + margin
+	var right := minimap.get_global_rect().position.x - margin
+	var top := ($Root/TopRight/Stats as Control).get_global_rect().end.y + margin
+	var bottom := word_panel.global_position.y - margin
+	return Rect2(left, top, maxf(right - left, 200.0), maxf(bottom - top, 80.0))
+
+
+## Grand texte au centre (compte à rebours, « ARRIVÉE ! ») : il tient dans
+## la place libre entre le classement et la minimap, et entre les stats du
+## haut et le panneau du mot (la police rétrécit si besoin).
 func show_center(text: String, hold := 0.8) -> void:
 	center_label.text = text
-	center_label.pivot_offset = center_label.size / 2.0
-	if _center_tween:
-		_center_tween.kill()
+	_layout_center()
+	# Juste après l'affichage du HUD (premier « 3 »), ses panneaux ne sont pas
+	# encore à leur place : on recale le texte une fois la mise en page faite.
+	_layout_center.call_deferred()
 	center_label.scale = Vector2(1.8, 1.8)
 	center_label.modulate.a = 1.0
+	if _center_tween:
+		_center_tween.kill()
 	_center_tween = create_tween()
 	_center_tween.tween_property(center_label, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if hold > 0.0:
 		_center_tween.tween_interval(hold)
 		_center_tween.tween_property(center_label, "modulate:a", 0.0, 0.2)
+
+
+func _layout_center() -> void:
+	var text := center_label.text
+	var box := center_text_box()
+	var font := center_label.get_theme_font("font")
+	var outline := center_label.get_theme_constant("outline_size")
+	var size := CENTER_FONT_SIZE
+	var text_w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + outline
+	var text_h := font.get_ascent(size) + outline
+	var fit := minf(box.size.x / text_w, box.size.y / text_h)
+	if fit < 1.0:
+		size = maxi(int(size * fit), 40)
+	center_label.add_theme_font_size_override("font_size", size)
+	# Les majuscules (avec l'accent de « É ») occupent la hauteur de l'ascent :
+	# on centre cette partie-là, pas toute la ligne (la descente reste vide).
+	var root := center_label.get_parent() as Control
+	var mid := box.get_center()
+	var top := mid.y - font.get_ascent(size) / 2.0
+	center_label.offset_left = box.position.x
+	center_label.offset_right = box.end.x - root.size.x
+	center_label.offset_top = top
+	center_label.offset_bottom = top + font.get_height(size) - root.size.y
+	center_label.pivot_offset = center_label.size / 2.0
 
 
 func update_minimap(dots: Array) -> void:
