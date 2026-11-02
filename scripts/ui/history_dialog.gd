@@ -19,7 +19,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var ov := Ui.overlay(self, Vector2(1100, 600))
 	var box: VBoxContainer = ov[1]
-	_title = Ui.label("Historique", 38)
+	_title = Ui.title("Historique", 40, Ui.NAVY, 0)
 	box.add_child(_title)
 	# Courbe de progression et record.
 	_chart = ProgressChart.new()

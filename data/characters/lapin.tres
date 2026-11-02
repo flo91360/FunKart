@@ -14,4 +14,4 @@ ears = "long"
 ear_color = Color(0.94902, 0.94902, 0.94902, 1)
 has_snout = true
 snout_color = Color(1, 1, 1, 1)
-extra = "none"
+extra = "rabbit"

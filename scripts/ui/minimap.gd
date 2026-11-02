@@ -31,19 +31,32 @@ func _to_map(v: Vector2) -> Vector2:
 func _draw() -> void:
 	if points.is_empty():
 		return
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.35))
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.04, 0.07, 0.2, 0.42)
+	bg.set_corner_radius_all(22)
+	bg.border_color = Color(1, 1, 1, 0.35)
+	bg.set_border_width_all(2)
+	draw_style_box(bg, Rect2(Vector2.ZERO, size))
 	var mapped := PackedVector2Array()
 	for v in points:
 		mapped.append(_to_map(v))
 	mapped.append(mapped[0])
-	draw_polyline(mapped, Color(0.1, 0.1, 0.12), 12.0, true)
-	draw_polyline(mapped, Color(0.85, 0.85, 0.88), 7.0, true)
-	draw_circle(mapped[0], 6.0, Color.WHITE)
+	draw_polyline(mapped, Color(0.03, 0.05, 0.16, 0.8), 14.0, true)
+	draw_polyline(mapped, Color(0.97, 0.97, 1.0), 8.0, true)
+	# ligne d'arrivée en damier
+	var a := mapped[0]
+	var dir := (mapped[1] - mapped[0]).normalized()
+	var side := Vector2(-dir.y, dir.x)
+	for k in 4:
+		var c := Color.BLACK if k % 2 == 0 else Color.WHITE
+		draw_line(a + side * (k - 2) * 2.6, a + side * (k - 1) * 2.6, c, 5.0)
 	for d in dots:
 		if not d[2]:
-			draw_circle(_to_map(d[0]), 7.0, Color.BLACK)
+			draw_circle(_to_map(d[0]), 7.5, Color(0.03, 0.05, 0.16))
 			draw_circle(_to_map(d[0]), 5.5, d[1])
+	var pulse := 1.0 + 0.2 * sin(Time.get_ticks_msec() / 160.0)
 	for d in dots:
 		if d[2]:
-			draw_circle(_to_map(d[0]), 11.0, Color.WHITE)
-			draw_circle(_to_map(d[0]), 8.0, d[1])
+			draw_circle(_to_map(d[0]), 13.0 * pulse, Color(1, 1, 1, 0.35))
+			draw_circle(_to_map(d[0]), 10.0, Color.WHITE)
+			draw_circle(_to_map(d[0]), 7.5, d[1])

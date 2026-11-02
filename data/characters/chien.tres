@@ -14,4 +14,4 @@ ears = "floppy"
 ear_color = Color(0.478431, 0.294118, 0.164706, 1)
 has_snout = true
 snout_color = Color(0.960784, 0.870588, 0.701961, 1)
-extra = "none"
+extra = "dog"

@@ -51,6 +51,24 @@ func track_property(index: int, property: String) -> Variant:
 	return null
 
 
+## Tracé d'un circuit vu de dessus (plan XZ), lu dans sa scène sans la
+## construire : pour les cartes du menu.
+func track_outline(index: int) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	var state := tracks[index].get_state()
+	for n in state.get_node_count():
+		if state.get_node_name(n) != "Path":
+			continue
+		for i in state.get_node_property_count(n):
+			if state.get_node_property_name(n, i) == "curve":
+				var c: Curve3D = (state.get_node_property_value(n, i) as Curve3D).duplicate()
+				c.add_point(c.get_point_position(0), c.get_point_in(0), c.get_point_out(0))
+				c.bake_interval = 2.0
+				for p in c.get_baked_points():
+					out.append(Vector2(p.x, p.z))
+	return out
+
+
 func track_title(index: int) -> String:
 	var title: Variant = track_property(index, "title")
 	return String(title) if title != null else "Circuit %d" % (index + 1)

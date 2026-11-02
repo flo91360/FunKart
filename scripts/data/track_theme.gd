@@ -22,7 +22,12 @@ extends Resource
 @export var ambient_energy := 0.35
 @export var sun_energy := 0.8
 @export var sun_rotation := Vector3(-55, -35, 0)
+@export var sun_color := Color("#fff4dc")
+## Nuages dessinés dans le ciel (0 : ciel dégagé, 0.6 : bien nuageux).
+@export_range(0.0, 0.8) var sky_clouds := 0.42
 @export_group("Décor")
+## Style du décor : arbres, rochers, eau… (voir Scenery).
+@export_enum("prairie", "plage", "montagne", "canyon") var decor := "prairie"
 @export var tree_trunk := Color("#7a4b2a")
 @export var tree_leaves := PackedColorArray([Color("#2d9a3e"), Color("#3fb24f"), Color("#23863a"), Color("#56c25a")])
 @export var tree_count := 170

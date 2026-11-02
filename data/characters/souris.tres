@@ -14,4 +14,4 @@ ears = "mouse"
 ear_color = Color(0.690196, 0.717647, 0.764706, 1)
 has_snout = true
 snout_color = Color(0.898039, 0.898039, 0.898039, 1)
-extra = "none"
+extra = "mouse"

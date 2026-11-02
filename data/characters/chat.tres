@@ -14,4 +14,4 @@ ears = "cat"
 ear_color = Color(0.956863, 0.639216, 0.25098, 1)
 has_snout = true
 snout_color = Color(1, 0.952941, 0.878431, 1)
-extra = "none"
+extra = "cat"

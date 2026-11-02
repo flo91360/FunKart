@@ -19,7 +19,8 @@ scenes/
   ui/hud.tscn             interface pendant la course
   ui/menu.tscn            menu principal (profils, pilote, réglages, historique)
   ui/results.tscn         écran d'arrivée
-ui/theme.tres             thème de l'interface (couleurs, polices, boutons)
+ui/theme.tres             thème de l'interface (couleurs, polices, boutons), recréé par tests/make_theme.gd
+ui/fonts/                 polices livrées avec le jeu (licence libre OFL, voir LISEZMOI.md)
 scripts/
   autoload/               services globaux
     app_settings.gd       réglages de l'ordinateur (plein écran, son) — « AppSettings »
@@ -33,11 +34,17 @@ scripts/
   race/                   la course
     race_logic.gd         règles (sans affichage, testées) : vitesse, mots, turbo, adversaires, stats
     race.gd               monde 3D : karts, caméra, couloirs, enchaînement des modes
-    track.gd              construction du circuit à partir de la courbe (outil d'éditeur)
-    kart.gd               karts et pilotes
+    track.gd              construction du circuit à partir de la courbe (outil d'éditeur) :
+                          route, vibreurs, relief, mer, arche, tribune, barrières
+    scenery.gd            décor du thème : arbres, rochers, fleurs, herbes, nuages, montgolfières…
+    ambience.gd           ciel, soleil, brume, rendu de l'image selon la qualité
+    kart.gd               un kart et son pilote : assemblage et animations
+    kart_model.gd         maillages du kart (et du pilote), gardés en mémoire
+    animal_model.gd       les animaux pilotes (une fonction par espèce)
     sfx.gd                sons, musique, voix
   ui/                     écrans et fenêtres
-  util/mk.gd              fabrication de modèles à partir de formes simples
+  util/mesh_builder.gd    fabrique de maillages lisses (formes, couleurs peintes, matériaux)
+  util/mk.gd              petites formes et particules (flammes, fumée, confettis)
 tests/                    tests automatiques
 ```
 
@@ -137,8 +144,54 @@ fonctionne partout. Le mode **Beau** demande le moteur avancé « Forward+ »
 fichier `user://override.cfg` (réglage de projet
 `application/config/project_settings_override`) et la relance du jeu. Si la
 carte graphique ne le permet pas, Godot revient tout seul au rendu simple et
-les réglages l'indiquent. Les effets propres à chaque niveau sont dans
-`Race._apply_quality()`.
+les réglages l'indiquent.
+
+`Ambience.apply()` règle le ciel (shader : dégradé, soleil, nuages), la
+lumière ambiante et les reflets venus du ciel, le soleil, la brume au loin et
+le rendu de l'image (tonemapping « Filmic », lueurs, saturation) d'après le
+thème du circuit et la qualité ; `Race._apply_quality()` règle l'antialiasing
+et le flou au loin (mode Beau).
+
+Avec le moteur « Compatibilité », le soleil ne fait pas d'ombres : une
+lumière qui fait des ombres y est ajoutée dans une seconde passe, mélangée
+après la conversion des couleurs (sRGB), ce qui éclaircit et délave toute
+l'image. Les karts et les arbres ont donc des ombres douces dessinées sous eux
+(`Kart._shadow_blob()`, `Scenery`) ; le mode Beau (Forward+) a de vraies
+ombres.
+
+### Modèles 3D
+
+Aucun fichier 3D : tout est fabriqué par le code avec `MeshBuilder`
+(`scripts/util/mesh_builder.gd`) à partir de formes lisses (ellipsoïdes
+déformées par des « bosses », profils tournés, tubes, profilés, calottes).
+Chaque forme a sa couleur, éventuellement « peinte » par une fonction
+(museau clair, taches, rayures) ; toutes les formes d'un même matériau
+(peinture, fourrure, chrome, caoutchouc, yeux…) sont réunies dans une seule
+surface, d'où peu d'appels de dessin. Les yeux ont un shader qui dessine
+l'iris, la pupille, les reflets et le contour au pixel près.
+
+- `KartModel` : le kart (carénage, pontons, aileron, moteur, roues) ; les
+  maillages d'un personnage sont gardés en mémoire (`get_meshes()`).
+- `AnimalModel` : le pilote. L'espèce vient de `CharacterData.extra` (« cat »,
+  « lion »…) ; chaque espèce règle la forme de la tête (`bump()`), ses
+  couleurs (`paint_fn`) et ses détails (oreilles `make_ear()`, truffe,
+  moustaches, crinière…). La tête, les yeux, les oreilles souples, la queue et
+  l'écharpe sont des maillages à part, animés par `Kart._process()`.
+- `Scenery` : le décor (style `TrackTheme.decor`), répété avec des
+  `MultiMesh` regroupés par zones (les zones hors de la caméra ne sont pas
+  dessinées ; herbes et fleurs ont une distance d'affichage).
+
+La **vitrine** `tests/showroom.gd` photographie les modèles sans lancer le
+jeu (karts, têtes de face, circuits vus de plusieurs endroits) :
+
+```
+xvfb-run -a godot --path . --rendering-driver opengl3 --script res://tests/showroom.gd -- --what=faces --out=/tmp/vitrine
+```
+
+(`--what=karts|heads|faces|track|shapes`, `--only=chat`, `--theme=2`,
+`--graphics=0`, et des réglages de l'image pour comparer : `--sun=`,
+`--ambient=`, `--exposure=`…). `tests/ui_shots.gd` photographie les fenêtres
+de l'interface.
 
 ## Son
 
@@ -167,13 +220,17 @@ mélodie (une note MIDI par croche) et l'ordre de ses parties. `MusicPlayer`
   Le test des circuits (`tests/test_profiles.gd`) vérifie que la route ne se
   touche pas et que la tribune est dégagée.
 - **Une ambiance** : dupliquer un thème de `data/themes/` (couleurs du sol, de
-  la route, du ciel, des arbres…, couleur du bouton dans le menu et musique)
-  et l'assigner au circuit.
+  la route, du ciel, des arbres…, style du décor `decor`, couleur du soleil,
+  nuages du ciel, couleur du bouton dans le menu et musique) et l'assigner au
+  circuit.
 - **Un pilote** : dupliquer un fichier de `data/characters/`, changer `id`,
-  couleurs, oreilles…, puis l'ajouter à `characters` dans `data/content.tres`
-  (`playable` : proposé à l'enfant ou adversaire).
-- **L'interface** : les scènes de `scenes/ui/` et `ui/theme.tres` s'éditent
-  visuellement. Les nœuds utilisés par le code ont un nom unique (`%Nom`).
+  couleurs, oreilles, espèce (`extra`)…, puis l'ajouter à `characters` dans
+  `data/content.tres` (`playable` : proposé à l'enfant ou adversaire).
+- **L'interface** : les scènes de `scenes/ui/` s'éditent visuellement. Le
+  thème se construit dans `Ui.build_theme()` (`scripts/ui/ui.gd`) ; après une
+  modification, recréer `ui/theme.tres` avec
+  `godot --headless --path . --script res://tests/make_theme.gd`. Les nœuds
+  utilisés par le code ont un nom unique (`%Nom`).
 
 ## Où brancher les prochaines fonctionnalités
 

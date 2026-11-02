@@ -21,7 +21,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var ov := Ui.overlay(self, Vector2(560, 0))
 	var box: VBoxContainer = ov[1]
-	box.add_child(Ui.label("Réservé aux adultes", 34))
+	box.add_child(Ui.title("Réservé aux adultes", 36, Ui.NAVY, 0))
 	var help := Ui.label("Pour ouvrir les réglages, résous ce calcul :", 20, Color("#5f6470"))
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(help)

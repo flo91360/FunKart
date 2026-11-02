@@ -136,7 +136,7 @@ les réglages : « Protéger les réglages (calcul) », section « Cet ordinateu
 | Lire le mot à voix haute | Synthèse vocale du système (si une voix française est installée) |
 | Sons, musique, plein écran | Communs à tous les profils |
 | Volumes (général, musique, effets) | Aussi réglables pendant la course : <kbd>Échap</kbd> → curseurs de volume |
-| Graphismes | **Simple** (ordinateurs lents : sans ombres, moins de décor), **Normal**, **Beau** (ordinateurs récents : lumière réaliste, ombres douces, lueurs, léger flou au loin ; prend effet au prochain lancement, bouton « Relancer le jeu ») |
+| Graphismes | **Simple** (ordinateurs lents : moins de décor, sans lueurs), **Normal** (ombres douces dessinées sous les karts et les arbres, lueurs), **Beau** (ordinateurs récents : vraies ombres du soleil, ombrage d'ambiance, léger flou au loin ; prend effet au prochain lancement, bouton « Relancer le jeu ») |
 
 Avec les réglages par défaut (3 tours), une course dure environ 1 min 45 pour
 un enfant à 20 frappes/min, qui arrive en moyenne 2e ou 3e contre des
@@ -170,6 +170,10 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
 
 L'organisation du code et la façon de modifier le contenu (circuits,
 personnages, thèmes, mots) sont décrites dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+Les polices du jeu (Fredoka, Lilita One, Andika) sont sous licence libre SIL
+Open Font License : voir [ui/fonts/LISEZMOI.md](ui/fonts/LISEZMOI.md). Leurs
+licences sont aussi emballées dans le jeu exporté.
 
 ## Archivage Google Drive
 
