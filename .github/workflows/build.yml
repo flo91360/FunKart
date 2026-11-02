@@ -123,8 +123,9 @@ jobs:
 
       - name: Captures d'écran d'une course
         # Course jouée dans un écran virtuel avec rendu logiciel (Mesa) : les
-        # images (menu, compte à rebours, mots, turbo, arrivée) sont dans les
-        # Artifacts (« Captures »), pour voir l'interface sans lancer le jeu.
+        # images (menu, compte à rebours, mots, turbo, arrivée, fenêtres,
+        # pilotes, décors) sont dans les Artifacts (« Captures »), pour voir
+        # l'interface sans lancer le jeu.
         continue-on-error: true
         run: |
           sudo apt-get update -qq
@@ -136,6 +137,16 @@ jobs:
             xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
               --script res://tests/autoplay.gd -- --fast --thumbs --track=$track \
               --shots="$PWD/build/captures/circuit_$track"
+          done
+          # Fenêtres de l'interface, visages des pilotes et vues des quatre
+          # circuits (vitrine des modèles 3D).
+          xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
+            --script res://tests/ui_shots.gd -- --shots="$PWD/build/captures/interface"
+          xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
+            --script res://tests/showroom.gd -- --what=faces --out="$PWD/build/captures/pilotes"
+          for theme in 0 1 2 3; do
+            xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
+              --script res://tests/showroom.gd -- --what=track --theme=$theme --out="$PWD/build/captures/decors"
           done
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

@@ -748,8 +748,8 @@ func _build_start_arch() -> void:
 	var col_b: Color = th.curb_b
 	var path := PackedVector3Array()
 	var radii := PackedFloat32Array()
-	for i in 33:
-		var a := PI * i / 32.0
+	for i in 97:
+		var a := PI * i / 96.0
 		path.append(Vector3(cos(a) * w, sin(a) * 8.2, 0.0))
 		radii.append(1.05)
 	var stripes := func(p: Vector3) -> Color:

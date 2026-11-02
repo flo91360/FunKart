@@ -9,6 +9,7 @@ var out_dir := "user://showroom"
 var what := "karts"
 var only := ""
 var theme_index := 0
+var graphics := 1
 var env_ref: Environment
 var sun_ref: DirectionalLight3D
 var frame := 0
@@ -28,6 +29,8 @@ func _initialize() -> void:
 			only = arg.get_slice("=", 1)
 		elif arg.begins_with("--theme="):
 			theme_index = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--graphics="):
+			graphics = int(arg.get_slice("=", 1))
 	DirAccess.make_dir_recursive_absolute(out_dir)
 
 
@@ -113,6 +116,8 @@ func _overrides() -> void:
 func _track_views() -> void:
 	var content := GameContent.get_content()
 	var tr: Track = content.tracks[theme_index].instantiate()
+	if graphics == AppSettings.Graphics.SIMPLE:
+		tr.detail = 0.5
 	stage.add_child(tr)
 	var holder := Node3D.new()
 	var chars := content.characters
@@ -135,7 +140,8 @@ func _track_views() -> void:
 	var c := tr.bounds().get_center()
 	jobs.append(["%d_vue" % theme_index, tr, Vector3(c.x - 160.0, 90.0, c.y + 190.0), Vector3(c.x, 0.0, c.y), true])
 	var th: TrackTheme = tr.track_theme
-	Ambience.apply(env_ref, sun_ref, th, AppSettings.Graphics.NORMAL, false)
+	Ambience.apply(env_ref, sun_ref, th, graphics, false)
+	root.msaa_3d = Viewport.MSAA_DISABLED if graphics == AppSettings.Graphics.SIMPLE else Viewport.MSAA_2X
 	cam.fov = 70.0
 	cam.far = 3000.0
 	root.size = Vector2i(1280, 720)
@@ -170,7 +176,10 @@ func _process(_delta: float) -> bool:
 		if job >= 0:
 			var img := root.get_viewport().get_texture().get_image()
 			img.save_png(out_dir.path_join("%s.png" % jobs[job][0]))
-			print("vu ", jobs[job][0])
+			print("vu %s : %d appels de dessin, %d triangles, %d objets" % [jobs[job][0],
+				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
+				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME),
+				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME)])
 		job += 1
 		if job >= jobs.size():
 			return true

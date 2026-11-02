@@ -105,6 +105,9 @@ func show_preview() -> void:
 	mode = Mode.PREVIEW
 	paused = false
 	track.set_start_lights(0)
+	# menu : le kart de l'enfant seul sur la grille, comme en vitrine
+	for r in karts:
+		(karts[r] as Kart).visible = r.is_player
 	_orbit = 0.0
 	sfx.stop_engine()
 	sfx.music.stop()
@@ -299,6 +302,7 @@ func _process(delta: float) -> void:
 			_update_lanes(dt)
 			_place_chase_camera(dt)
 			sfx.set_engine_speed(logic.player.mult)
+			hud.set_boost(logic.player.boost > 0.0 and not logic.player.finished and not paused, delta)
 			_hud_timer -= delta
 			if _hud_timer <= 0.0:
 				_hud_timer = 0.15
@@ -417,6 +421,11 @@ func _orbit_camera(dt: float, side: float) -> void:
 	var center := k.global_position + Vector3.UP * 1.2
 	var fwd := -k.global_basis.z
 	var angle := 0.55 * signf(side) + sin(_orbit * 0.4) * 0.45
+	if mode == Mode.PREVIEW:
+		# menu : caméra du côté extérieur de la grille (le kart voisin ne
+		# passe pas devant), qui se balance doucement
+		var outside := -1.0 if k.lateral > 0.0 else 1.0
+		angle = outside * (0.62 + sin(_orbit * 0.35) * 0.3)
 	var dir := fwd.rotated(Vector3.UP, angle)
 	camera.global_position = center + dir * 7.5 + Vector3.UP * 1.8
 	camera.look_at(center)

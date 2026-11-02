@@ -174,6 +174,9 @@ static func build(track: Track, parent: Node3D) -> void:
 	d._build()
 
 
+## Taille des zones de décor (mètres).
+const ZONE := 120.0
+
 var track: Track
 var parent: Node3D
 var th: TrackTheme
@@ -193,30 +196,54 @@ func _build() -> void:
 		_:
 			_meadow(detail)
 	_clouds()
+	# ombres douces sous les arbres (le rendu avancé dessine de vraies ombres)
+	if RenderingServer.get_current_rendering_method() != "gl_compatibility":
+		_shadows.clear()
 	if not _shadows.is_empty():
 		var q := QuadMesh.new()
 		q.size = Vector2(2, 2)
 		q.orientation = PlaneMesh.FACE_Y
-		var mi := _instances(q, _shadows)
-		mi.material_override = shadow_material()
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var mat := shadow_material()
+		var before := parent.get_child_count()
+		_instances(q, _shadows, false, 160.0)
+		for i in range(before, parent.get_child_count()):
+			(parent.get_child(i) as GeometryInstance3D).material_override = mat
 
 
 # ---------------- Placement ----------------
 
-func _instances(mesh: Mesh, transforms: Array[Transform3D], shadows := true) -> MultiMeshInstance3D:
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.mesh = mesh
-	mm.instance_count = transforms.size()
-	for i in transforms.size():
-		mm.set_instance_transform(i, transforms[i])
-	var mi := MultiMeshInstance3D.new()
-	mi.multimesh = mm
-	if not shadows:
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parent.add_child(mi)
-	return mi
+## Copies d'un modèle, réparties par zones de ZONE mètres : les zones hors
+## du champ de la caméra ne sont pas dessinées ; max_dist > 0 : zones
+## invisibles au-delà de cette distance (herbes, fleurs…).
+func _instances(mesh: Mesh, transforms: Array[Transform3D], shadows := true, max_dist := 0.0) -> MultiMeshInstance3D:
+	var zones := {}
+	for t in transforms:
+		var key := Vector2i(floori(t.origin.x / ZONE), floori(t.origin.z / ZONE))
+		if not zones.has(key):
+			zones[key] = []
+		(zones[key] as Array).append(t)
+	var last: MultiMeshInstance3D
+	for key in zones:
+		var list: Array = zones[key]
+		var center := Vector3((key.x + 0.5) * ZONE, 0.0, (key.y + 0.5) * ZONE)
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = mesh
+		mm.instance_count = list.size()
+		for i in list.size():
+			var t: Transform3D = list[i]
+			t.origin -= center
+			mm.set_instance_transform(i, t)
+		var mi := MultiMeshInstance3D.new()
+		mi.multimesh = mm
+		mi.position = center
+		if not shadows:
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if max_dist > 0.0:
+			mi.visibility_range_end = max_dist + ZONE * 0.7
+		parent.add_child(mi)
+		last = mi
+	return last
 
 
 func _single(mesh: Mesh, t: Transform3D) -> MeshInstance3D:
@@ -300,7 +327,7 @@ func _roadside(count: int, near: float, far: float) -> Array[Vector3]:
 
 
 ## Répartit des points entre plusieurs modèles, avec rotation et taille au hasard.
-func _scatter(models: Array, spots: Array[Vector3], smin: float, smax: float, shadow_r := 0.0, shadows := true) -> void:
+func _scatter(models: Array, spots: Array[Vector3], smin: float, smax: float, shadow_r := 0.0, shadows := true, max_dist := 0.0) -> void:
 	var lists: Array = []
 	for m in models:
 		lists.append([])
@@ -315,7 +342,7 @@ func _scatter(models: Array, spots: Array[Vector3], smin: float, smax: float, sh
 		var list: Array[Transform3D] = []
 		list.assign(lists[i])
 		if not list.is_empty():
-			_instances(models[i], list, shadows)
+			_instances(models[i], list, shadows, max_dist)
 
 
 # ---------------- Styles de décor ----------------
@@ -334,13 +361,14 @@ func _meadow(detail: float) -> void:
 	_scatter(trees, _groves(int(n * 0.6), edge + 9.0, 120.0, 110.0), 0.8, 1.35, 2.6)
 	_scatter(trees, _spots(int(n * 0.25), edge + 9.0, 120.0, 110.0), 0.8, 1.35, 2.6)
 	_scatter(pines, _groves(int(n * 0.35), edge + 9.0, 150.0, 140.0, 10.0), 0.8, 1.3, 2.0)
-	# forêts sur les collines
-	_scatter(trees + pines, _groves(int(n * 1.6), 120.0, 380.0, 400.0, 24.0), 1.0, 1.7, 0.0, false)
+	# forêts sur les collines (modèles simplifiés : elles sont loin)
+	var far: Array = [_far_tree(greens[0], trunk), _far_tree(greens[1 % greens.size()], trunk), _far_pine(Color("#2f7d4a"), false)]
+	_scatter(far, _groves(int(n * 1.6), 120.0, 380.0, 400.0, 24.0), 1.0, 1.7, 0.0, false)
 	_scatter([_bush(greens[0]), _bush(greens[greens.size() - 1])], _spots(int(50 * detail), track.road_half_width + Track.CURB + 5.0, 90.0, 80.0), 0.8, 1.4, 1.4)
 	_scatter([_rock(Color("#9a968c")), _rock(Color("#86827a"))], _spots(int(24 * detail), track.road_half_width + Track.CURB + 6.0, 140.0, 120.0), 0.6, 1.6, 1.5)
 	_scatter([_flower(Color("#fffdf5"), Color("#ffd23f")), _flower(Color("#ff5d8f"), Color("#ffe66d")), _flower(Color("#ffd23f"), Color("#ff9f1c")), _flower(Color("#b8a1ff"), Color("#fff3b0"))],
-		_roadside(int(900 * detail), 0.4, 26.0), 0.8, 1.3, 0.0, false)
-	_scatter([_grass_tuft(Color("#3f8f3a"), Color("#a6d86a")), _grass_tuft(Color("#367d33"), Color("#8fcf58"))], _roadside(int(2600 * detail), 0.2, 16.0), 0.8, 1.5, 0.0, false)
+		_roadside(int(800 * detail), 0.4, 26.0), 0.8, 1.3, 0.0, false, 90.0)
+	_scatter([_grass_tuft(Color("#3f8f3a"), Color("#a6d86a")), _grass_tuft(Color("#367d33"), Color("#8fcf58"))], _roadside(int(2600 * detail), 0.2, 16.0), 0.8, 1.5, 0.0, false, 110.0)
 	_windmill()
 	_balloons(3)
 
@@ -352,9 +380,9 @@ func _beach(detail: float) -> void:
 	var greens: Array[Color] = []
 	for c in th.tree_leaves:
 		greens.append(c)
-	_scatter([_round_tree(greens[0], th.tree_trunk), _bush(greens[1 % greens.size()])], _spots(int(n * 0.6), 120.0, 340.0, 360.0, 0.5), 1.0, 1.5, 0.0, false)
+	_scatter([_far_tree(greens[0], th.tree_trunk), _bush(greens[1 % greens.size()])], _spots(int(n * 0.6), 120.0, 340.0, 360.0, 0.5), 1.0, 1.5, 0.0, false)
 	_scatter([_rock(Color("#b9a98f")), _rock(Color("#a0907a"))], _spots(int(20 * detail), track.road_half_width + Track.CURB + 6.0, 120.0, 100.0), 0.6, 1.8, 1.4)
-	_scatter([_grass_tuft(Color("#9a9a52"), Color("#d8d08a"))], _roadside(int(900 * detail), 0.4, 14.0), 0.7, 1.3, 0.0, false)
+	_scatter([_grass_tuft(Color("#9a9a52"), Color("#d8d08a"))], _roadside(int(900 * detail), 0.4, 14.0), 0.7, 1.3, 0.0, false, 110.0)
 	# parasols et serviettes entre la route et la mer
 	var sea := track.sea_start()
 	var b := track.bounds()
@@ -386,7 +414,7 @@ func _mountain(detail: float) -> void:
 	var edge := track.road_half_width + Track.CURB
 	_scatter(pines, _groves(int(n * 0.7), edge + 8.0, 130.0, 120.0, 12.0), 0.8, 1.5, 2.0)
 	_scatter(pines, _spots(int(n * 0.3), edge + 8.0, 130.0, 120.0), 0.8, 1.5, 2.0)
-	_scatter(pines, _groves(int(n * 1.4), 120.0, 400.0, 420.0, 26.0), 1.1, 1.9, 0.0, false)
+	_scatter([_far_pine(Color("#1f5e3a"), true), _far_pine(Color("#2a6e45"), true)], _groves(int(n * 1.4), 120.0, 400.0, 420.0, 26.0), 1.1, 1.9, 0.0, false)
 	_scatter([_rock(Color("#8d939e"), true), _rock(Color("#7a808c"), true)], _spots(int(40 * detail), track.road_half_width + Track.CURB + 5.0, 150.0, 130.0), 0.7, 2.2, 1.4)
 	_scatter([_snowman()], _spots(6, track.road_half_width + Track.CURB + 5.0, 30.0, 40.0), 1.0, 1.2, 1.0)
 	_scatter([_chalet()], _spots(3, 40.0, 110.0, 110.0, 0.2), 1.0, 1.1, 0.0)
@@ -399,7 +427,7 @@ func _canyon(detail: float) -> void:
 	_scatter(cacti, _spots(n, track.road_half_width + Track.CURB + 5.0, 120.0, 110.0), 0.8, 1.3, 1.1)
 	_scatter([_rock(Color("#b0603a")), _rock(Color("#9a4f2f")), _rock(Color("#c47a4a"))], _spots(int(60 * detail), track.road_half_width + Track.CURB + 5.0, 170.0, 150.0), 0.7, 2.6, 1.5)
 	_scatter([_dry_bush()], _spots(int(70 * detail), track.road_half_width + Track.CURB + 3.0, 100.0, 90.0), 0.7, 1.3, 0.9)
-	_scatter([_grass_tuft(Color("#a08a4a"), Color("#e0c27a"))], _roadside(int(500 * detail), 0.4, 12.0), 0.7, 1.2, 0.0, false)
+	_scatter([_grass_tuft(Color("#a08a4a"), Color("#e0c27a"))], _roadside(int(500 * detail), 0.4, 12.0), 0.7, 1.2, 0.0, false, 110.0)
 	_balloons(3)
 
 
@@ -436,7 +464,30 @@ func _round_tree(green: Color, trunk: Color) -> ArrayMesh:
 		var bumps := []
 		for k in 5:
 			bumps.append([Vector3(rng.randf_range(-1, 1), rng.randf_range(-0.3, 1), rng.randf_range(-1, 1)).normalized(), rng.randf_range(0.08, 0.2), 4.0])
-		mb.ellipsoid(center + off, Vector3(r, r * 0.86, r), "leaf", paint, Basis(), bumps, 10, 16)
+		mb.ellipsoid(center + off, Vector3(r, r * 0.86, r), "leaf", paint, Basis(), bumps, 8, 13)
+	return mb.commit()
+
+
+## Arbre lointain : même allure, beaucoup moins de détails.
+func _far_tree(green: Color, trunk: Color) -> ArrayMesh:
+	var mb := MeshBuilder.new()
+	mb.tube(PackedVector3Array([Vector3.ZERO, Vector3(0, 3.0, 0)]), PackedFloat32Array([0.36, 0.22]), "bark", trunk, 5, 1.0, Vector3.ZERO, false, false)
+	var paint := _leaf_paint(green, 2.5, 6.5)
+	var bumps := []
+	for k in 4:
+		bumps.append([Vector3(rng.randf_range(-1, 1), rng.randf_range(0, 1), rng.randf_range(-1, 1)).normalized(), 0.25, 3.0])
+	mb.ellipsoid(Vector3(0, 4.4, 0), Vector3(2.3, 2.0, 2.3), "leaf", paint, Basis(), bumps, 6, 9)
+	return mb.commit()
+
+
+## Sapin lointain.
+func _far_pine(green: Color, snow: bool) -> ArrayMesh:
+	var mb := MeshBuilder.new()
+	var dark := green.darkened(0.2)
+	var paint := func(p: Vector3) -> Color:
+		var c := dark.lerp(green.lightened(0.1), clampf(p.y / 6.0, 0.0, 1.0))
+		return c.lerp(Color("#f6f9ff"), 0.6) if snow and p.y > 3.0 else c
+	mb.lathe(PackedVector2Array([Vector2(0.25, 0.0), Vector2(2.3, 1.2), Vector2(1.3, 3.2), Vector2(1.5, 3.3), Vector2(0.0, 6.6)]), "leaf_stiff", paint, Transform3D.IDENTITY, 8)
 	return mb.commit()
 
 
@@ -574,8 +625,8 @@ func _flower(petal: Color, heart: Color) -> ArrayMesh:
 	mb.tube(PackedVector3Array([Vector3.ZERO, Vector3(0, 0.32, 0)]), PackedFloat32Array([0.012, 0.01]), "grass", Color("#3f8f3a"), 4, 1.0, Vector3.ZERO, false, false)
 	for i in 5:
 		var a := TAU * i / 5.0
-		mb.ellipsoid(Vector3(cos(a) * 0.06, 0.33, sin(a) * 0.06), Vector3(0.05, 0.015, 0.05), "leaf_stiff", petal, Basis(Vector3.UP, -a), [], 4, 6)
-	mb.sphere(Vector3(0, 0.345, 0), 0.03, "leaf_stiff", heart, 4, 6)
+		mb.ellipsoid(Vector3(cos(a) * 0.06, 0.33, sin(a) * 0.06), Vector3(0.05, 0.015, 0.05), "leaf_stiff", petal, Basis(Vector3.UP, -a), [], 3, 5)
+	mb.sphere(Vector3(0, 0.345, 0), 0.03, "leaf_stiff", heart, 3, 5)
 	return mb.commit()
 
 

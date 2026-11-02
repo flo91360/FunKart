@@ -46,6 +46,10 @@ static func get_meshes(info: CharacterData) -> Dictionary:
 	return _cache[key]
 
 
+static func clear_cache() -> void:
+	_cache.clear()
+
+
 ## Couleur d'accent du kart (rayures, liserés) : blanc, ou presque noir sur un kart clair.
 static func accent(kc: Color) -> Color:
 	return WHITE if kc.get_luminance() < 0.72 else Color("#2b2d42")
@@ -174,12 +178,13 @@ static func _wheel(r: float, w: float, info: CharacterData) -> ArrayMesh:
 		Vector2(rr * 0.96, -hw * 0.8), Vector2(rr * 1.02, hw * 0.55), Vector2(rr * 0.9, hw * 0.62),
 		Vector2(rr * 0.8, hw * 0.4), Vector2(rr * 0.3, hw * 0.3), Vector2(0.0, hw * 0.3)])
 	mb.lathe(rim, "chrome", CHROME, axis, 28)
-	mb.ellipsoid(Vector3(-hw * 0.7, 0, 0), Vector3(0.012, rr * 0.97, rr * 0.97), "metal", METAL, Basis(), [], 4, 24)
+	mb.ellipsoid(Vector3(-hw * 0.7, 0, 0), Vector3(0.012, rr * 0.97, rr * 0.97), "chrome", METAL, Basis(), [], 4, 24)
 	for i in 5:
 		var a := TAU * i / 5.0
 		var b := Basis(Vector3.RIGHT, a)
 		mb.rbox(b * Vector3(hw * 0.42, rr * 0.5, 0.0), Vector3(0.025, rr * 0.42, 0.032), "chrome", CHROME, b, 0.4, 6, 12)
-	mb.ellipsoid(Vector3(hw * 0.42, 0, 0), Vector3(0.05, rr * 0.34, rr * 0.34), "paint", info.kart_color)
+	# enjoliveur : métal teinté de la couleur du kart
+	mb.ellipsoid(Vector3(hw * 0.42, 0, 0), Vector3(0.05, rr * 0.34, rr * 0.34), "chrome", info.kart_color.lightened(0.15))
 	return mb.commit()
 
 
@@ -197,6 +202,6 @@ static func _steering(info: CharacterData) -> ArrayMesh:
 	for a in [PI / 2.0 + 0.0, PI / 2.0 + TAU / 3.0, PI / 2.0 - TAU / 3.0]:
 		var dir := Vector3(cos(a), -sin(a), 0.0)
 		mb.tube(PackedVector3Array([Vector3.ZERO, dir * 0.19]), PackedFloat32Array([0.022, 0.018]), "chrome", CHROME, 8)
-	mb.ellipsoid(Vector3(0, 0, 0.01), Vector3(0.07, 0.07, 0.035), "paint", info.kart_color)
-	mb.ellipsoid(Vector3(0, 0, 0.04), Vector3(0.035, 0.035, 0.012), "plastic", accent(info.kart_color))
+	mb.ellipsoid(Vector3(0, 0, 0.01), Vector3(0.07, 0.07, 0.035), "chrome", info.kart_color.lightened(0.15))
+	mb.ellipsoid(Vector3(0, 0, 0.04), Vector3(0.035, 0.035, 0.012), "rubber", accent(info.kart_color))
 	return mb.commit()

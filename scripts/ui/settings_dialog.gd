@@ -34,7 +34,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var ov := Ui.overlay(self, Vector2(1060, 650))
 	var box: VBoxContainer = ov[1]
-	_title = Ui.label("Réglages", 38)
+	_title = Ui.title("Réglages", 40, Ui.NAVY, 0)
 	box.add_child(_title)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

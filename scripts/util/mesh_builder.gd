@@ -222,6 +222,11 @@ static func _shader(code: String) -> Shader:
 	return _shaders[key]
 
 
+static func clear_cache() -> void:
+	_materials.clear()
+	_shaders.clear()
+
+
 ## Enregistre un matériau sur mesure (feuillage qui ondule, eau…) sous un nom.
 static func register_material(kind: String, m: Material) -> void:
 	_materials[kind] = m

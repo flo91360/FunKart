@@ -15,6 +15,7 @@ func _ready() -> void:
 
 
 func _show_menu() -> void:
+	race.preview_side = menu.kart_side()
 	race.prepare(Profiles.current)
 	race.show_preview()
 	menu.visible = true
@@ -24,6 +25,12 @@ func _show_menu() -> void:
 func _start_race() -> void:
 	menu.visible = false
 	race.start()
+
+
+func _exit_tree() -> void:
+	# modèles gardés en mémoire (karts, matériaux) : libérés en quittant
+	KartModel.clear_cache()
+	MeshBuilder.clear_cache()
 
 
 func _input(event: InputEvent) -> void:

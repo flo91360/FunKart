@@ -9,6 +9,31 @@ signal quit_pressed
 const WORD_SIZES := [72, 104, 140]
 const IDLE_HINT := "Ton kart roule tout seul… prépare tes doigts !"
 
+## Traits de vitesse sur les bords de l'écran pendant le turbo.
+const SPEED_LINES_SHADER := """
+shader_type canvas_item;
+uniform float strength = 0.0;
+float hash(float n) {
+	return fract(sin(n * 12.9898) * 43758.5453);
+}
+void fragment() {
+	vec2 p = UV - 0.5;
+	p.x *= SCREEN_PIXEL_SIZE.y / SCREEN_PIXEL_SIZE.x;
+	float a = atan(p.y, p.x) / 6.2831853 + 0.5;
+	float r = length(p);
+	float lanes = 110.0;
+	float id = floor(a * lanes);
+	float rnd = hash(id);
+	float t = fract(TIME * (1.2 + rnd * 1.8) + rnd * 7.0);
+	float head = mix(0.3, 1.0, t);
+	float streak = smoothstep(head - 0.22, head, r) * (1.0 - smoothstep(head, head + 0.015, r));
+	float lane = abs(fract(a * lanes) - 0.5);
+	float thin = 1.0 - smoothstep(0.06, 0.22, lane);
+	float mask = smoothstep(0.3, 0.55, r) * step(0.5, rnd);
+	COLOR = vec4(1.0, 0.98, 0.9, streak * thin * mask * strength * 0.6);
+}
+"""
+
 @onready var place_label: Label = %PlaceLabel
 @onready var place_suffix: Label = %PlaceSuffix
 @onready var lap_label: Label = %LapLabel
@@ -27,6 +52,8 @@ const IDLE_HINT := "Ton kart roule tout seul… prépare tes doigts !"
 var keyboard: KeyboardView
 var _center_tween: Tween
 var _shake_tween: Tween
+var _speed_lines: ColorRect
+var _boost := 0.0
 var _shake_x := 0.0 # position du panneau du mot au repos
 var _uppercase := false
 
@@ -38,6 +65,50 @@ func _ready() -> void:
 	keyboard = KeyboardView.new()
 	keyboard.name = "Keyboard"
 	word_label.get_parent().add_child(keyboard)
+	_style()
+
+
+## Polices et styles (thème du jeu) ; traits de vitesse du turbo.
+func _style() -> void:
+	var title := Ui.title_font()
+	var shadow := Color(0.03, 0.05, 0.16, 0.5)
+	for l in [place_label, place_suffix, lap_label, center_label, status_label, kpm_label, acc_label, speed_label]:
+		l.add_theme_font_override("font", title)
+		l.add_theme_color_override("font_shadow_color", shadow)
+		l.add_theme_constant_override("shadow_offset_y", 5)
+		l.add_theme_constant_override("shadow_outline_size", l.get_theme_constant("outline_size"))
+	for path in ["Root/TopRight/Stats/KpmBox/KpmTitle", "Root/TopRight/Stats/AccBox/AccTitle", "Root/TopRight/Stats/SpeedBox/SpeedTitle"]:
+		(get_node(path) as Label).add_theme_font_override("font", Ui.bold_font())
+	word_label.add_theme_font_override("normal_font", Ui.word_font())
+	hint_label.add_theme_font_override("font", Ui.bold_font())
+	var panel := Ui.flat(Color("#fffaf0"), 30, Color("#ff6b35"), 0, 18)
+	panel.border_width_top = 8
+	panel.shadow_color = Color(0.03, 0.05, 0.16, 0.35)
+	panel.shadow_size = 16
+	panel.shadow_offset = Vector2(0, 6)
+	word_panel.add_theme_stylebox_override("panel", panel)
+	var pause_title: Label = $Root/PauseLayer/PauseCenter/PausePanel/PauseBox/PauseTitle
+	pause_title.add_theme_font_override("font", title)
+	pause_title.add_theme_color_override("font_color", Ui.NAVY)
+	Ui.set_button_color(%ResumeButton, Color("#17b169"))
+	Ui.set_button_color(%QuitButton, Color("#7b8bb2"))
+	_speed_lines = ColorRect.new()
+	_speed_lines.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_speed_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var m := ShaderMaterial.new()
+	m.shader = MeshBuilder._shader(SPEED_LINES_SHADER)
+	_speed_lines.material = m
+	$Root.add_child(_speed_lines)
+	$Root.move_child(_speed_lines, 0)
+	_speed_lines.visible = false
+
+
+## Turbo en cours : traits de vitesse (ils apparaissent et s'effacent en douceur).
+func set_boost(on: bool, delta: float) -> void:
+	_boost = move_toward(_boost, 1.0 if on else 0.0, delta * (4.0 if on else 2.0))
+	_speed_lines.visible = _boost > 0.01
+	if _speed_lines.visible:
+		(_speed_lines.material as ShaderMaterial).set_shader_parameter("strength", _boost)
 
 
 func setup(track_points: PackedVector2Array, laps: int, profile: Profile) -> void:
@@ -153,12 +224,19 @@ func update_race(logic: RaceLogic) -> void:
 		var r = standings[i]
 		var row := PanelContainer.new()
 		var color: Color = GameContent.get_content().character(r.character).kart_color
-		var style := Ui.flat(color, 10, Color.WHITE, 4 if r.is_player else 0, 6)
+		var style := Ui.flat(color, 14, Color.WHITE, 4 if r.is_player else 0, 5)
+		style.border_width_bottom = 8 if r.is_player else 5
+		if not r.is_player:
+			style.border_color = color.darkened(0.3)
 		style.content_margin_left = 12
 		style.content_margin_right = 12
+		style.shadow_color = Color(0.03, 0.05, 0.16, 0.3)
+		style.shadow_size = 5
+		style.shadow_offset = Vector2(0, 2)
 		row.add_theme_stylebox_override("panel", style)
 		var txt := Ui.label("%d  %s" % [i + 1, r.name], 26 if r.is_player else 22,
-			Color.WHITE, 8, Color(0, 0, 0, 0.7))
+			Color.WHITE, 8, Color(0.03, 0.05, 0.16, 0.65))
+		txt.add_theme_font_override("font", Ui.bold_font())
 		row.add_child(txt)
 		row.custom_minimum_size.x = 200
 		standings_box.add_child(row)

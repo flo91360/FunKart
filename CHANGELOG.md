@@ -10,6 +10,44 @@ ajouter ici une section `## [X.Y.Z] - AAAA-MM-JJ` décrivant ce qui change pour
 l'enfant ou l'adulte. Sans section, la publication en rédige une à partir des
 titres des commits.
 
+## [0.10.0] - 2026-11-02
+
+### Changé
+
+- Tout le jeu a un nouveau look.
+- Les karts sont refaits en formes lisses et détaillées : carénage arrondi,
+  pontons, aileron, numéro sur le nez, phares, pneus sculptés, jantes
+  chromées, volant qui tourne dans les virages, flammes du turbo.
+- Les 13 animaux pilotes sont plus réalistes et plus détaillés : grands yeux
+  brillants (iris, pupille, reflets), museau, truffe, moustaches, oreilles
+  avec leur intérieur, crinière du lion, corne et crinière arc-en-ciel de la
+  licorne, carapace de la tortue, queues… avec une combinaison de pilote, une
+  écharpe et des lunettes. Ils clignent des yeux, regardent autour d'eux,
+  se penchent dans les virages ; oreilles, queue et écharpe bougent avec la
+  vitesse.
+- Décors refaits pour les quatre circuits : collines et montagnes au loin,
+  arbres en bosquets, fleurs et herbes qui ondulent au vent, rochers, nuages
+  et montgolfières. La Prairie a son moulin, la Plage sa mer avec des vagues,
+  des voiliers, un phare et des parasols, la Montagne ses sapins enneigés,
+  ses chalets et ses bonshommes de neige, le Canyon ses mesas et ses cactus.
+- Route en enrobé avec grille de départ, vibreurs en relief, barrières et
+  panneaux à flèches dans les virages serrés, arche gonflable avec des feux
+  qui s'allument pendant le compte à rebours, tribune avec un public
+  d'animaux, drapeaux au vent.
+- Nouveau ciel et nouvelle lumière : couleurs plus vives, soleil, nuages,
+  brume légère au loin. En mode « Normal », des ombres douces sous les karts
+  et les arbres (des couleurs plus belles qu'avec les anciennes ombres) ;
+  le mode « Beau » garde les vraies ombres du soleil.
+- Nouveau menu : logo animé, une carte avec le portrait de chaque pilote,
+  une carte avec le tracé de chaque circuit, grand bouton « JOUER ! », et le
+  kart choisi tout seul sur la grille de départ derrière le menu.
+- Nouvelles polices, plus rondes et plus lisibles, livrées avec le jeu (même
+  allure sur tous les ordinateurs) ; le mot à taper utilise une police faite
+  pour les enfants qui apprennent à lire (Andika).
+- Interface de course, écran d'arrivée et fenêtres des réglages aux
+  nouvelles couleurs : boutons en relief, panneaux arrondis, minicarte plus
+  lisible, traits de vitesse pendant le turbo, confettis à l'arrivée.
+
 ## [0.9.1] - 2026-11-01
 
 ### Corrigé
