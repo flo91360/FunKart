@@ -577,6 +577,8 @@ func _emit(kind: String, v: PackedVector3Array, idx: PackedInt32Array, paint: Va
 		var f: Callable = paint
 		for i in n:
 			cols[i] = f.call(v[i])
+	elif paint is PackedColorArray:
+		cols = (paint as PackedColorArray).duplicate()
 	else:
 		cols.fill(paint as Color)
 	var uvs := PackedVector2Array()

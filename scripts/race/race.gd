@@ -35,8 +35,6 @@ var paused := false
 ## Décalage horizontal de la caméra en mode PREVIEW (< 0 : kart à droite de l'écran).
 var preview_side := -2.8
 var _track_key := ""
-## Effets du moteur de rendu avancé (mode « Beau ») sur l'éclairage du thème.
-const ADVANCED_SUN_BOOST := 1.15
 ## Caméra de course : derrière et au-dessus du kart (mètres).
 const CAMERA_BACK := 10.0
 const CAMERA_HEIGHT := 3.8
@@ -106,6 +104,7 @@ func prepare(p: Profile) -> void:
 func show_preview() -> void:
 	mode = Mode.PREVIEW
 	paused = false
+	track.set_start_lights(0)
 	_orbit = 0.0
 	sfx.stop_engine()
 	sfx.music.stop()
@@ -123,6 +122,7 @@ func start() -> void:
 	hud.setup(track.minimap_points(), logic.laps, profile)
 	hud.update_race(logic)
 	hud.show_center("3", 0.6)
+	track.set_start_lights(1)
 	sfx.play("count")
 	sfx.start_race_audio(track.track_theme.music)
 	get_viewport().gui_release_focus()
@@ -146,74 +146,39 @@ func _load_track(index: int) -> void:
 	_apply_quality(level)
 
 
+## Ciel, soleil, brume et rendu de l'image du thème (voir Ambience).
 func _apply_theme(th: TrackTheme) -> void:
-	var env := environment.environment
-	var sky_mat := env.sky.sky_material as ProceduralSkyMaterial
-	sky_mat.sky_top_color = th.sky_top
-	sky_mat.sky_horizon_color = th.sky_horizon
-	sky_mat.ground_horizon_color = th.sky_horizon
-	sky_mat.ground_bottom_color = th.hills_color
-	env.ambient_light_color = th.ambient_color
-	env.ambient_light_energy = th.ambient_energy
-	env.fog_light_color = th.fog_color
-	env.fog_density = th.fog_density
-	sun.light_energy = th.sun_energy
-	sun.rotation_degrees = th.sun_rotation
-	if AppSettings.advanced_renderer_active():
-		# Le rendu avancé gère la lumière en HDR : la lumière ambiante vient du ciel.
-		sun.light_energy *= ADVANCED_SUN_BOOST
-		env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-		env.ambient_light_sky_contribution = 0.35
-		env.ambient_light_energy = th.ambient_energy * 1.5
-	else:
-		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	Ambience.apply(environment.environment, sun, th, AppSettings.graphics(), AppSettings.advanced_renderer_active())
 
 
 ## Réglage « Graphismes » : Simple (rapide), Normal, Beau (rendu avancé).
 func _apply_quality(level: int) -> void:
-	var env := environment.environment
 	var vp := get_viewport()
 	vp.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][level]
-	sun.shadow_enabled = level != AppSettings.Graphics.SIMPLE
-	sun.directional_shadow_max_distance = 200.0 if level == AppSettings.Graphics.BEAU else 120.0
 	var advanced := AppSettings.advanced_renderer_active()
-	# Effets disponibles seulement avec le moteur de rendu avancé.
-	env.tonemap_mode = Environment.TONE_MAPPER_ACES if advanced else Environment.TONE_MAPPER_LINEAR
-	env.tonemap_exposure = 0.92 if advanced else 1.0
-	env.tonemap_white = 6.0
-	env.adjustment_enabled = advanced
-	env.adjustment_saturation = 1.0
-	env.adjustment_contrast = 1.08
-	env.glow_enabled = advanced
-	env.glow_intensity = 0.5
-	env.glow_bloom = 0.08
-	env.glow_hdr_threshold = 0.9
-	env.ssao_enabled = advanced
-	env.ssao_radius = 1.2
-	env.ssao_intensity = 2.5
-	env.ssao_light_affect = 0.3
-	sun.shadow_blur = 1.5 if advanced else 1.0
 	vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if advanced else Viewport.SCREEN_SPACE_AA_DISABLED
-	# Léger flou au loin, comme une profondeur de champ de caméra.
+	# Léger flou au loin, comme une profondeur de champ de caméra (rendu avancé).
 	var attrs := camera.attributes as CameraAttributesPractical
 	if attrs == null:
 		attrs = CameraAttributesPractical.new()
 		camera.attributes = attrs
 	attrs.dof_blur_far_enabled = advanced
-	attrs.dof_blur_far_distance = 140.0
-	attrs.dof_blur_far_transition = 80.0
-	attrs.dof_blur_amount = 0.06
+	attrs.dof_blur_far_distance = 160.0
+	attrs.dof_blur_far_transition = 90.0
+	attrs.dof_blur_amount = 0.05
 
 
 # ---------------- Événements de la course ----------------
 
 func _on_countdown(n: int) -> void:
 	hud.show_center(str(n), 0.6)
+	track.set_start_lights(4 - n)
 	sfx.play("count")
 
 
 func _on_go() -> void:
 	hud.show_center("GO !", 0.6)
+	track.set_start_lights(4)
 	sfx.play("go")
 
 

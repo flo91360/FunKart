@@ -92,15 +92,15 @@ static func apply(env: Environment, sun: DirectionalLight3D, th: TrackTheme, lev
 	# lumière ambiante et reflets : ceux du ciel (dessus bleuté, dessous couleur du sol)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_sky_contribution = 1.0
-	env.ambient_light_energy = th.ambient_energy * 1.6
+	env.ambient_light_energy = th.ambient_energy * 1.45
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	# brume au loin (perspective atmosphérique)
 	env.fog_enabled = true
 	env.fog_light_color = th.fog_color
-	env.fog_density = th.fog_density
+	env.fog_density = th.fog_density * 0.45
 	env.fog_sky_affect = 0.0
 	sun.light_color = th.sun_color
-	sun.light_energy = th.sun_energy * 2.2
+	sun.light_energy = th.sun_energy * 1.95
 	sun.rotation_degrees = th.sun_rotation
 	# Ombres du soleil : seulement avec le moteur de rendu avancé. Avec le rendu
 	# « Compatibilité », une lumière qui fait des ombres est ajoutée dans une
@@ -120,11 +120,11 @@ static func apply(env: Environment, sun: DirectionalLight3D, th: TrackTheme, lev
 	env.adjustment_enabled = true
 	env.adjustment_brightness = 1.0
 	env.adjustment_contrast = 1.05
-	env.adjustment_saturation = 1.1
+	env.adjustment_saturation = 1.16
 	env.glow_enabled = level != AppSettings.Graphics.SIMPLE
 	env.glow_intensity = 0.6
 	env.glow_strength = 1.0
-	env.glow_bloom = 0.04
+	env.glow_bloom = 0.0
 	env.glow_hdr_threshold = 1.0
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	# effets du moteur de rendu avancé (mode « Beau »)
