@@ -133,19 +133,20 @@ func _process(delta: float) -> bool:
 	return false
 
 
-## « ARRIVÉE ! » s'affiche en entier, au-dessus du panneau du mot.
+## « ARRIVÉE ! » s'affiche en entier dans la place libre : entre le classement
+## et la minimap, entre les stats du haut et le panneau du mot.
 func _check_center_label() -> bool:
 	var hud = race.hud
 	var label: Label = hud.center_label
 	var font := label.get_theme_font("font")
 	var size := label.get_theme_font_size("font_size")
-	var text_h := font.get_height(size)
 	var rect := label.get_global_rect()
-	var text_bottom := rect.position.y + (rect.size.y + text_h) / 2.0
-	var panel_top: float = hud.word_panel.global_position.y
-	print("ARRIVEE bas du texte : %.0f ; haut du panneau du mot : %.0f" % [text_bottom, panel_top])
-	if text_bottom > panel_top:
-		push_error("« ARRIVÉE ! » est caché par le panneau du mot")
+	var text_w := font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var text := Rect2(rect.get_center().x - text_w / 2.0, rect.position.y, text_w, font.get_ascent(size))
+	var box: Rect2 = hud.center_text_box()
+	print("ARRIVEE texte %s (taille %d) ; place libre %s" % [text, size, box])
+	if not box.grow(1.0).encloses(text):
+		push_error("« ARRIVÉE ! » déborde de la place libre (classement, minimap, stats ou panneau du mot)")
 		return false
 	return true
 

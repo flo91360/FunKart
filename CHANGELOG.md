@@ -14,9 +14,9 @@ titres des commits.
 
 ### Corrigé
 
-- Le grand « ARRIVÉE ! » de fin de course est remonté : il n'est plus coupé
-  par le panneau du mot et se lit en entier. Le compte à rebours suit la même
-  règle.
+- Le grand « ARRIVÉE ! » de fin de course n'est plus coupé par le panneau du
+  mot : il se lit en entier, entre le classement et la minimap, sous les
+  statistiques. Le compte à rebours suit la même règle.
 
 ## [0.10.0] - 2026-11-02
 
