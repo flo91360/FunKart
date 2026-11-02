@@ -1,12 +1,12 @@
 @tool
 class_name CharacterData
 extends Resource
-## Un pilote : un animal construit à partir de formes simples.
+## Un pilote : un animal construit à partir de formes lisses (AnimalModel).
 ## Ces fiches sont modifiables dans l'éditeur Godot (dossier data/characters)
 ## et serviront de base à l'éditeur de personnages.
 
 const EARS := ["none", "cat", "round", "floppy", "long", "mouse", "monkey"]
-const EXTRAS := ["none", "unicorn", "panda", "lion", "penguin", "turtle", "frog", "monkey"]
+const EXTRAS := ["none", "unicorn", "panda", "lion", "penguin", "turtle", "frog", "monkey", "cat", "dog", "fox", "bear", "rabbit", "mouse"]
 
 @export var id := ""
 @export var display_name := ""
@@ -21,7 +21,8 @@ const EXTRAS := ["none", "unicorn", "panda", "lion", "penguin", "turtle", "frog"
 @export var ear_color := Color.WHITE
 @export var has_snout := false
 @export var snout_color := Color.WHITE
-@export_enum("none", "unicorn", "panda", "lion", "penguin", "turtle", "frog", "monkey") var extra := "none"
+## Espèce (forme de la tête, détails, queue). « none » : d'après les oreilles.
+@export_enum("none", "unicorn", "panda", "lion", "penguin", "turtle", "frog", "monkey", "cat", "dog", "fox", "bear", "rabbit", "mouse") var extra := "none"
 
 
 func to_dict() -> Dictionary:

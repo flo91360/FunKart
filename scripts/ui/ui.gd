@@ -9,30 +9,54 @@ const RED := Color("#e63946")
 const NAVY := Color("#1d3557")
 
 static var _font: Font
+static var _bold_font: Font
+static var _title_font: Font
 static var _word_font: Font
 static var _theme: Theme
 
+## Polices livrées avec le jeu (ui/fonts, licence libre OFL).
+const FONT_TEXT := "res://ui/fonts/Fredoka.ttf"
+const FONT_TITLE := "res://ui/fonts/LilitaOne.ttf"
+const FONT_WORD := "res://ui/fonts/Andika-Bold.ttf"
 
+
+## Police de l'interface : ronde et bien lisible (Fredoka, demi-gras).
 static func font() -> Font:
 	if _font == null:
-		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Arial Rounded MT Bold", "Nunito", "Verdana", "DejaVu Sans", "Arial"])
-		f.font_weight = 700
-		_font = f
+		_font = _variation(FONT_TEXT, 560)
 	return _font
 
 
-## Police du mot à taper : lettres simples et bien espacées.
+## Même police, en gras (boutons).
+static func bold_font() -> Font:
+	if _bold_font == null:
+		_bold_font = _variation(FONT_TEXT, 680)
+	return _bold_font
+
+
+## Police des titres et des grands chiffres (Lilita One).
+static func title_font() -> Font:
+	if _title_font == null:
+		_title_font = load(FONT_TITLE)
+	return _title_font
+
+
+## Police du mot à taper : lettres simples et bien espacées (Andika, conçue
+## pour les enfants qui apprennent à lire).
 static func word_font() -> Font:
 	if _word_font == null:
-		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Andika", "Comic Sans MS", "Verdana", "DejaVu Sans", "Arial"])
-		f.font_weight = 700
 		var v := FontVariation.new()
-		v.base_font = f
-		v.spacing_glyph = 6
+		v.base_font = load(FONT_WORD)
+		v.spacing_glyph = 4
 		_word_font = v
 	return _word_font
+
+
+static func _variation(path: String, weight: int) -> Font:
+	var v := FontVariation.new()
+	v.base_font = load(path)
+	v.variation_opentype = {"wght": weight}
+	return v
 
 
 static func flat(color: Color, radius := 16, border_color := Color.TRANSPARENT, border := 0, pad := 12) -> StyleBoxFlat:

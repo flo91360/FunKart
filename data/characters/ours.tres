@@ -14,4 +14,4 @@ ears = "round"
 ear_color = Color(0.552941, 0.333333, 0.141176, 1)
 has_snout = true
 snout_color = Color(0.85098, 0.701961, 0.54902, 1)
-extra = "none"
+extra = "bear"
