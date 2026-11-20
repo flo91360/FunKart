@@ -6,6 +6,8 @@ extends Node3D
 ## penche, yeux qui clignent, oreilles, queue et écharpe dans le vent, turbo.
 
 const WHEEL_R_REAR := KartModel.WHEEL_R_REAR
+## Vitesse sur la largeur de la piste en pilote automatique (m/s).
+const LATERAL_SPEED := 3.5
 
 const SHADOW_SHADER := """
 shader_type spatial;
@@ -38,6 +40,8 @@ var flames: Array[CPUParticles3D] = []
 var smoke: CPUParticles3D
 var lateral := 0.0
 var target_lateral := 0.0
+## Vitesse sur la largeur de la piste (plus rapide vers une case cadeau ou pour éviter un piège).
+var lateral_speed := LATERAL_SPEED
 var extra_distance := 0.0 # distance parcourue après l'arrivée (tour d'honneur)
 ## Petites animations (clignements, regard, oreilles…) ; false : pose fixe.
 var animated := true
@@ -46,6 +50,9 @@ var _blink := randf_range(1.0, 4.0)
 var _steer := 0.0
 var _speed := 0.0
 var _head_y := 0.0
+## Cases cadeau : nuage de la tempête et fusée, créés à la première utilisation.
+var _cloud: Node3D
+var _rocket: Node3D
 
 
 func _init(character: CharacterData = null, display_name := "", show_label := false) -> void:
@@ -236,7 +243,7 @@ static func _fade_curve() -> Curve:
 func update_visual(track: Track, distance: float, speed: float, mult: float, dt: float,
 		boosting: bool, slowed: bool) -> void:
 	var prev := lateral
-	lateral = move_toward(lateral, target_lateral, 3.5 * dt)
+	lateral = move_toward(lateral, target_lateral, lateral_speed * dt)
 	var lat_v := (lateral - prev) / maxf(dt, 0.0001)
 	var yaw := clampf(-lat_v * 0.07, -0.35, 0.35)
 	var f := track.frame_at(distance)
@@ -256,6 +263,36 @@ func update_visual(track: Track, distance: float, speed: float, mult: float, dt:
 	for fl in flames:
 		fl.emitting = boosting
 	smoke.emitting = slowed
+
+
+## Effets des cadeaux : glissade sur l'huile (le kart tourne sur lui-même),
+## pneu crevé (le kart penche, sautille et fume), nuage de pluie de la
+## tempête au-dessus du kart, fusée (secondes restantes de chaque effet).
+func update_effects(slip: float, flat: float, storm: float, rocket: float, dt: float) -> void:
+	if slip > 0.0:
+		var t := clampf(1.0 - slip / Gifts.SLIP_TIME, 0.0, 1.0)
+		model.rotation.y = (1.0 - pow(1.0 - t, 2.0)) * TAU * Gifts.SLIP_TURNS
+	else:
+		model.rotation.y = 0.0
+	var sag := 0.0
+	if flat > 0.0:
+		sag = 0.1 + sin(_t * 26.0) * 0.035
+		smoke.emitting = true
+	body.rotation.z = lerpf(body.rotation.z, sag, minf(1.0, dt * 10.0))
+	if storm > 0.0 and _cloud == null:
+		_cloud = GiftProps.storm_cloud()
+		_cloud.position = Vector3(0, 5.4, 0)
+		add_child(_cloud)
+	if _cloud:
+		_cloud.visible = storm > 0.0
+		(_cloud.get_node("Rain") as CPUParticles3D).emitting = storm > 0.0
+	if rocket > 0.0 and _rocket == null:
+		_rocket = GiftProps.rocket()
+		_rocket.position = Vector3(0, 1.0, 1.25) # sur le moteur, derrière le pilote
+		_rocket.scale = Vector3.ONE * 0.6
+		body.add_child(_rocket)
+	if _rocket:
+		_rocket.visible = rocket > 0.0
 
 
 ## Petites animations, même à l'arrêt (menu) : clignements, regard, oreilles,

@@ -32,7 +32,10 @@ scripts/
     word_list.gd          liste de mots
     game_content.gd       catalogue du contenu (data/content.tres)
   race/                   la course
-    race_logic.gd         règles (sans affichage, testées) : vitesse, mots, turbo, adversaires, stats
+    race_logic.gd         règles (sans affichage, testées) : vitesse, mots, turbo, adversaires, stats,
+                          cases cadeau
+    gifts.gd              cadeaux : règles du tirage et tous les réglages (durées, intensités…)
+    gift_props.gd         objets 3D des cadeaux : paquets, huile, clou, nuage de tempête, fusée
     race.gd               monde 3D : karts, caméra, couloirs, enchaînement des modes
     track.gd              construction du circuit à partir de la courbe (outil d'éditeur) :
                           route, vibreurs, relief, mer, arche, tribune, barrières
@@ -42,7 +45,7 @@ scripts/
     kart_model.gd         maillages du kart (et du pilote), gardés en mémoire
     animal_model.gd       les animaux pilotes (une fonction par espèce)
     sfx.gd                sons, musique, voix
-  ui/                     écrans et fenêtres
+  ui/                     écrans et fenêtres (gift_icon.gd : dessins des cadeaux de l'interface)
   util/mesh_builder.gd    fabrique de maillages lisses (formes, couleurs peintes, matériaux)
   util/mk.gd              petites formes et particules (flammes, fumée, confettis)
 tests/                    tests automatiques
@@ -125,6 +128,35 @@ repris dans le message d'erreur. Réglage du profil : `keyboard`.
 
 La CI joue aussi une course dans un écran virtuel et enregistre des captures
 d'écran (Artifacts « Captures » de « Construire le jeu »).
+
+## Cases cadeau
+
+Réglage du profil `gifts` (activé par défaut). Toutes les valeurs à ajuster
+après essais sont des constantes de `scripts/race/gifts.gd` (`Gifts`) :
+position des rangées (`ROWS`, fraction du tour) et des cases (`BOX_LATERALS`),
+réapparition (`BOX_RESPAWN`), temps d'approche pour choisir sa case
+(`APPROACH_TIME`), chance de la charge électrique (`CHARGE_CHANCE`) et poids
+des autres cadeaux (`OTHER_WEIGHTS`), cadeaux interdits au premier
+(`NOT_FOR_LEADER`), durée et force de la glissade (`SLIP_*`), de la
+crevaison (`FLAT_*`), de la tempête (`STORM_*`), de la fusée (`ROCKET_*`),
+temps laissé pour taper « évite » (`dodge_window()`, `DODGE_*`) et
+comportement des adversaires (`BOT_*`).
+
+`RaceLogic` applique les règles, sans affichage (testées par
+`tests/test_gifts.gd`) : `rows` et `boxes` (cases présentes), `traps` (huile
+et clou posés, `Trap`), et pour chaque kart (`Racer`) : `gift`, `box_row` /
+`box_choice` (case visée à l'approche, changée par `choose_box()`), effets
+`slip`, `flat`, `storm`, `blur`, `rocket` et esquive `dodge`. `use_gift()`
+utilise un cadeau, `can_use()` dit s'il sert maintenant (tempête : pas quand
+on est premier ; fusée : il faut quelqu'un devant). Un piège touche le
+prochain kart qui passe à sa distance (`next_victim()`), sauf celui qui l'a
+posé ; « évite » apparaît quand ce kart y arrivera dans le temps laissé pour
+le taper. `Race` recopie la position de chaque kart sur la largeur de la piste
+(`Racer.lateral`), dirige les karts vers leur case ou sur le piège
+(`_steer_for_gifts()`), affiche les paquets, la flèche de la case choisie et
+les pièges, et relaie les signaux de `RaceLogic` vers `Hud` (cadeau en haut à
+gauche, messages, choix de la case, panneau rouge de « évite », pluie et mot
+flou) et `Kart.update_effects()` (glissade, pneu crevé, nuage, fusée).
 
 ## Caméra de course
 
@@ -237,6 +269,7 @@ mélodie (une note MIDI par croche) et l'ordre de ses parties. `MusicPlayer`
 | Fonctionnalité | Point d'entrée |
 | --- | --- |
 | Barre de pouvoir | `RaceLogic` (charge à chaque mot, utilisation) + `Hud` (affichage) |
+| Nouveau cadeau | `Gifts` (nom, couleur, poids, réglages) + `RaceLogic.use_gift()` / `_hit()` + `GiftIcon` et `GiftProps` (dessins) |
 | Éditeur de personnages | `CharacterData` (to_dict/from_dict) enregistré dans le profil |
 | Thèmes de circuits | `TrackTheme` (nouveaux fichiers) |
 | Éditeur de circuits | `Track.smooth_curve(points)` + enregistrement des points en JSON |

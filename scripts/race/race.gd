@@ -8,6 +8,11 @@ extends Node3D
 ##   pilote (derrière le menu) ;
 ## - RACE : la course ;
 ## - RESULTS : écran d'arrivée.
+##
+## Cases cadeau (règles dans RaceLogic et Gifts) : paquets cadeau posés en
+## travers de la piste, flèche au-dessus de la case choisie par l'enfant,
+## huile et clou posés, effets sur les karts. Flèches gauche/droite : choix de
+## la case à l'approche ; Entrée : utiliser le cadeau.
 
 signal menu_requested
 
@@ -53,6 +58,13 @@ var _shake := 0.0
 var _fov := 70.0
 ## Décentrement vertical de l'objectif (voir _set_lens).
 var _lens_y := 0.0
+## Cases cadeau : paquets [rangée][case], pièges posés, flèche de la case choisie.
+var _gift_root: Node3D
+var _box_nodes: Array = []
+var _trap_nodes := {} # RaceLogic.Trap -> Node3D
+var _marker: Node3D
+## Un kart va droit sur le piège (ou l'évite) quand il en est à moins de cette distance (m).
+const TRAP_STEER_DISTANCE := 26.0
 
 
 func _ready() -> void:
@@ -83,7 +95,10 @@ func prepare(p: Profile) -> void:
 		var c := bot_chars[i]
 		bots.append({"name": c.display_name, "character": c.id, "kpm": float(kpm[i]) if i < kpm.size() else 20.0})
 	var player_name := p.name if p.name != "" else "Toi"
-	logic = RaceLogic.new(p.settings, p.words(), track.length, {"name": player_name, "character": p.character_id}, bots)
+	# Niveau de l'enfant (temps laissé pour taper « évite » au début de la course).
+	var level := AutoLevel.reference_kpm(Profiles.history(p))
+	var player_info := {"name": player_name, "character": p.character_id, "kpm": level if level > 0.0 else Gifts.DEFAULT_KPM}
+	logic = RaceLogic.new(p.settings, p.words(), track.length, player_info, bots)
 	logic.countdown_tick.connect(_on_countdown)
 	logic.race_started.connect(_on_go)
 	logic.word_started.connect(_on_word_started)
@@ -92,6 +107,19 @@ func prepare(p: Profile) -> void:
 	logic.word_completed.connect(_on_word_completed)
 	logic.word_skipped.connect(_on_word_skipped)
 	logic.player_finished.connect(_on_player_finished)
+	logic.gift_box_taken.connect(_on_gift_box_taken)
+	logic.gift_received.connect(_on_gift_received)
+	logic.gift_kept.connect(_on_gift_kept)
+	logic.gift_used.connect(_on_gift_used)
+	logic.gift_blocked.connect(_on_gift_blocked)
+	logic.gift_hit.connect(_on_gift_hit)
+	logic.trap_added.connect(_on_trap_added)
+	logic.trap_removed.connect(_on_trap_removed)
+	logic.trap_dodged.connect(_on_trap_dodged)
+	logic.dodge_started.connect(_on_dodge_started)
+	logic.dodge_key_ok.connect(_on_dodge_key_ok)
+	logic.dodge_ended.connect(_on_dodge_ended)
+	_build_gift_boxes()
 	for r in logic.racers:
 		var k := Kart.new(content.character(r.character), r.name, not r.is_player)
 		karts_root.add_child(k)
@@ -99,6 +127,7 @@ func prepare(p: Profile) -> void:
 		k.target_lateral = k.lateral
 		k.update_visual(track, r.distance, 0.0, 1.0, 0.016, false, false)
 		karts[r] = k
+		r.lateral = k.lateral
 
 
 func show_preview() -> void:
@@ -216,7 +245,7 @@ func _on_word_completed(word: String) -> void:
 	sfx.play("word")
 	sfx.play("boost")
 	get_tree().create_timer(1.0).timeout.connect(func():
-		if mode == Mode.RACE and logic.player.word == "" and not logic.player.finished:
+		if mode == Mode.RACE and logic.player.word == "" and not logic.player.finished and not hud.dodging:
 			hud.clear_word())
 
 
@@ -226,6 +255,10 @@ func _on_word_skipped(_word: String) -> void:
 
 func _on_player_finished() -> void:
 	sfx.play("finish")
+	hud.end_dodge()
+	hud.show_gift("")
+	hud.set_choosing(false)
+	hud.clear_toast()
 	hud.clear_word("Arrivée !")
 	hud.show_center("ARRIVÉE !", 2.0)
 	if logic.player_position() <= 3:
@@ -297,9 +330,14 @@ func _process(delta: float) -> void:
 			_orbit_camera(delta, preview_side)
 		Mode.RACE:
 			var dt := 0.0 if paused else delta
+			for r in logic.racers:
+				r.lateral = (karts[r] as Kart).lateral
 			logic.update(dt)
 			_update_karts(dt)
 			_update_lanes(dt)
+			_steer_for_gifts()
+			_update_gift_props(dt)
+			_update_gift_hud(delta)
 			_place_chase_camera(dt)
 			sfx.set_engine_speed(logic.player.mult)
 			hud.set_boost(logic.player.boost > 0.0 and not logic.player.finished and not paused, delta)
@@ -312,6 +350,8 @@ func _process(delta: float) -> void:
 			logic.update(delta)
 			_update_karts(delta)
 			_update_lanes(delta)
+			_steer_for_gifts()
+			_update_gift_props(delta)
 			_orbit_camera(delta, 3.0)
 
 
@@ -325,9 +365,10 @@ func _update_karts(dt: float) -> void:
 			k.extra_distance += speed * dt
 		if logic.state == "countdown":
 			speed = 0.0
-		var boosting: bool = r.boost > 0.0 and not r.finished
+		var boosting: bool = (r.boost > 0.0 or r.rocket > 0.0) and not r.finished
 		var slowed: bool = r.word != "" and r.boost <= 0.0 and logic.state == "running"
 		k.update_visual(track, r.distance + k.extra_distance, speed, r.mult, dt, boosting, slowed)
+		k.update_effects(r.slip, r.flat, r.storm, r.rocket, dt)
 
 
 ## Pilote automatique : les karts changent de couloir pour doubler.
@@ -454,9 +495,246 @@ func _input(event: InputEvent) -> void:
 		return
 	if paused:
 		return
+	if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+		_use_player_gift()
+		get_viewport().set_input_as_handled()
+		return
+	if event.keycode == KEY_LEFT or event.keycode == KEY_RIGHT:
+		if logic.choose_box(-1 if event.keycode == KEY_LEFT else 1):
+			sfx.play("key_ok")
+		get_viewport().set_input_as_handled()
+		return
 	if event.unicode > 31:
 		logic.handle_char(char(event.unicode))
 		get_viewport().set_input_as_handled()
+
+
+# ---------------- Cases cadeau ----------------
+
+## Paquets cadeau sur la piste (une rangée en travers de la route à chaque
+## distance de RaceLogic.rows) et flèche de la case choisie.
+func _build_gift_boxes() -> void:
+	if _gift_root:
+		_gift_root.queue_free()
+	_gift_root = Node3D.new()
+	_gift_root.name = "Gifts"
+	add_child(_gift_root)
+	_box_nodes.clear()
+	_trap_nodes.clear()
+	for i in logic.rows.size():
+		var f := track.frame_at(logic.rows[i])
+		var row := []
+		for j in Gifts.BOX_LATERALS.size():
+			var b := GiftProps.gift_box(Gifts.BOX_COLORS[j % Gifts.BOX_COLORS.size()])
+			_gift_root.add_child(b)
+			b.global_transform = Transform3D(f.basis, f.origin + f.basis.x * Gifts.BOX_LATERALS[j] + f.basis.y * 1.05)
+			row.append(b)
+		_box_nodes.append(row)
+	_marker = GiftProps.marker()
+	_gift_root.add_child(_marker)
+	_marker.visible = false
+
+
+## Paquets qui tournent et rebondissent, disparaissent quand ils sont pris et
+## réapparaissent ; flèche au-dessus de la case visée par l'enfant.
+func _update_gift_props(dt: float) -> void:
+	for i in _box_nodes.size():
+		for j in _box_nodes[i].size():
+			var b: Node3D = _box_nodes[i][j]
+			var spin: Node3D = b.get_node("Spin")
+			var want := 1.0 if logic.box_ready(i, j) else 0.0
+			var sc := move_toward(spin.scale.x, want, dt * (3.0 if want > 0.0 else 12.0))
+			spin.scale = Vector3.ONE * maxf(sc, 0.01)
+			b.visible = sc > 0.02
+			spin.rotation.y = _t * 1.3 + j * 0.8
+			spin.position.y = sin(_t * 2.4 + j * 1.3) * 0.12
+	var p := logic.player
+	_marker.visible = mode == Mode.RACE and logic.state == "running" and p.box_row >= 0 and p.box_choice >= 0
+	if _marker.visible:
+		var box: Node3D = _box_nodes[p.box_row][p.box_choice]
+		_marker.global_position = box.global_position + box.global_basis.y * (1.9 + absf(sin(_t * 5.0)) * 0.35)
+		_marker.rotation.y = _t * 2.0
+
+
+## Interface des cadeaux à chaque image : choix de la case, temps pour
+## « évite », pluie et mot flou de la tempête.
+func _update_gift_hud(delta: float) -> void:
+	var p := logic.player
+	var running := logic.state == "running" and not p.finished
+	hud.set_choosing(running and p.box_row >= 0, p.gift != "")
+	if hud.dodging:
+		hud.set_dodge_time(logic.dodge_left())
+	hud.set_storm(running and p.storm > 0.0 and not paused, delta)
+	hud.set_blur(0.0 if hud.dodging or not running else p.blur / Gifts.STORM_BLUR_TIME)
+
+
+## Pilote automatique et cadeaux : à l'approche des cases, le kart va vers la
+## case visée ; près d'une huile ou d'un clou, il roule dessus, sauf s'il
+## l'évite (il le contourne).
+func _steer_for_gifts() -> void:
+	for r in logic.racers:
+		var k: Kart = karts[r]
+		k.lateral_speed = Kart.LATERAL_SPEED
+		if r.finished or logic.state != "running":
+			continue
+		var t = logic.trap_ahead(r)
+		if t != null and logic.gap_to(r, t.distance) < TRAP_STEER_DISTANCE:
+			var dodging: bool = not r.dodge.is_empty() and r.dodge.trap == t and logic.will_dodge(r)
+			var side := -1.0 if t.lateral > 0.0 else 1.0
+			k.target_lateral = t.lateral + (side * Gifts.DODGE_SWERVE if dodging else 0.0)
+			k.lateral_speed = Gifts.STEER_SPEED
+		elif r.box_row >= 0 and r.box_choice >= 0:
+			k.target_lateral = Gifts.BOX_LATERALS[r.box_choice]
+			k.lateral_speed = Gifts.STEER_SPEED
+
+
+## Entrée : l'enfant utilise son cadeau.
+func _use_player_gift() -> void:
+	var p := logic.player
+	if logic.state != "running" or p.finished:
+		return
+	if p.gift == "":
+		if logic.gifts_on:
+			hud.show_toast("Pas de cadeau : passe sur une case cadeau !", Color.WHITE, 1.4)
+		return
+	logic.use_gift(p)
+
+
+func _kart_pos(r) -> Vector3:
+	return (karts[r] as Kart).global_position
+
+
+func _on_gift_box_taken(row: int, box: int, r) -> void:
+	var n: Node3D = _box_nodes[row][box]
+	Mk.burst(self, n.global_position, [Gifts.BOX_COLORS[box % Gifts.BOX_COLORS.size()], Color.WHITE, Ui.YELLOW], 36, 7.0)
+	if r.is_player:
+		sfx.play("gift")
+
+
+func _on_gift_received(r, kind: String) -> void:
+	if not r.is_player:
+		return
+	hud.show_gift(kind)
+	hud.show_toast("Cadeau : %s ! Appuie sur Entrée." % Gifts.NAMES[kind], Gifts.COLORS[kind].lightened(0.55))
+
+
+func _on_gift_kept(r) -> void:
+	if r.is_player:
+		hud.show_toast("Un seul cadeau à la fois : Entrée pour l'utiliser !", Color.WHITE, 1.8)
+
+
+func _on_gift_used(r, kind: String, target) -> void:
+	var pos := _kart_pos(r) + Vector3.UP * 1.2
+	match kind:
+		Gifts.CHARGE:
+			Mk.burst(self, pos, [Color("#ffd60a"), Color("#4cc9f0"), Color.WHITE], 40, 9.0)
+		Gifts.ROCKET:
+			Mk.burst(self, pos, [Color("#ffb703"), Color("#e63946"), Color.WHITE], 40, 9.0)
+	if r.is_player:
+		hud.show_gift("")
+		match kind:
+			Gifts.CHARGE:
+				sfx.play("boost")
+				hud.show_toast("Charge électrique : TURBO !", Ui.YELLOW)
+			Gifts.OIL:
+				hud.show_toast("Huile posée derrière toi !")
+			Gifts.NAIL:
+				hud.show_toast("Clou posé derrière toi !")
+			Gifts.STORM:
+				sfx.play("storm")
+				hud.show_toast("Tempête sur %s, le premier !" % target.name, Color("#bde0fe"))
+			Gifts.ROCKET:
+				sfx.play("boost")
+				hud.show_toast("Fusée : tu rattrapes %s !" % target.name, Color("#ffb703"))
+	elif kind == Gifts.ROCKET and target == logic.player:
+		hud.show_toast("%s te rattrape avec une fusée !" % r.name, Color("#ffb4a2"))
+
+
+func _on_gift_blocked(kind: String) -> void:
+	sfx.play("key_error")
+	if kind == Gifts.STORM:
+		hud.show_toast("Tu es 1er : garde ta tempête pour plus tard !", Color.WHITE, 2.0)
+	else:
+		hud.show_toast("Personne à rattraper : garde ta fusée !", Color.WHITE, 2.0)
+
+
+func _on_gift_hit(victim, kind: String, by) -> void:
+	var pos := _kart_pos(victim) + Vector3.UP * 0.4
+	match kind:
+		Gifts.OIL:
+			Mk.burst(self, pos, [Color("#14121c"), Color("#5e548e")], 24, 5.0)
+		Gifts.NAIL:
+			Mk.burst(self, pos, [Color("#c9ced6"), Color("#6c757d"), Color.WHITE], 24, 6.0)
+	if victim.is_player:
+		_shake = 0.35
+		sfx.play("hit")
+		match kind:
+			Gifts.OIL:
+				hud.show_toast("Oh non, de l'huile ! Ton kart glisse !", Color("#ffb4a2"))
+			Gifts.NAIL:
+				hud.show_toast("Aïe, un clou ! Ton pneu est crevé !", Color("#ffb4a2"))
+			Gifts.STORM:
+				sfx.play("storm")
+				hud.show_toast("%s t'envoie une tempête !" % by.name, Color("#bde0fe"))
+	elif by == logic.player and kind != Gifts.STORM:
+		sfx.play("word")
+		hud.show_toast(("%s glisse sur ton huile !" if kind == Gifts.OIL else "%s roule sur ton clou !") % victim.name, Ui.YELLOW)
+
+
+func _on_trap_added(t) -> void:
+	var n := GiftProps.oil_puddle() if t.kind == Gifts.OIL else GiftProps.nail_board()
+	_gift_root.add_child(n)
+	var f := track.frame_at(t.distance)
+	n.global_transform = Transform3D(f.basis, f.origin + f.basis.x * t.lateral)
+	n.scale = Vector3.ONE * 0.2
+	n.create_tween().tween_property(n, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_trap_nodes[t] = n
+	if t.owner == logic.player or logic.next_victim(t) == logic.player:
+		sfx.play("drop")
+
+
+func _on_trap_removed(t) -> void:
+	var n: Node3D = _trap_nodes.get(t)
+	_trap_nodes.erase(t)
+	if n == null or not is_instance_valid(n):
+		return
+	var tw := n.create_tween()
+	tw.tween_property(n, "scale", Vector3.ONE * 0.05, 0.3)
+	tw.tween_callback(n.queue_free)
+
+
+func _on_trap_dodged(r, t) -> void:
+	if not r.is_player and t.owner == logic.player:
+		hud.show_toast("%s évite ton %s !" % [r.name, "huile" if t.kind == Gifts.OIL else "clou"], Color.WHITE, 1.6)
+
+
+func _on_dodge_started(t) -> void:
+	hud.show_dodge(Gifts.DODGE_WORD, 0, t.kind)
+	sfx.play("alarm")
+	if profile.get_setting("speak"):
+		sfx.speak(Gifts.DODGE_WORD)
+
+
+func _on_dodge_key_ok(typed: int) -> void:
+	var p := logic.player
+	hud.show_dodge(Gifts.DODGE_WORD, typed, p.dodge.trap.kind if not p.dodge.is_empty() else Gifts.OIL)
+	sfx.play("key_ok")
+
+
+func _on_dodge_ended(result: String) -> void:
+	hud.end_dodge()
+	if result == "ok":
+		sfx.play("dodge")
+		hud.show_toast("Bravo, tu l'évites !", Ui.YELLOW, 1.6)
+	# Le mot de la course revient (là où l'enfant s'était arrêté).
+	var p := logic.player
+	if p.finished:
+		return
+	if p.word != "":
+		hud.show_word(p.word, p.typed)
+		hud.set_hint("Tape le mot pour avoir un turbo !")
+	else:
+		hud.clear_word()
 
 
 func _notification(what: int) -> void:

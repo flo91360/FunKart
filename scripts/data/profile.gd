@@ -27,6 +27,7 @@ const DEFAULT_SETTINGS := {
 	"text_size": 1,
 	"speak": false,
 	"keyboard": true, # clavier à l'écran avec les doigts en couleur
+	"gifts": true, # cases cadeau sur la piste (attaques et défenses, voir Gifts)
 }
 
 var id := ""

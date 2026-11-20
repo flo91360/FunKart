@@ -20,6 +20,13 @@ func _ready() -> void:
 	_sounds["finish"] = _wav(_tones([[523.0, 0.15], [523.0, 0.15], [523.0, 0.15], [659.0, 0.3], [784.0, 0.2],
 		[659.0, 0.15], [784.0, 0.6]], "square", 0.18))
 	_sounds["boost"] = _wav(_whoosh())
+	# cases cadeau
+	_sounds["gift"] = _wav(_tones([[784.0, 0.06], [988.0, 0.06], [1175.0, 0.06], [1568.0, 0.18]], "triangle", 0.3))
+	_sounds["drop"] = _wav(_tones([[262.0, 0.07], [196.0, 0.12]], "square", 0.14))
+	_sounds["hit"] = _wav(_tones([[330.0, 0.08], [247.0, 0.08], [165.0, 0.25]], "square", 0.17))
+	_sounds["dodge"] = _wav(_tones([[659.0, 0.07], [880.0, 0.07], [1319.0, 0.2]], "triangle", 0.32))
+	_sounds["alarm"] = _wav(_tones([[988.0, 0.09], [740.0, 0.09], [988.0, 0.09], [740.0, 0.12]], "square", 0.11))
+	_sounds["storm"] = _wav(_rumble())
 	for i in 8:
 		var p := AudioStreamPlayer.new()
 		p.bus = AppSettings.BUS_EFFECTS
@@ -111,6 +118,20 @@ func _whoosh() -> PackedFloat32Array:
 		var k := lerpf(0.05, 0.5, t)
 		lp += (noise - lp) * k
 		out.append(lp * sin(t * PI) * 0.5)
+	return out
+
+
+## Grondement de la tempête : bruit grave qui enfle puis s'éteint.
+func _rumble() -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	var n := int(0.9 * RATE)
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in n:
+		var t := float(i) / n
+		lp += (randf() * 2.0 - 1.0 - lp) * 0.06
+		lp2 += (lp - lp2) * 0.08
+		out.append(clampf(lp2 * 6.0, -1.0, 1.0) * sin(t * PI) * (1.0 - t * 0.5) * 0.7)
 	return out
 
 
