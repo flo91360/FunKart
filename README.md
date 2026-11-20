@@ -57,6 +57,36 @@ Le jeu démarre en plein écran. <kbd>F11</kbd> : basculer plein écran / fenêt
   mêmes règles : ils « tapent » leurs mots à une vitesse en **frappes par
   minute** réglée par l'adulte.
 
+### Cases cadeau
+
+Deux fois par tour, une rangée de paquets cadeau barre la largeur de la piste.
+
+- À l'approche des cases, « Choisis ta case cadeau ! » s'affiche : les flèches
+  <kbd>←</kbd> <kbd>→</kbd> déplacent le kart vers la case voulue (une flèche
+  jaune la montre). Le reste du temps, le kart reste en pilote automatique.
+- En passant sur une case, le kart reçoit un cadeau, affiché en haut à gauche
+  (dessin, nom et touche <kbd>Entrée</kbd>). **Un seul cadeau à la fois** :
+  il faut l'utiliser pour en recevoir un autre. Une case prise réapparaît
+  au bout de 2 secondes.
+- <kbd>Entrée</kbd> utilise le cadeau :
+  - **Charge électrique** (une fois sur deux) : le même turbo qu'un mot bien tapé ;
+  - **Plaque d'huile** : posée derrière le kart, le kart suivant glisse et perd un peu de temps ;
+  - **Clou** : posé derrière le kart, le kart suivant crève et ralentit fortement ;
+  - **Tempête** : une pluie sur le premier seulement, qui le ralentit et
+    rend flou son prochain mot. Jamais donnée au premier ; si l'enfant
+    devient premier, il la garde pour plus tard ;
+  - **Fusée** : le kart rattrape le kart qui le précède et le double. Jamais
+    donnée au premier.
+- À l'approche d'une huile ou d'un clou, le mot **« évite »** s'affiche (dans
+  un panneau rouge, avec le temps qui reste) : le taper à temps fait
+  contourner le piège. Le temps laissé dépend de la vitesse de frappe de
+  l'enfant (plus long pour un enfant qui tape lentement). Les accents sont
+  facultatifs : `evite` marche aussi. Les lettres de « évite » comptent dans
+  les frappes par minute et la précision.
+- Les adversaires ramassent et utilisent les cadeaux selon les mêmes règles,
+  y compris contre l'enfant (huile ou clou devant lui, tempête quand il est
+  premier, fusée pour le doubler) ; ils évitent parfois les pièges.
+
 ## Profils
 
 Chaque enfant a son **profil** (menu → « Qui joue ? » → « + Nouveau ») : son
@@ -133,6 +163,7 @@ les réglages : « Protéger les réglages (calcul) », section « Cet ordinateu
 | Taille du mot, MAJUSCULES | Lisibilité (les touches du clavier sont souvent en majuscules) |
 | Accents facultatifs | Accepte `e` pour `é`, etc. |
 | Clavier à l'écran | Clavier AZERTY sous le mot, touche attendue surlignée, couleurs des doigts (à décocher quand l'enfant est à l'aise) |
+| Cases cadeau sur la piste | Cadeaux à ramasser et à utiliser (turbo, huile, clou, tempête, fusée) ; activé par défaut, à décocher pour une course sans attaques |
 | Lire le mot à voix haute | Synthèse vocale du système (si une voix française est installée) |
 | Sons, musique, plein écran | Communs à tous les profils |
 | Volumes (général, musique, effets) | Aussi réglables pendant la course : <kbd>Échap</kbd> → curseurs de volume |
@@ -154,6 +185,7 @@ sont générés par le code : il n'y a aucun fichier 3D ou audio externe.
   - données et profils : `godot --headless --path . --script res://tests/test_profiles.gd`
   - une course jouée avec de vrais événements clavier :
     `godot --headless --path . --script res://tests/autoplay.gd -- --fast`
+  - règles des cases cadeau : `godot --headless --path . --script res://tests/test_gifts.gd`
 - Export : `godot --headless --export-release "Windows" build/windows/FunKart.exe`
 - **Publier une version** : augmenter `config/version` dans `project.godot`
   (ex. `0.3.0`), décrire les nouveautés dans [CHANGELOG.md](CHANGELOG.md)

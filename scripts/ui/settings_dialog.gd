@@ -88,6 +88,7 @@ func _ready() -> void:
 	_spin(grid, "Durée du turbo (s)", "boost_duration", 0, 10, 0.5)
 	_spin(grid, "Longueur max des mots", "max_word_length", 2, 20, 1)
 	_option(grid, "Taille du mot à l'écran", "text_size", [["Normale", 0], ["Grande", 1], ["Très grande", 2]])
+	_check(inner, "Cases cadeau sur la piste (attaques et défenses)", "gifts")
 
 	# Adversaires
 	inner.add_child(_section("Niveau des adversaires (frappes par minute)"))
